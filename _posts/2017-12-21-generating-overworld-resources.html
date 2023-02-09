@@ -1,0 +1,52 @@
+---
+layout: post
+title: Generating overworld resources
+date: 2017-12-21 20:02:07.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  vidbg_metabox_field_mp4_id: '0'
+  vidbg_metabox_field_webm_id: '0'
+  vidbg_metabox_field_poster_id: '0'
+  vidbg_metabox_field_overlay: 'off'
+  vidbg_metabox_field_overlay_color: "#000"
+  vidbg_metabox_field_overlay_alpha: '30'
+  vidbg_metabox_field_no_loop: 'off'
+  vidbg_metabox_field_unmute: 'off'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619437221;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1929;}i:1;a:1:{s:2:"id";i:1659;}i:2;a:1:{s:2:"id";i:2868;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '55'
+author:
+permalink: "/2017/12/21/generating-overworld-resources/"
+---
+<p><img class="aligncenter size-full wp-image-1733" src="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-21-11-57-15-57.webp" alt="" width="668" height="668" /></p>
+<p>Cities and civilizations need resources to survive and thrive. Our case is no different. So, before placing any cities, we need to generate the resources that the world uses. I've decided to split the resources into 3 groups: food, basic materials and rare materials: the first two are found in varying quantities pretty much everywhere. Civilizations can immediately use such resources. Rare materials, on the other hand, are not easily found, they need to be <strong>discovered</strong> first, and they also need to be <strong>mined</strong>. On the plus side, there will be enough incentive to explore, discover and mine such materials (wealth, influence, advanced structures and items, etc).</p>
+<h3>Tile resources</h3>
+<p>From a macro point of view, each tile of the overworld has a the following resource information:</p>
+<ul>
+<li><strong>Food:</strong> Used to feed population. Obtained from sources such as vegatation and wildlife. Value: [0,255]</li>
+<li><strong>Basic materials: </strong>Used for buildings and construction of everyday items. Obtained from environment. Encompasses materials such as stone/leather/wood/iron. Value in [0,255]</li>
+<li><strong>Rare materials: </strong>Special, difficult to find/mine materials, used for magic and/or construction of advanced buildings/items. Examples include silver, gold, mithril, crystal, gems, etc.  A value of [0,1] per rare material type.</li>
+</ul>
+<p>So, each tile resource can be represented with a 32-bit value: 8 bits for food, 8 bits for basic materials and 16 bits for rare materials (for a maximum of 16 rare materials). Several rare materials can co-exist at the same tile.</p>
+<h3>Rare material traits</h3>
+<p>A rare material, with regards to generation of a map that contains them, has the following main traits:</p>
+<ul>
+<li><strong>BiomeSuitableRange: </strong>This is a collection of ranges per biome parameter, e.g. temperature, humidity, elevation, water type, etc. So, for example, some materials can be spawned only in high altitude areas of extreme cold, etc.</li>
+<li><strong>Chance: </strong>This is the chance of a rare material spawning at a suitable tile. So, the effective spawning chance is chance multiplied by the probability of a tile being suitable.</li>
+</ul>
+<h3>Tile resources map generation</h3>
+<p>In order to generate this "tile resources" map, we need to have calculated the biome map first.</p>
+<p><img class="aligncenter size-full wp-image-1730" src="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-21-11-56-35-97.webp" alt="" width="668" height="668" /></p>
+<p>The first step in the process is to calculate all the candidate tiles per rare resource type. At this stage, we also calculate the food and materials per tile, as a function of the biome. I'm currently using an extremely naive mapping of wildlife density to food and vegetation to materials, but that should change later on.</p>
+<p><img class="aligncenter size-full wp-image-1731" src="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-21-11-56-54-94.webp" alt="" width="668" height="668" /><img class="aligncenter size-full wp-image-1732" src="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-21-11-56-57-26.webp" alt="" width="668" height="668" /></p>
+<p>We then shuffle the candidate list and pick the N first points, where N = max(chance * totalCandidateNum, min(1,totalCandidateNum)). So, if we have no candidates, we won't generate any. If we have at least 1 candidate, we should generate at least one point. And that's it, really! Pretty simple, but does the job. Here's an example of a rare material's distribution; there only tens of them in the whole map, so it could be a quite coveted material to be able to mine and get access to.</p>
+<p><img class="aligncenter size-full wp-image-1734" src="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-21-11-57-42-09.webp" alt="" width="668" height="668" /></p>

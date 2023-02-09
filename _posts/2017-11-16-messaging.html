@@ -1,0 +1,95 @@
+---
+layout: post
+title: Messaging
+date: 2017-11-16 10:11:03.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1612831008;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:79;}i:1;a:1:{s:2:"id";i:580;}i:2;a:1:{s:2:"id";i:728;}}}}
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '58'
+author:
+permalink: "/2017/11/16/messaging/"
+---
+<p><em><strong>Prelude:</strong> the reason for the existence of this post, while I should be testing A* solving on graphs and rendering, is because of the coupling between rendering and logic. In the logic, I had to manually,explicitly set the data that the renderable  - an object that has a description of a render configuration, e.g. textures, buffers, parameters - would use. I disliked that part, so I wanted proper decoupling, via messages/events.</em></p>
+<p>In the original version of the engine, I was using <a href="https://github.com/alecthomas/entityx">entityx</a> that provided an Entity-Component-system implementation, along with some event handling. I ended up changing the whole thing as it was not suitable anymore, except the event handling. Alas, the event handling needs to go now too, as it unfortunately was implemented too rigidly for my taste: example follows.</p>
+<ul>
+<li>System (being an event receiver) subscribes to an event type (e.g. CollisionEvent)</li>
+<li>System implements a void receive( CollisionEvent ) that is mapped as the receiver function</li>
+<li>Entities can emit an event, system can handle it directly</li>
+</ul>
+<p>Now that looks fine, but then I got into scenarios as follows. The game logic says "Hey, I finished with some pathfinding result, in case anybody's interested". Event sent. Now we should have receivers that could handle that. For example, our rendering system could listen to that event. The rendering system then needs to know which renderables would be interested for this event and could update some render data with it. That's the point where I realized I'd have to make serious changes to the event handling code to manage this sort of freedom adequately. So, as the library wasn't that big, I stopped using it, and I introduced my own solution, which is supposed to be lightweight, and custom to my needs.</p>
+<p><strong>Messages</strong></p>
+<p>Messages are simple structs of <strong>strictly</strong> reference variables, generated from a python script. For example:</p>
+
+{% highlight python %}
+"EntityCreated" : [
+    ('cEntity', 'Entity', 'class')
+]
+{% endhighlight %}
+
+<p>generates the following:</p>
+
+{% highlight cpp %}
+class cEntity;
+
+struct cEntityCreated : public cMessage
+{
+    explicit cEntityCreated( const cEntity& zEntity)
+    :cMessage(msType),mEntity(zEntity){}
+
+    const cEntity& mEntity;
+
+    static const int msType = 2;
+};
+{% endhighlight %}
+
+<p>All messages derive from a base "cMessage" class.</p>
+<p>There's some global function to emit messages, that passes the messages to all systems, and each system stores a list of message handlers per message type - so, every time a system needs to post a message, it grabs the appropriate list of message handlers, and sends the message to every one of them. So, the message handlers need to be able to handle a <strong>generic</strong> message.</p>
+<p>Example: a renderable stores, among other things, a list of texture buffers and dynamic textures, which could optionally be used for updating gpu data useful for rendering. Example: we have a path that we want to render, represented as a set of integer points (x,y), stored in a texture buffer. Another example: we want to visualize the results of a grid search, by putting the gscore values in a dynamic texture.</p>
+<p>But we don't want to hard-code anything, so we specify the format in the configuration file. What I'm looking forward to would look like in json:</p>
+{% highlight json %}
+"texture_buffers" : [
+    { 
+        "config" : {
+            "format" : "rg16i",
+            "memory" : 8192,
+            "usage" : "DynamicDraw"
+        },
+        "updater" : { "@inherit" : "MessageUpdaterSearchGridPathToTbo" } 
+    }
+]
+{% endhighlight %}
+<p>In the above partial definition of a renderable, we say that it will have a single texture buffer, with the specified format, a maximum memory of 8Kbytes and it will update its contents automatically using "MessageUpdaterSearchGridPathToTbo". So, what's the latter? It's a very simple polymorphic interface, that defines a function:</p>
+{% highlight cpp %}
+template<class Source, class Target>;
+class cTransformer
+{
+    virtual void Transform(Target& obj, const Source& msg) const = 0;
+}
+{% endhighlight %}
+<p>Using the type family machinery for easily specifying factories in JSON, we can define classes as follows:</p>
+{% highlight cpp %}
+//! SearchGridPath:Path to Tbo
+class cMessageUpdaterSearchGridPathToTbo : public cTransformer<msg::cSearchGridResult, gfx::cTextureBuffer>
+{
+public:
+    void Transform(gfx::cTextureBuffer& obj, const msg::cSearchGridResult& msg) const override;
+};
+
+//! SearchGridPath:Visited to Tbo
+class cMessageUpdaterSearchGridVisited : public cTransformer<msg::cSearchGridResult, gfx::cTextureBuffer>
+{
+public:
+    void Transform(gfx::cTextureBuffer& obj, const msg::cSearchGridResult& msg) const override;
+};
+{% endhighlight %}
+<p>So, what do we achieve in the end? Proper decoupling! The C++ code does not specify what will be rendered - it will just send messages "my grid search was completed" or "my graph search was completed". The C++ code won't specify in the game code how something will react to a message - this will be done by interfaces, which are assigned based on json. In json, renderables specify who's listening to what, and what actions will be taken upon receipt of the messages. So, <strong>json acts like a bunch of cables</strong>, and the game logic, the rendering, and the updater specification are all independent black boxes, not knowing of each other. I expect to have this working by next week hopefully, even though things are looking quite busy.</p>

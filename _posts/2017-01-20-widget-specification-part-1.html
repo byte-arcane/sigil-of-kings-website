@@ -1,0 +1,153 @@
+---
+layout: post
+title: Widget specification - Part 1
+date: 2017-01-20 10:08:08.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_published: '1'
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '960267173'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618911664;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:429;}i:1;a:1:{s:2:"id";i:1619;}i:2;a:1:{s:2:"id";i:543;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '76'
+author:
+permalink: "/2017/01/20/widget-specification-part-1/"
+---
+<p>Originally, as a next step in (documented) development, I wanted to deal with the various <strong>application states</strong> (main menu, overworld-idle, targetting, etc) but I realized that the application states, in my mind at least, have a very strong link with ... <strong>widgets</strong>! Textboxes, tile grids, containers, minimaps, that sort of thing. Therefore, I thought it will be prudent to nail that down first, as it's a lower-level system. Here is a first stab at a specification, with a working example.</p>
+<p>Widgets are objects responsible for <strong>rendering</strong> and <strong>input handling.  </strong>Widget examples:</p>
+<ul>
+<li><strong>Container1D:</strong> Container of other widgets, laid out horizontally or vertically (listed top to bottom).</li>
+<li><strong>Container2D:</strong> Container of other widgets, laid out in a grid.</li>
+<li><strong>TextBox: </strong>A rectangular area of text. Used for labels.<strong><br />
+</strong></li>
+<li><strong>ListBox: </strong>The typical vertical arrangement of e.g. 1. "Blah" 2. "Bloop" of which the user selects one</li>
+<li><strong>Button: </strong>A button with optional text. Can be implemented as a special textbox,</li>
+<li><strong>TileGrid: </strong>View in a a 2D grid of cells, that are highlightable and selectable</li>
+<li><strong>PixelGrid: </strong>For minimaps and zoomed out overworld something something</li>
+</ul>
+<p><strong>Example</strong></p>
+<p>Here is a current example. I have a vertical Container1D with 4 elements: a textbox (with some sort of rich text format), a simple box (it's a dummy single color widget), a horizontal Container1D with three simple boxes inside, and a simple box with margins (left 1px, bot 2px, right 3px, top 4px). All that is driven via the JSON text below.</p>
+<p><a href="{{ site.baseurl }}/assets/2017/01/widget_test0_out.webp"><img class="alignnone size-full wp-image-87" src="{{ site.baseurl }}/assets/2017/01/widget_test0_out_thumb740.webp" alt="widget_test0_out.png" width="800" height="601" /></a></p>
+<p><img class="alignnone size-full wp-image-85" src="{{ site.baseurl }}/assets/2017/01/widget_test0_in.webp" alt="widget_test0_in.png" width="626" height="991" /></p>
+<p><strong>Children/Hierarchy</strong></p>
+<ul>
+<li>Widgets are highly hierarchical: A container can contain containers and so on.</li>
+<li>A widget can be <strong>modal</strong> or not.
+<ul>
+<li>In-focus modal widgets don't allow any other widget to get focus/input, modal or otherwise</li>
+<li>Each widget can spawn a maximum of one modal widget</li>
+<li>Modal, in-focus widgets are rendered <strong>last. </strong>So, for example, we can darken everything else a bit before overlaying the widget, to communicate the modality.</li>
+</ul>
+</li>
+<li>Widgets can spawn an arbitrary number of floating widgets (<strong>floaters</strong>). This for example could be damage numbers above creatures when hit.
+<ul>
+<li>Non-modal floaters don't handle input or be considered for focus</li>
+<li><strong>Use-case: </strong>Damage number (non-modal)
+<ul>
+<li>when activated, we specify the tile location that it originates from</li>
+<li>when updating, reduce transparency and increase .y slightly</li>
+<li>no input handling</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Container widget <strong>never overlap</strong> each other. Only floaters can overlap</li>
+</ul>
+<p><strong>Geometry</strong></p>
+<ul>
+<li>Widgets are <strong>not</strong> resizable. Too much hassle to make sure it always looks nice. Presets will have to be created for each supported resolution, or at least for each aspect ratio.</li>
+<li>Widgets need to provide intersection testing against the mouse pointer. Simplest way using a bounding rectangle.</li>
+<li>Widgets control their dimensions</li>
+<li>Widgets do not control their location: their parents do!</li>
+</ul>
+<p><strong>Input model</strong></p>
+<ul>
+<li>How does the GUI system get input? The application passes the input events to the active root widget. The widget handles input and passes the events to children in case the input was not handled.</li>
+<li>Input handling functions for: mouse wheel, mouse pointer, mouse buttons and keyboard. Later on could also add controller.</li>
+<li>Widgets store a vector of (key, command) pairs for handling key presses. When populating that vector, always assert that a key is only used once.</li>
+<li>Some widgets have constant bindings. For example, some modal dialogs bind Esc for back/cancel, while listboxes bind 1,2,3,etc for option index. Similarly,  arrow keys are used for listbox option navigation and tilegrid tile selection</li>
+<li>Order of handling input:
+<ul>
+<li>The modal+in-focus widget, if one exists.</li>
+<li>Otherwise: root widget and non-floater children, recursively.
+<ul>
+<li>Effectively, depth-first handling.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Widgets input interaction with current running state (decoupled)
+<ul>
+<li><strong>Example:</strong> TileGrid widget, SelectTile state
+<ul>
+<li>widget::OnMouseMotion: emits event TileHighlighted</li>
+<li>widget::OnMouseButton:
+<ul>
+<li>LMB: emits event TileActionMain</li>
+<li>RMB: emits event TileActionSecondary</li>
+</ul>
+</li>
+<li>widget::OnKeyboard:
+<ul>
+<li>Arrow keys emit TileHighlighted.</li>
+<li>Enter emits TileActionMain</li>
+</ul>
+</li>
+<li>The state listens to the events and processes them accordingly</li>
+<li>The state adjusts the TileGrid widget rendering configuration so that it renders some flashing transparent dark  tile over the areas that can be selected (e.g. within attack range)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Rendering model</strong></p>
+<ul>
+<li>Use pixel coordinates, no normalized (0,1) space</li>
+<li>Bottom-left is (0,0)</li>
+<li>Use a selection of (flyweight) renderers: colored rect, textured rect, font, etc
+<ul>
+<li>Widgets own the configuration for the renderers, not the renderers themselves</li>
+</ul>
+</li>
+<li>Basic widget rendering involves:
+<ul>
+<li>Rendering its own area using simple color, simple texture, or a fancy shader</li>
+<li>Rendering its margins (if any)  using simple color, simple texture, or a fancy shader</li>
+</ul>
+</li>
+<li>The widget hierarchy has an effect in rendering order.</li>
+<li>Simple rendering method: render everything on the fly, every frame</li>
+<li>Advanced rendering method (later on): Instead of rendering, just schedule parameterized rendering commands, and let the renderer do the batching/ordering.
+<ul>
+<li>z depth would be related to the hierarchy level: Children are always rendered in front of parents</li>
+</ul>
+</li>
+<li>The hierarchical widget model can be used for caching rendering results.<strong>  (later!)</strong>
+<ul>
+<li>A sidebar full of textboxes, lifebars and whatnot, will only be rendered when one of its elements changed. So, no font rendering all the time</li>
+<li>TileGrid will be rendered all the time</li>
+</ul>
+</li>
+<li>Separate rendertargets may be employed for rendering some widgets.
+<ul>
+<li>Floating damage textboxes! they are pre-rendered in their own rendertarget, and every frame just blit some rects onto the appropriate location on the tilegrid</li>
+</ul>
+</li>
+</ul>
+<p><strong>Configuration</strong></p>
+<ul>
+<li>Have presets for each resolution/aspect ratio</li>
+<li>Widgets can be initialized but not activated.</li>
+<li>Only activated widgets are used in the game</li>
+<li>Maintain a globally accessible mapping of widget names to widgets. When a state needs to adjust a widget, use the mapping to get access to it (widgets are <strong>not owned</strong> by states,  but they are used by them)</li>
+<li>Inactive widgets can be used as prototypes: When I need to create a widget, lookup an already created one (using a certain configuration) and clone it.</li>
+</ul>
+<p>&nbsp;</p>
+<p>... And that's it for now. Next time, I'll have some more widget types implemented (as listed above), with some fancier rendering and input handling. The first test case will be a main menu and the overworld screen, so when it's time for the application states, I can connect these two.</p>

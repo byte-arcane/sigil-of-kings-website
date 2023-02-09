@@ -1,0 +1,44 @@
+---
+layout: post
+title: Light, wait and summon
+date: 2021-07-01 00:22:55.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+video: assets/video/light_leak_tw.mp4
+meta:
+author:
+permalink: "2021/07/01/light-wait-and-summon/"
+---
+
+<figure>
+<div class="video-container"><iframe src="{{ site.baseurl }}/assets/video/light_leak_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Configurable light leaking, to strike balance between hard shadows and over-leaked lighting</figcaption>
+</figure>
+
+<p><b>Dynamic Lighting and controllable light leaking</b></p>
+
+I'm using Dijkstra for the dynamic lighting, so lighting goes around corners really, to simulate indirect light arriving there by bouncing off other walls. It was correctly pointed out to me that there are no hard shadows anymore, and stealth game would be not very effective (can't try to hide in the dark behind some bookshelf, if light does reach there). On the other hand, I like light leaking. So, I thought I'd go for the best of both worlds: partial light leaking. Above is a video that shows the effect using a slider between full leaking (my previous version) and no leaking (hard edges). I'll probably leave it somewhere in the middle. The key approach here is instead of using just the Dijkstra cost, I also calculate if the step-wise distance to the light matches the cost. If it does, it means there were no obstacles, so it's fully lit. If the Dijkstra distance is greater than the step-wise distance, it means that the light arrived there while going around obstacles, so it was indirect light. IMO it's a pretty neat and cheap solution to the problem.
+
+<figure>
+<div class="video-container"><iframe src="{{ site.baseurl }}/assets/video/wait-lighting_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Waiting an arbitrary amount, and seeing the light change</figcaption>
+</figure>
+
+<p><b>Wait function</b></p>
+
+I've added some console command (and associated gameplay code) to wait some random time, any amount really. It's a true wait: simulation runs behind the scenes. Needless to say, if we wait for 10hours in a dungeon with enemies around, hero is toast. I've added that to test weather effects, time-of-day, and later on possibly some time-based puzzles/quests etc. The amount of time gets broken down to unequal parts. If for example we wait for 10 hours, we take an wait action of 80% of that (8 hours), then 80% of what remains (96 minutes), then 80% of that, etc, so we ease into the target time. Above is a video that shows the time-of-day light via waiting. 
+
+<figure>
+<div class="video-container"><iframe src="{{ site.baseurl }}/assets/video/summon_wolves_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>A dire wolf summons some wolves, and the hero is turned to a collection of juicy steaks. </figcaption>
+</figure>
+
+<p><b>Summon minions</b></p>
+
+I'm in the process of adding support for spawned minions, e.g. a dire wolf summoning some other wolves or an ooze spawning some more oozes, etc. Work still needs to be done in this department (configurable minion behaviour, actions based on the leader, etc) but it's moving forward.

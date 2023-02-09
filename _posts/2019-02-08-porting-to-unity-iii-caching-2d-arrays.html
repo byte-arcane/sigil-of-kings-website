@@ -1,0 +1,77 @@
+---
+layout: post
+title: 'Porting to Unity III: Caching 2D Arrays'
+date: 2019-02-08 17:12:03.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618378005;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1945;}i:1;a:1:{s:2:"id";i:3175;}i:2;a:1:{s:2:"id";i:2883;}}}}
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '30'
+author:
+permalink: "/2019/02/08/porting-to-unity-iii-caching-2d-arrays/"
+---
+<p><!-- wp:paragraph --></p>
+<p>So far, I've ported the biome map, resource map, city basics, faction generation, and a few more things. They all pale to the effort that I've put for a seemingly simple process: </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><em>"Ok, we generated a large 2d array of data after a lot of calculations, now how do we save and load it from disk?"</em></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>There are a lot of issues, pitfalls, etc that resulted from this question and associated actions, that have lasted for almost 2 weeks. So:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading --></p>
+<h2>How do we represent Array2D?<br /></h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Question number one. Enchanted by the simplicity of SomeType[,] , I started using that. There are a few issues:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Serializers have issues with multidimensional arrays, there's a zoo of serialization options out there, each with their own little problems and idiosyncracies. Ugh</li>
+<li>Indexing is [y,x] like Matlab (and I presume other things). I can understand why, but for my computer graphics brain and muscle-memory, this is a no-no (I've been always using [x,y] and [width,height] ) and could be a cause for a billion bugs. </li>
+<li>Cannot cast to 1D array, so operations applicable to 1D arrays are not applicable here. This would mean re-writing code for 2D case ( e.g. max element in array, max value in array, etc etc)</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, I decided to nip it in the bud early and use my own class, which is a simple wrapper of 1d array, and thus can play along with everything. Hooray. For access it uses [x,y] or [Vector2Int]. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading --></p>
+<h2>Array2D for structs and classes</h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Yet another potential cause with structs or classes. Everybody keeps hammering "use structs for immutable types" and for a good reason. For my simple Array2D wrapper it's impossible to do the following with a struct Foo:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>    var foo = Array2D&lt;Foo>(2,2);  foo[0,1].someField = 32; // Forget about it. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>What we've done here with foo[0,1] is return a copy of the element and set .someField to that copy, that will be immediately destroyed. We can't set just someField, we need to replace the entire struct, because we can't return references to structs in Unity C#. So, the best alternative is to disable this altogether otherwise hello insidious bugs. We can add an extension method for the array ( e.g. at( int x, int y) )  that restricts the type to be a class and returns a reference. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading --></p>
+<h2>How do we serialize Array2D?</h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>That's easy, right? Use Unity facilities, add a few [Serializable] attributes and we're good to go. Well, not so easy. <strong>What-a-waste. </strong>So using standard serialization facilities, we're serializing every object individually, and that contains a crapload of redundancies. So, a simple 512x512 map of uint32 takes 12 megabytes instead of 1. Lovely. The "Biome" map class that uses enums (it used to be bitfields) now takes 60 megabytes. No thanks. I went on a journey to find a nice way to do cheap serialization for at least these use-cases, without using some XYZ serialization library that will be broken with the next Unity update or will go unsupported, or has those other weird limitations.  Therefore I wrote some code to be able to serialize classes into a stream of bytes, this being a pain on its own. Error prone? Yes, but at least testable. Fast? Oh yes. Space-efficient? Oh yes. Using the binary serializer, I jumped from 60Mb down to 1MB, and the serialize/deserialize performance improved by 30x. So, back to reasonable-land again. The only "issue" Is that I have to implement an interface for every new type that can be used in an Array2D that's going to be cached, so no big deal really.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading --></p>
+<h2>Random: System or Unity</h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>So this is the last thorn, I started using Unity's as it's usable, but there's only a single one so that's not future proof, as I'd like to have a bit more control (maybe multiple rngs, alternate algorithm, etc). So, I started extending System.Random with convenience functions. So far so good, but I ended up with a several-hour bughunt where I'd create a copy of the rng, replace the original during a caching operation, and then using the (by now unique) copy, leading to different behaviour with seemingly same parameters. Takeaway: don't make copies of the rng, <strong>get refs to it. </strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading --></p>
+<h2>Next TODO</h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Next in the port party is Pathfinding, Movement, Territory systems and some visualizations to make sure everything is working as expected</p>
+<p><!-- /wp:paragraph --></p>

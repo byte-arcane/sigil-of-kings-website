@@ -1,0 +1,50 @@
+---
+layout: post
+title: Procedural pressure plates
+date: 2022-04-07 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/04/procedural_pressure_plates.png
+meta:
+author:
+permalink: "/2022/04/07/procedural-pressure-plates/"
+---
+
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/pressure_plate_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Procedurally generated pressure plate, based on the grey tile it's on</figcaption>
+</figure>
+
+<p>This week&#39;s focus was traps, graphics and animations. Most important being the ubiquitous <strong>pressure plate</strong>. Pressure plates are normal looking tiles, which when pressed, do something: trigger traps, open doors, being elements of puzzles, etc. Now here&#39;s the tricky point: &quot;normal looking tiles&quot;. How do we represent that? </p>
+<ul>
+<li>If tiles were rendered individually, I could push these tiles a bit further back, to simulate a recess or dent. But the current render process is fully 2D, plus if I pushed the tiles back, there would be some minor void to fill</li>
+<li>Make regular sprites. A regular sprite fits nicely in the pipeline, but given that plates are placed procedurally pretty much anywhere, then the sprite has to look good and also work well with any terrain underneath.</li>
+<li>Make it a shader effect. I was tempted, but it would complicate and slow down the rest 99% of the sprite rendering.</li>
+<li><strong>Make sprites dynamically</strong> based on the tile(s) underneath. Let&#39;s see how that works.</li>
+</ul>
+<p>I&#39;ve recently added support for dynamic texture atlases (sprites can be dynamically added and removed from there), for use with composable sprites, in order to cache the compositions (e.g. player with beard, a sword and a shield). So, it wasn&#39;t a huge jump to add another atlas for miscellaneous dynamically created sprites, such as pressure plates.</p>
+<p>When a pressure plate entity is created, we look to see if there are explicit sprites for it, for its 2 states: unpressed and pressed. If there are not, we generate them automatically. How?</p>
+<ul>
+<li>Get the underlying floor sprite, and if there is one, the floor overlap sprite (exists where zones connect, for nice transitions)</li>
+<li>Create a name parameterised on the sprites, e.g. &quot;pressure_plate<em>unpressed</em>{floor<em>sprite}</em>{floor_overlap_sprite}&quot;</li>
+<li>Look up in the dynamic texture atlas if it already exists. If it does, get it, otherwise create it</li>
+<li>Create it by pushing pixels diagonally (1 pixel away for unpressed, 2 pixels away for pressed) to simulate the recess</li>
+<li>Fill the void with a common dark grey color</li>
+</ul>
+<p>This seems to work fine! Sprites might need to be regenerated every time we reload the current level or change to a different level. Because this is a per-level process, the number of sprites to be generated would be pretty low, e.g. I foresee a max of 10, so there&#39;s no performance issue looming. </p>
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/spike_trap_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>A spike trap in action</figcaption>
+</figure>
+
+<p><strong>Hazardous intelligence</strong></p>
+<p>A little bit of work went to make the pathfinding and AI code a bit more granular in terms of hazard avoidance. Hazards are split into environmental and man-made (sort of) and avoidance depends on intelligence. A mindless creature does not avoid hazard. A dumb beast avoids environmental hazards but doesn&#39;t avoid pressure plate traps, whereas a sapient creature does. So, this part of AI is driven purely by the intelligence attribute score.</p>
+

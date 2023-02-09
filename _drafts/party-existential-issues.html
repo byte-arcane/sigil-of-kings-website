@@ -1,0 +1,58 @@
+---
+layout: post
+title: Party existential issues
+date:
+type: post
+parent_id: '0'
+published: false
+password: ''
+status: draft
+categories:
+- random
+tags: []
+meta:
+  _publicize_twitter_user: "@aotdev1"
+  _edit_last: '1'
+author:
+permalink: "/"
+---
+<p><!-- wp:paragraph --></p>
+<p>In previous posts I've shown intentions of having NPC parties roam the world and go adventuring. Simulation-wise this works alright, but I've hit a wall the moment I step outside of the number-crunching space, and trying to represent parties as first-class citizens in the game world (e.g. as entities in an ECS).</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>The concept</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>A party is an entity with its own components, typically a subset of a creature's components. </li>
+<li>A party has a membership component where it stores its members</li>
+<li>Have generic convenience functions that can extract creature-specific information from a party (e.g. average party level, average party health, party overworld speed, etc)</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Companions as first-class NPCs: The difficulties</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>What's the party AI? If we have 3 heroes, each with their own AI, motivations, etc, what AI do we run for the party as a whole?
+<ul>
+<li>[Maybe] Parties are formed for a reason, to satisfy an objective. For example "Do good deeds" for chaotic good characters with no urgent quests. Upon party formation, we attach a "Do good deeds" AI. If an NPC at an inn meets up with such a party, check if the NPC wants to "do good deeds" and therefore be compatible with the purpose of the party. But the above is a very black-and-white example.</li>
+<li>[Maybe] A party needs a leader. Party AI runs leader's AI, but gives a chance to all other members to run some basic party sanity-check logic, e.g. "Should I stay in the party?"</li>
+</ul>
+</li>
+<li>Do we allow the party to be split in terms of location? Possibly a very bad idea. <strong>NO.</strong></li>
+<li>Many message handlers need to do special handling for party:
+<ul>
+<li>During overworld movement, ambush checks and healing are not run for party members individually, but for the whole party</li>
+<li>TimeSystem should process the party and not the individuals</li>
+<li>Sprite renderer should process the party if members are in same tile</li>
+</ul>
+</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Companions as second-class NPCs</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Instead of having heroes gang-up and form parties, we could have heroes being joined by companions: characters existing only as part of the team. In most cases, henchmen would affect the gameplay by just providing bonuses to the main hero (player or not), as in Might &amp; Magic 6/7/8 games. The problem naturally arises if we ever encounter the hero in a dungeon. Not showing the henchmen is extremely immersion-breaking, so that's not an option. Showing the henchmen requires simulation of a new creature entity, and the can of worms opens, as we will possibly need to maintain state for such an entity (e.g. going through levels, changing to another dungeon, etc). The amount of special code will grow, and therefore this solution does not become much better than non-henchmen approach</p>
+<p><!-- /wp:paragraph --></p>

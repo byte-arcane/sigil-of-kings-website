@@ -1,0 +1,55 @@
+---
+layout: post
+title: Adding stealth gameplay
+date: 2021-07-22 00:22:55.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+video: assets/video/stealth_tw.mp4
+meta:
+author:
+permalink: "2021/07/22-adding-stealth-gameplay/"
+---
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/stealth_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Going into stealth before attacking a goblin</figcaption>
+</figure>
+
+<p>&quot;Cascading Feature Creep&quot;. Is that a term? It should be. I guess that&#39;s how I can summarize the work of these past few weeks. Joking aside, most of the work has been related to stealth, which I feel is important for the game. Not cutting corners there. </p>
+<p><strong>Adding stealth gameplay</strong></p>
+<p>After working on dynamic light, I felt that the logical connecting work was stealth gameplay. Part of the standard high-fantasy roster of heroes is the thief/rogue/assassin archetype, and you can&#39;t do that well without stealth. Since dynamic lighting is in place, the ability to hide in shadows and strike while undetected sounds like a logical step forward, and is a very excusable feature creep. </p>
+<p>There was a lot of refactoring that was needed, as I had to scrape and rewrite the way secret doors and objects behaved, how creatures check for visibility of other creature, and also some of the rendering code had to be updated. But now there&#39;s common functionality between secret features (doors, traps) and undetected creatures. And a lot more. So how does it all work? With ...</p>
+<p><strong>Stealth points</strong></p>
+<p>Each creature has a number of maximum (and current) stealth points, based on its level and other attributes/skills. Normally the current stealth points are zero. But we can execute a skill that enables stealth mode, and fills this &quot;bar&quot; of stealth points. And here&#39;s where the fun begins.</p>
+<p>Every action that a creature takes, causes a &quot;stealth detection event&quot;. These events contain information about how much noise was produced, how visible was the action, the involved entity and the location. In the future, things like metal equipment etc would affect these emissions. All nearby entities that have senses (can see, hear) listen to those events and add them to a list. Now when these entities play their turn (let&#39;s call them &quot;detectors&quot;), they process these events. Based on the ambient conditions (e.g. light level) and the detector&#39;s sensitivity to light/sound, the audio/visual emissions are appropriately scaled. Distance to event is also taken into account. Based on the final scaled emission values and the level of the detector, we figure out how many stealth points will we reduce from the stealthy creature. When stealth points go to zero, the undetected entity becomes revealed. </p>
+<p>The undetected entity regenerates a number of stealth points per action, which can depend on various factors (currently it&#39;s 10% of the max). So the stealth minigame is to deal with hostile creatures before we get detected. Also, using stealth in groups of creatures is very, very ineffective, as for 5 hostiles we&#39;ll get 5 separate stealth point reductions (of varying amount). </p>
+<p>If a detector does notice something (so, removes a significant chunk of stealth points) but does not fully reveal the undetected entity, it will still be alerted to it, and in the case of AI, it might go and investigate the location where the event took place. </p>
+<p>Inanimate undetected objects (traps, secret doors) differ to creatures only in the fact that the <strong>objects do not regenerate stealth</strong>. Nearby non-allied detectors slowly deplete their stealth points, and at some point they get revealed.</p>
+<p>To implement stealth, a few more concepts were required: allegiance and awareness state.</p>
+<p><strong>Allegiance</strong></p>
+<p>Allegiance is information related to who&#39;s friendly with whom. This is needed so that an ally of an undetected entity will be able to see it and will not reveal it. Or for example, a goblin will not fall on a trap it set. Similarly, if the player sets a trap, the goblin won&#39;t be able to see it, but the player will (including a visualisation to show that it&#39;s invisible).</p>
+<p>Creatures in a level are by default allied to each other, but that can be configured (in the near future, I want to try a scenario with group vs group of monsters and see what the AI does). There are 3 friendliness states: Allied, hostile and neutral. </p>
+<p><strong>Awareness state</strong></p>
+<p>AI now has an awareness state towards possible dangers. The different states are &quot;neutral&quot;, &quot;curious&quot;, &quot;alert&quot; and &quot;detected threats&quot;. The different states affect the stealth detection sensitivity: it&#39;s much harder to hide from an alert creature. The alertness level drops based on the time elapsed since the last detected thread, and it raises when a stealth detection event is processed and the amount of audio/visual emissions are strong enough, but do not fully reveal the undetected entity.</p>
+<p><strong>Overlay</strong></p>
+<p>Having the awareness state, it&#39;s very useful to visualize it. So I modified the shader that displays the health/mana bars and now includes 3 more icons: friendliness to sensor, awareness state, and active buffs/debuffs summary (green arrow for &quot;has buffs&quot;, red arrow for &quot;has debuffs&quot; and both arrows for both buffs/debuffs) (shown in the video below). What&#39;s currently missing is some stealth bar, but I&#39;ll figure something out, possible a horizontal purple bar above the icons.</p>
+<p><strong>Misc</strong></p>
+<ul>
+<li>Screenshake effect, will be used for critical strikes, now I&#39;m just using it when killing a creature while in stealth (as seen in the video above)</li>
+<li>Enemies don&#39;t spawn near biome entries. </li>
+<li>Can&#39;t use stairs or exit to overworld if there are adjacent hostiles</li>
+<li>When summoned creatures are banished, they spawn a puff of smoke instead of just disappearing, so that it doesn&#39;t look like a bug</li>
+<li>Puff of smoke when entities disappear or appear due to stealth, and while in stealth, allied entities display a visual effect (as seen in the video above)</li>
+<li>Console command to enable stealth on-demand for any creature/object</li>
+</ul>
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/overlay_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Overlay showing hp,mp,friendliness to player, awareness state and buffs/debuffs</figcaption>
+</figure>

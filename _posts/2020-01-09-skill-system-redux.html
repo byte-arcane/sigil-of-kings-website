@@ -1,0 +1,126 @@
+---
+layout: post
+title: Skill System Redux
+date: 2020-01-09 21:13:37.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618919390;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1974;}i:1;a:1:{s:2:"id";i:1992;}i:2;a:1:{s:2:"id";i:1971;}}}}
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  enclosure: |
+    {{ site.baseurl }}/assets/2020/01/dualWieldLightArmour_seed0_wr0.mp4
+    177510
+    video/mp4
+  rank_math_internal_links_processed: '1'
+  _last_editor_used_jetpack: block-editor
+  rank_math_analytic_object_id: '18'
+author:
+permalink: "/2020/01/09/skill-system-redux/"
+---
+<p><!-- wp:heading {"level":3} --></p>
+<h3>Previously...</h3>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p><a href="{{ site.baseurl }}/2018/10/10/attributes-skills-and-masteries/">Last time I worked on the skill/stat system</a>, I didn't even touch active abilities, like feats in DnD. My main problems with my skill breakdown were:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Too many skills: around 50. Easier to navigate by using categories, but still.</li>
+<li>Skill progression is difficult because of the skill breadth. Difficult to balance a jack-of-all-trades and a focused grandmaster of a few skills, with interesting skill progression/bonuses</li>
+<li>The options were many, and the bad options could be many too. So, level ups would be a bit confusing and prone to mistakes and bad builds</li>
+<li><strong>Only some</strong> of these skills would enable DnD style feats, but I hadn't thought that part out, and it would possibly be imbalanced.</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>So I engaged in some thinking, and some more thinking, and tried to recall bits of advice and suggestions by a variety of game/RPG design people, most importantly for what I want the core experience to be like. And the cornerstone pillars of the game's experience is <strong>combat</strong> and <strong>exploration</strong>. But at the same time, I don't want to ignore stealth or NPC interactions in cities/factions/elsewhere, so these exist but are of lesser importance, and this should be reflected in the system. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":3} --></p>
+<h3>New approach</h3>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, while the skills needed revamping, I like the attributes and the mastery levels. So, here are the main components of the current train of thought:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>There are about 20 skills in 4 categories: offense, defense, arcana and misc.</li>
+<li>Players can put points in each skill up to a limit of 15 skill points.</li>
+<li>Players can improve their mastery of a skill given sufficient points and training from an NPC</li>
+<li> Improving the mastery of a skill gives new passive bonuses (e.g. evasion chance when adding points in light armour skill). Points in a skill improves those bonuses.</li>
+<li>Active abilities (think DnD feats, or ToME active skills) can be learnt from NPCs or scrolls, if player satisfies requirements in terms of skills, attributes and masteries. For example, crafting light armour would require mastery in both crafting and light armour. </li>
+<li>Each level, the player can allocate 3 skill points, to a total of 90 skill points at level 30. <strong>Only one skill</strong> can be trained to grandmaster level, and thus reach the 15th point</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>Here's the current list of skills:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>     <strong>Offense</strong><br />         Dual wielding<br />         One handed<br />         Two handed<br />         Ranged and thrown<br />     <strong>Defense</strong><br />         Light armour<br />         Medium armour<br />         Heavy armour<br />         Shield<br />     <strong>Arcana</strong><br />         Command magic<br />         Alteration magic<br />         Divination magic<br />         Creation magic<br />         Destruction magic<br />     <strong>Misc</strong><br />         Athletics<br />         Meditation<br />         Lore<br />         Stealth<br />         Crafting and alchemy<br />         Survival<br />         Leadership</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The idea behind this is that skills reflect <strong>play style</strong>. My goal is to make as many as possible viable play styles, mixing arcane with melee, etc.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Archetypes</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Previously I had to manually author archetypes, as not all combinations of skill points would be valid. With the new approach, it should be easier to write an automatic generator of characters that does not use any predefined limits in masteries etc. If a barbarian wants to learn meditation, more power to them, it's going to be useful still. <strong>What is required to be careful about</strong> is the related attribute. If your barbarian has very low intelligence, it's an indicator that he/she won't really master that skill. The goals of the archetype creation are:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Maximum diversity</li>
+<li>Minimum bad-looking builds</li>
+<li>Fully procedural builds ("make me a character")</li>
+<li>User-guided builds ("make me a grandmaster in destruction magic, with some other nice skills too")</li>
+<li>Minimum data entry / configuration effort</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>The new archetype generator is parameterized on a list of target skill/mastery combos to achieve (optional), and a "well-roundedness" factor, which represents how hyper-focussed or jack-of-all trades we want the character to be. It works roughly in the following way:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Character creation: If we have target mastery combos, roll and initialize stats to satisfy requirements as close as possible</li>
+<li>Assigning attributes: Try to satisfy criteria. If done, allocate based on the well-roundedness, between completely randomly (well-rounded) and to the highest attribute (focused)</li>
+<li><strong>Assigning skills:</strong> Try to satisfy criteria. If done, allocate based on attributes and well-known combos, e.g.:
+<ul>
+<li>dual-wield + one-handed = good </li>
+<li>two-handed + dual-wield / shield = bad</li>
+<li>meditation + any magic = good</li>
+<li>sneak + heavy armour = bad</li>
+</ul>
+</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>And that's it! Yes it's oversimplified a bit, but the archetype generation code is less than 300 lines, and is much, much, much simpler than the old approach. So, what characters does it generate? Plotting time again! </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:video --></p>
+<figure class="wp-block-video"><video controls src="{{ site.baseurl }}/assets/2020/01/destructionMagic_seed6_wr0.mp4" width="100%"></video><br />
+<figcaption><strong>Well-roundedness = 0, target Destruction Magic GM:</strong> What looks like a typical elemental mage, plus misc skills as he's physically weak</figcaption>
+</figure>
+<p><!-- /wp:video --></p>
+<p><!-- wp:video --></p>
+<figure class="wp-block-video"><video controls src="{{ site.baseurl }}/assets/2020/01/destructionMagic_seed6_wr1.mp4" width="100%"></video><br />
+<figcaption> <strong>Well-roundedness = 1, target Destruction Magic GM:</strong> A more well-rounded machine of destruction</figcaption>
+</figure>
+<p><!-- /wp:video --></p>
+<p><!-- wp:video --></p>
+<figure class="wp-block-video"><video controls src="{{ site.baseurl }}/assets/2020/01/destructionMagic_seed6_wr0.5.mp4" width="100%"></video><br />
+<figcaption> <strong>Well-roundedness = 0.5, target Destruction Magic GM:</strong> Something like the above, but in-between</figcaption>
+</figure>
+<p><!-- /wp:video --></p>
+<p><!-- wp:video --></p>
+<figure class="wp-block-video"><video controls src="{{ site.baseurl }}/assets/2020/01/dualWieldLightArmour_seed0_wr0.mp4" width="100%"></video><br />
+<figcaption><strong>Well-roundedness = 0, targets Dual Wielding GM and Light Armour Expert</strong>. Adding relevant athletics and dual-wielding; we are quite agile after all. At the later levels we develop Leadership as well, since we're high on the Charisma.</figcaption>
+</figure>
+<p><!-- /wp:video --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, archetypes look like they are working as intended. For next time, instead of fast encounter resolution, like last time, I'm going to deal with HP/MP next and attempt something more concrete, like spawning a few aggressive creatures with levels, and progressing with connecting skills to active abilities.</p>
+<p><!-- /wp:paragraph --></p>

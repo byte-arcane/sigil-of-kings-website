@@ -1,0 +1,37 @@
+---
+layout: post
+title: 'Porting to Unity IV: Pathfinding'
+date: 2019-02-15 21:26:26.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _publicize_twitter_user: "@aotdev1"
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1617310151;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1945;}i:1;a:1:{s:2:"id";i:2084;}i:2;a:1:{s:2:"id";i:2868;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '29'
+author:
+permalink: "/2019/02/15/porting-to-unity-iv-pathfinding/"
+---
+<p><!-- wp:image {"id":2099} --></p>
+<figure class="wp-block-image"><img class="imgc" src="{{ site.baseurl }}/assets/2019/02/overworld_paths_095.jpg" alt="" class="wp-image-2099" /></figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>Fairly straightforward work this week, porting pathfinding code from C++ to C#. The first two ports were of the basic low-level pathfinding functionality, namely A* on a grid (SearchGrid) and a graph (SearchGraph). This is the code shown <a href="{{ site.baseurl }}/2017/11/03/pathfinding-and-visualization/">in this post</a></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The other ports were of the higher level wrappers that utilize both of the above. There's a "basic" wrapper and an "overworld" wrapper. The basic wrapper is used as a reference to evaluate other wrappers and uses a dense grid, so it takes the longest but it would return the best results.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The overworld wrapper is the one <a href="{{ site.baseurl }}/2018/09/08/city-based-pathfinding-in-the-overworld/">in this post</a>.  </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The performance currently, without any sort of profiling, is about 1ms per overworld path, in the Unity Editor where I'm working all the time. Compared to 0.22ms for Release/C++ and 3.37ms for Debug/C++ it's not bad at all!</p>
+<p><!-- /wp:paragraph --></p>

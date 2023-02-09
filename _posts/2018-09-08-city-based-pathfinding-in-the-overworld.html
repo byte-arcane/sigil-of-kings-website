@@ -1,0 +1,64 @@
+---
+layout: post
+title: City-based pathfinding in the overworld
+date: 2018-09-08 05:51:17.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _wp_old_date: '2018-08-25'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619112640;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1945;}i:1;a:1:{s:2:"id";i:2868;}i:2;a:1:{s:2:"id";i:2220;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '42'
+author:
+permalink: "/2018/09/08/city-based-pathfinding-in-the-overworld/"
+---
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/09/overworld_paths.webp" alt="" width="512" height="512" /></p>
+<p>So, this follows straight from <a href="{{ site.baseurl }}/2018/08/22/pathfinding-in-the-overworld-and-moving-away-from-hpa/">the last post</a> about the change of heart regarding HPA*.  The new system is slightly different, but generally simpler. Below, I'm going to describe how it works.</p>
+<h3><strong>Prerequisites</strong></h3>
+<p>The basic input of this system is a move cost map (a value per pixel) as well as the city locations. To implement this system, we need A* for graphs and grids, as well as a function to calculate a delaunay triangulation as well as a <a href="http://www.roguebasin.com/index.php?title=The_Incredible_Power_of_Dijkstra_Maps">dijkstra map</a>.</p>
+<h3>Part 1: Connectivity</h3>
+<p>First calculate a delaunay triangulation of the cities. This looks something like the below (ignore the red edges)</p>
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/09/delaunay_diff.webp" alt="" width="512" height="512" /></p>
+<p>From the triangulation we make a graph. For each graph edge (which is a city-to-city path), we run A*-grid at max quality settings. This calculates a nice path of least-resistance, it's the "road" if you wish. The path results look like the first image of the post. For 250 cities, we get about 750 paths. For each of those paths, we also calculate and store the traversal cost.</p>
+<h3><strong>Part 2: Arbitrary point-to-city support</strong></h3>
+<p>When we need to go from A to B, where the distance between A and B is great, we naturally want to stop at cities to restock etc. So, the final path will look like A -&gt; city0 -&gt; city1 -&gt; ... -&gt; cityN -&gt; B. This step precalculates infromation for fast calculation of A -&gt; city0 and cityN -&gt; B.</p>
+<p>For each of the eight directions, we calculate a dijkstra map using a slightly customized move cost function: <strong>movement towards the direction has less cost</strong>, therefore is preferred. The targets of each dijkstra map are all the city locations.</p>
+<p>After we calculate all dijkstra maps, we now need to calculate, for each point in the map and for each of the eight directions/maps, the direction towards the least cost. The direction needs 4 bits to store (eight directions plus 1 bit to mark if it's a no-direction), so direction maps for 8 directions will then cost 32 bits per pixel, which is not bad.  And we won't need the dijkstra maps any more; these direction maps can provide us with a best path to a city given a main, general direction.</p>
+<p>This concludes the precalculations, and it will hopefully make sense in the next part.</p>
+<h3>Part 3: Runtime pathfinding</h3>
+<p>We have points A and B. From point A, we calculate which of the 8 directions leads more towards B. We pick the dijkstra direction map computed in part 2 above and traverse it till we reach a node, also recording the path while we're at it. We apply the same process with point B, but we use the <strong>inverse</strong> direction. So now, we have 2 nodes in the graph, and we run A*-graph to calculate the best path between them. The cost function uses the precalculated traversal costs from part 1.  So now, we have: 1) fine path from A to closest city c0 2) fine path from B to closest city cN 3) coarse path between cities c0 and cN. This is all we need to calculate a continuous path from A to B. Some examples below -- Red is A -&gt; city0, Black is cityN -&gt; B and magenta is the concatenation of precalculated city-to-city paths. If you zoom in, white points along the path are the cities.</p>
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/09/overworld_path_debug_00000.webp" alt="" width="512" height="512" /></p>
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/09/overworld_path_debug_00004.webp" alt="" width="512" height="512" /></p>
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/09/overworld_path_debug_00010.webp" alt="" width="512" height="512" /></p>
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/09/overworld_path_debug_00015.webp" alt="" width="512" height="512" /></p>
+<h3>Notes, failure cases and future work</h3>
+<p>On average, using a Ryzen desktop processor, at max A* quality, it takes 0.22ms per path in Release configuration, or  3.37ms in Debug. For future reference. The cached memory needed for the entire pathfinder (graphs, precalculated paths and direction maps) is about 1.5 MB.</p>
+<p><strong>Path coalescing. </strong>When calculating the fine paths, every time we calculate one, we can reduce the cost of traversing those tiles just by a little bit. This is akin to making a natural forest path. The first path it's traversed, it's wild and kinda tough to get through. Make 1000 people walk on the path, and it's now a bit easier. Make 1000000 walk the path and it should now be very distinct compared to its surroundings.  By reducing the cost a little bit, the path network looks a bit "neater".  Following are images of non-coalesced, slightly coalesced and heavily coalesced. More is not always better.<img class="imgc" src="{{ site.baseurl }}/assets/2018/09/overworld_paths_coalesced_0.9.webp" alt="" width="512" height="512" /></p>
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/09/overworld_paths_noncoalesced.webp" alt="" width="512" height="512" /></p>
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/09/overworld_paths_coalesced_0.5.webp" alt="" width="512" height="512" /></p>
+<p><strong>Embarking/disembarking at random locations.</strong> If I want to go to Hawaii, I don't take the road to the nearest beach and drop a ship and sail. I'd go to a port. So, when calculating movecosts, we can add an additional embark/disembark costs if we're about to make a change from a water tile to a land tile and vice-versa, <strong>unless </strong>one of the two tiles is a city. This beautifully controls the movement via the cost multiplier. Set it to infinity, and we're just not allowed to change to water/land unless via a port. Set it very high, and embarking at any other point is only when absolutely necessary. The good part is that we can identify those points and make them simple ports in the game, as apparently they are <em>naturally</em> exactly that!</p>
+<p><strong>Redundancy on short paths. </strong>Sometimes, to go from A to B we end up with the following:</p>
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/09/nonsense_path.webp" alt="" width="558" height="471" /></p>
+<p>This happens as we're forced to find city nodes, and we pick nodes based on the general direction that we're heading. Thankfully, we can just add a simple length check like:</p>
+<p>2|AB| &lt; (|Ac0| + |c0c1| + |c1B|)</p>
+<p>to identify if the coarse path is unnecessary. In those cases, we run an A*-grid to calculate the path between A and B.</p>
+<p>&nbsp;</p>
+<p><strong>Backtracking. </strong>Sometimes we get the following sort of backtracking:</p>
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/09/overworld_path_debug_00006.webp" alt="" width="512" height="512" /></p>
+<p>If you look at the black path, it goes backwards. Sometimes I can explain it as before we embark on a long trip, we make sure to go to a nearby city to restock, even if it takes us off-route. There are of course other ways to solve it, and they are easy but still need a bit of work, so this is marked as not-important.</p>
+<p><strong>More nodes. </strong>If the number of graph nodes is deemed too low, and I'm not happy with the large distance between cities, we can always add more nodes. The "optimal" way (not in terms of performance, but of results) of doing it is using a simple loop:</p>
+<ol>
+<li>Calculate the dijkstra map</li>
+<li>Find largest score (point furthest away from anything)</li>
+<li>Add the scoring point into the feature list</li>
+<li>Go to 1, until a desired max score is reached</li>
+</ol>
+<p>This step should happen before the delaunay triangulation.</p>

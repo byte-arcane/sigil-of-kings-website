@@ -1,0 +1,68 @@
+---
+layout: post
+title: 'Time for Action: Time and Action Management + Fast-Forward'
+date: 2018-11-11 16:48:10.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619569959;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:728;}i:1;a:1:{s:2:"id";i:824;}i:2;a:1:{s:2:"id";i:793;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '34'
+author:
+permalink: "/2018/11/11/time-for-action-time-and-action-management-fast-forward/"
+---
+<p>Handling time is coupled with handling actions: The whole point of time management is handling the order of actions. I've done some ... pre-work in the past <a href="{{ site.baseurl }}/2017/02/24/commands-and-timing/">here</a>, so many of the concepts still apply. So:</p>
+<h3>Actions and commands</h3>
+<ul>
+<li>A <strong>EntityCommand </strong>is the basic "unit" of actions: it's an instruction for an entity to do something, e.g. "move left in a dungeon", "teleport there", "Do damage to X entity", "move north in overworld"
+<ul>
+<li>Commands <strong>happen instantly</strong>, they do not know anything about time/duration.</li>
+<li>Implementation-wise, commands are stateless functors, that take a bunch of parameters and do some work. In the future, the implementation could be moved into Lua to avoid recompiles and have dynamically editable behavior</li>
+<li>Commands have <strong>two</strong> functions:<strong> Execute() and OnInterrupt()</strong>. If a command that is scheduled to play gets interrupted, we call OnInterrupt instead.</li>
+</ul>
+</li>
+<li>An <strong>EntityActionConfig </strong>stores a handle to a command plus timing and interrupt information: execution/recovery durations and interrupt strength/difficulty class
+<ul>
+<li>An action happens like this:
+<ul>
+<li>Wait for execution duration (during this stage, the action can be interrupted)</li>
+<li>Execute EntityCommand immediately</li>
+<li>Wait for recovery duration</li>
+</ul>
+</li>
+<li>An action can interrupt another action if the interruption strength is greater than the interruption difficulty class. In this case, the execution stage of the target is cancelled and replaced with an "interrupt recovery" duration, which at the moment is half the execution duration, starting from the time of interruption.</li>
+<li>EntityActionConfigs are set up in json, and are constant throughout the application.</li>
+</ul>
+</li>
+<li>An <strong>EntityActionData </strong>structure stores a handle to an EntityActionConfig plus parameters for the command to be executed.</li>
+</ul>
+<h3>Time system</h3>
+<p>At this point, we move onto the TimeSystem, which handles execution of actions. The TimeSystem stores a set of actions, ordered by execution time. The set data contains:</p>
+<ul>
+<li>The entity whose turn it is</li>
+<li>The time that the entity plays</li>
+<li>The stage of the entity's action (just started, execution, recovery, interrupt recovery)</li>
+<li>An EntityActionData structure, storing what needs to be done with what parameters</li>
+<li>A reference to the previous entry in the set, of the same entity (e.g. a "recovery" entry would store the "execute" entry)</li>
+</ul>
+<p>When an AI entity plays its turn, there are two different things that can happen:</p>
+<ul>
+<li>We don't have an action scheduled yet, so we run AI to figure out what to do next. The AI system is responsible for filling out the EntityActionData structure (what action to execute, and which parameters). A player character, using GUI/keys would cause this structure to be filled in the same way. When we fill in the data, we schedule the execution stage which will happen after the "execute duration" if it's not interrupted</li>
+<li>We have an action scheduled, so we just execute the command and scheduled the next turn to be after the "recovery duration". If the command fails (e.g. try to hit an entity that is now not there) we should not pay the normal recovery duration. At the moment the cost is half the recovery duration, but maybe for a failed command the cost should be zero. This is still work in progress and needs real examples (e.g. player tries to move to a wall, etc)</li>
+</ul>
+<h3>Fast-Forward</h3>
+<p>Fast-forward refers to coarse simulation that happens for entities that are in a different level to the player (or whatever we deem as "active" level). Fast forward will <strong>not </strong>be used for overworld entities, as the time intervals in the overworld are much larger compared to dungeons, so we won't have performance issues simulating 1000 entities where one action takes 1 day, whereas in a dungeon a move could be several seconds.</p>
+<p>After a lot of thought and a few test implementations, I've decided to keep a single list in the time system for all the game's entities that are active. A reasonable question is "what happens to creatures in a level when a player leaves the level"? We clearly can't afford to be simulating all levels generated ever. On the other hand, it's not nice to just "freeze" or "reset" the level (could be fine for other games). At this point, I've thought (and designed the code to be supportive of) the following process: When an AI entity plays its turn and it is on an inactive level (but not the overworld), it will plan a "fast forward" action. Such actions are coarse simulation like "wander around the level", "go pick up a fight", "sleep", "sentry": these actions would take hours each. So, all the entities would always play, but the <strong>frequency of play </strong>would be drastically lower for entities in overworld or inactive dungeon levels. Maybe we can have even coarser level simulations that each lasts days or months, using the same principles.</p>
+<p>What's important is what happens when a level with fast-forward action-taking entities gets activated. In this case, we interrupt the entities actions and execute the OnInterrupt() command, which could place the entity randomly, run the same simulation but with a different duration (e.g. a "normal day cycle" action for 3 months that gets interrupted 1 month in, gets executed for 1 month).</p>
+<p>Several aspects of the fast-forward system will be tested pretty soon, as the simulation will happen in the overworld and the NPC AI will be delving in dungeons. As they will enter the dungeons, the active level will be the overworld and the NPCs will be in inactive levels, therefore playing fast-forward actions like "Clear dungeon level", "Delve to next level" and "Flee dungeon".</p>
+<h3>Next steps</h3>
+<p>Next time will be AI revamp in addition to spawning of world events and implementing/writing some EntityCommands and EntityActionConfigs.</p>

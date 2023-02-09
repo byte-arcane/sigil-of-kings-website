@@ -1,0 +1,46 @@
+---
+layout: post
+title: Diagonal movement & thrown bombs
+date: 2021-04-09 15:26:46.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618240737;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2257;}i:1;a:1:{s:2:"id";i:1945;}i:2;a:1:{s:2:"id";i:1515;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  rank_math_seo_score: '7'
+  _wpas_done_all: '1'
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_primary_category: '1'
+  enclosure: |
+    https://i.imgur.com/qUO14nN.mp4
+    374874
+    video/mp4
+  rank_math_analytic_object_id: '1'
+author:
+permalink: "/2021/04/09/diagonal-movement-thrown-bombs/"
+---
+<p><!-- wp:embed {"url":"https://i.imgur.com/qUO14nN.mp4","type":"rich","providerNameSlug":"embed-handler","responsive":true,"className":""} --></p>
+<figure>
+<div class="video-container"><iframe src="{{ site.baseurl }}/assets/video/bombs.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Throwing a delayed-blast bomb, and moving it with Telekinesis before it explodes</figcaption>
+</figure>
+<p><!-- /wp:embed --></p>
+<p><!-- wp:paragraph --></p>
+<p>More miscellaneous work this week, under the general guise of "emergent gameplay"</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Adjusted how diagonal movement blocking works, for QoL reasons. Before, if you wanted to move diagonally, both tangent direction had to be unblocked. So that, when moving, you never see the player going over any obstacle. I really, really disliked how that worked in practice, as 8-directional movement stops being fluid. Now, diagonal movement is only blocked when <strong>both</strong> tangent directions are blocked. This works far, far better and the movement is now very smooth again, without surprise-blocks that don't seem to make sense.</li>
+<li>Added support for thrown bombs (well, general category of thrown things that have a particular effect on landing). So that there are more AoE options for non-spellcasters, for example some elemental AoE for fighters, or some smoke clouds for stealth users, etc. I also added support for delayed-blast effects, so that you can have situations where you throw a delayed blast bomb, then it gets moved somehow (e.g. via trap, kick or a kinetic spell), and then it explodes. Russian roulette gameplay could then be to start throwing delayed blast bombs on teleport traps :D</li>
+<li>Realised the importance of a GUI for split and merge stacks, wrote some basic placeholder GUI for it, but also realised that I could not fit that somewhere reasonable based on the existing item GUI that I have… To elaborate: the current item GUI logic, which I was proud of, is to always have a pair of containers (player &amp; ground, or player &amp; chest, or player &amp; other container), and you multi-select things in one container, multi-select things in the other container, and do a transfer. To help things, I also had some toggles for all/none selection per container. That's all great, until we need to split a stack, as that just can't happen with the multi-select which is binary in nature. So, back to drawing board for how the GUI will work for inventory transfers.</li>
+<li>Added some initial support for destructible objects and durability. Again, this feature creep is essential, as breaking things is an integral part of roguelike life, as the remains of broken barrels, jars and doors from various games would all attest to. This can creep further into weapon durability, but I'm not going down that route, yet, although the deceptive simplicity of integrating that is tempting.</li>
+</ul>
+<p><!-- /wp:list --></p>

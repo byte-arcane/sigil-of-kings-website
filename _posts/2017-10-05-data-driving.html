@@ -1,0 +1,52 @@
+---
+layout: post
+title: Data Driving
+date: 2017-10-05 20:55:21.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1612379715;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:580;}i:1;a:1:{s:2:"id";i:1890;}i:2;a:1:{s:2:"id";i:3175;}}}}
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '61'
+author:
+permalink: "/2017/10/05/data-driving/"
+---
+<p><strong>Data I/O modes</strong></p>
+<p>My goal is to have the vast majority of data (if not everything) loadable/configured from data files. Sometimes I might want to reload the data, while the game is running. I also want to be able to implement save/load functionality at some point. Additionally, I frequently want to visualize/display the data, for debugging/logging purposes. All these are constraints in the design of a data-driven system, and it's definitely not a simple problem to solve.</p>
+<p><img class="aligncenter wp-image-1615 size-full" src="{{ site.baseurl }}/assets/2017/10/data_driving_graph.webp" alt="" width="551" height="667" /></p>
+<p>So, there are effectively 3 types of data transformation:</p>
+<ul>
+<li>Bidirectional 1:1 transformation of data to save state
+<ul>
+<li>This is essential for save games, should take care of smart pointers, etc. I've decided to use <a href="http://uscilab.github.io/cereal/">cereal</a> for that.</li>
+</ul>
+</li>
+<li>Display of data
+<ul>
+<li>This is essential for debugging, to be able to visualize the state of the program (as a collection of data) at any given time. This is achieved by overloading the ostream &lt;&lt; operator. Class hierarchies use an overridable member function to stream out.</li>
+</ul>
+</li>
+<li>Initialization of data from config
+<ul>
+<li>This is essential for initialization (duh), as we need to provide a description of how the data should be created, in a concise form. I've decided to use JSON for that. This part has become the most complicated, as it needs to handle everything under the sun: templated classes, class hierarchies, smart pointers, etc. Every new class that is added, and contains some form of data which could be driven from a file, supports such initialization. In addition to initialization, it's useful to support unload/reload, in case we want to dynamically want to alter data.</li>
+</ul>
+</li>
+</ul>
+<h2></h2>
+<p><strong>Resources: Native and Add-ons</strong></p>
+<p>Every bit of data that supports initialization from config, is a <strong>Resource</strong><em>. </em>Resources support loading/unloading/reloading from JSON. There are two types of resources: native and add-on (ok, I'm not that good with naming).  Native resources inherit from Resource class, that provides the appropriate interface for related actions. They store the JSON source and can reload themselves from that. Some of these native resources are polymorphic: they store a pointer to a base class while factory methods create instances based on the JSON config. Add-on resources are objects that we support initialization from JSON, but they are otherwise regular objects with no association to resources, e.g. a vec4 or a map&lt;T,U&gt;.  Of course, add-on resources can contain normal resources, that can contain other add-on resources, etc.</p>
+<p>&nbsp;</p>
+<p><strong>Configuration inheritance, Registry and special keys</strong></p>
+<p>First, very important: all resources that get loaded, are stored into registry by a given name for easy retrieval. Names have power, which we'll harness for the a convoluted part of initialization: configuration inheritance.</p>
+<p>Sometimes resources share partial configuration with other resources. To avoid having to duplication configuration parameters, the config system supports configuration inheritance: the configuration of a resource can contain an "@inherit" key, whose value is a registry entry name. The registry entry is cloned and used as a starting point for the rest of the initialization. For simplicity reasons, there's no multiple inheritance.</p>
+<p>"@inherit" is a special key, which is handled differently to other keys, as it specifies a registry entry to inherit from. Similarly, there's "@file", which loads the content of another json file at that spot. Additionally, there's "@factory" which specifies the factory to be used to create a polymorphic object. After an object has been constructed using "@factory", or cloned using "@inherit", it initializes itself further using the rest of the JSON block.</p>
+<p>And with the above, here's an example JSON file:</p>
+<p><img class="aligncenter wp-image-1615 size-full" src="{{ site.baseurl }}/assets/2017/10/example_json.webp" alt="" width="551" height="667" /></p>

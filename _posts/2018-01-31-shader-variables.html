@@ -1,0 +1,99 @@
+---
+layout: post
+title: Shader variables
+date: 2018-01-31 18:18:06.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1616327736;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1651;}i:1;a:1:{s:2:"id";i:3175;}i:2;a:1:{s:2:"id";i:3150;}}}}
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '52'
+author:
+permalink: "/2018/01/31/shader-variables/"
+---
+<p>Since the game will utilize graphics quite a bit in the style of old SNES-era games (multiple layers, lots of sprites), that means using a rendering engine which is above trivial level. Additionally, since much of rendering will be based on procedural techniques, that means lots of shaders. Lots of shaders requires <strong>configurability</strong> of said shaders using uniform variables. And this is the topic of this post.</p>
+<p>A shader variable (ShaderVar) is an abstraction for such uniform variables. The abstraction allows manipulation of the value via ImGui (using optional minmax ranges for integer/float variables and vectors) and updating the values in the OpenGL state. These variable abstractions can also be used to solve the problem of automatic binding of textures, as in OpenGL it can be a bit of a pain to manage. Finally, we can add stat gathering functionality to identify at a rendercall if there are any variables which haven't been set, which can be quite useful for debugging. A brief overview is the following:</p>
+<p><strong>Effect loading. </strong>Inspect loaded effect (program) for uniform variables that are used by the shaders. Make two lists: one for textures/buffers and one for other values. The index in the sampler list is set as the texture unit location that we should be binding any texture or sampler</p>
+<p><strong>ShaderVars class.  </strong>An abstraction for a <strong>group </strong>of ShaderVar objects. Each object has a name and value, and a uniform location <strong>for an arbitrary number of effects. </strong>That means that we can do the following:</p>
+{% highlight cpp %} 
+SetShaderVar<float>( shaderVars, "g_Speed", 0.5f); // Set the value 0.5f to the variable g_Speed
+...
+UpdateShaderVars( shaderVars, fx1);// If g_Speed exists in fx1, it's set as 0.5f
+...
+UpdateShaderVars( shaderVars, fx2);// If g_Speed exists in fx2, it's set as 0.5f
+{% endhighlight %}
+<p>It's not really complicated underneath, but it serves as a nice abstraction to not deal with strings in the underlying implementations, as we're dealing directly with uniform locations and vectors of such locations. At the moment I'm using strings for setting values, but this can (and will) be changed to use other forms, such as <a href="{{ site.baseurl }}/2017/04/08/ai-blackboard-and-input-cache/">properties</a></p>
+<p><strong>Global and local ShaderVars. </strong>When we're about to render, we can update the shader using several such blocks. For example, one block could be globals for the whole application (window width,height), others could be globals for the current frame (current time) or also more specific, such as common values for overworld rendering ( The grid section that is currently in view, etc). These globals can be stored in the registry and fetched using a handle. After the globals are set, we can update the effect using any local shader variables. In case of a clash, we override with the most local version of the variable. Such overwrites can also be detected, warning for any misuse of the system.</p>
+<p>Here's how a few sections look like in the config files:</p>
+{% highlight json %} 
+// Some shadervar blocks
+"ShaderVars" : [
+    { "GlobalPerApplication" : {
+        "@factory" : "ShaderVarsSeparate",
+        "ShaderVars" : [ 
+        ]
+    }},
+    { "GlobalPerFrame" : {
+        "@factory" : "ShaderVarsSeparate",
+        "ShaderVars" : [ 
+            {"Name" : "g_TotalTime", "@factory" : "ShaderVarFloat"}
+        ]
+    }},
+    { "GlobalOverworld" : {
+        "@factory" : "ShaderVarsSeparate",
+        "ShaderVars" : [ 
+            {"Name" : "g_HeightScale", "@factory" : "ShaderVarFloat", "Values" : [0.0], "Min" : 0, "Max" : 4},
+            {"Name" : "g_BiomeMap", "@factory" : "ShaderVarTextureStatic", "Values" : ["biome"]},
+            {"Name" : "g_SpriteOffsetY", "@factory" : "ShaderVarFloat", "Values" : [0.5], "Min" : 0, "Max" : 1},
+            {"Name" : "g_TileMapRects", "@factory" : "ShaderVarTextureBufferStatic", "Values" : ["dcss_rects"]},
+            {"Name" : "g_TileMap", "@factory" : "ShaderVarTextureStatic", "Values" : ["dcss"]},
+            {"Name" : "g_ResourcesMap", "@factory" : "ShaderVarTextureStatic", "Values" : ["resources"]}
+        ]
+    }},
+    { "GlobalFlashing" : {
+        "@factory" : "ShaderVarsSeparate",
+        "ShaderVars" : [ 
+            {"Name" : "g_FlashMinIntensity", "@factory" : "ShaderVarFloat", "Values" : [0.5], "Min" : 0, "Max" : 1},
+            {"Name" : "g_FlashMaxIntensity", "@factory" : "ShaderVarFloat", "Values" : [1.0], "Min" : 0, "Max" : 1},
+            {"Name" : "g_FlashPeriod", "@factory" : "ShaderVarFloat", "Values" : [2.0], "Min" : 0, "Max" : 5}
+        ]
+    }}
+],
+... 
+// Some renderers. They can use shadervar blocks
+{"OverworldDense" : {
+    "@factory" : "RendererGrid2Dense",
+    "Fx" : "OverworldDense",
+    "ShaderVars" : ["GlobalPerFrame", "GlobalOverworld"],
+    "DepthTest" : true
+}},
+{"GridSparseHighlight" : {
+    "@factory" : "RendererGrid2Sparse",
+    "Fx" : "GridSparseHighlight",
+    "TextureSamplers" : { "g_TileMap" : "nearest_clamp" },
+    "ShaderVars" : ["GlobalPerFrame", "GlobalFlashing","GlobalOverworld"],
+    "DepthTest" : true
+}},
+....
+// A renderable. They can use local shadervar blocks
+{ "griddense" : { 
+    "@factory" : "RenderableTileGrid2Widget",
+    "Renderer" : "OverworldDense",
+    "ShaderVars" : {
+        "@factory" : "ShaderVarsSeparate",
+        "ShaderVars" : [
+            {"Name" : "g_Color", "@factory" : "ShaderVarColor", "Values" : [[255,255,255,255]]}
+        ]
+    }
+}}
+{% endhighlight %} 
+<p><strong>Note:</strong> The reason I'm using an additional ShaderVars abstraction is because in the future I want to consider having uniform buffer objects for many shader variable blocks, as it's more optimal. But of course, this will only happen when the slowdowns begin, which is not now.</p>
+<p>So, that's it for this time. I'm also currently toying with introducing framebuffer objects in the system (so that renderers and renderables can be configured via script to render to an offscreen surface) so that we can have more flexible render paths. And also what's coming is an autotiling implementation, using all these.</p>

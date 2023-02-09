@@ -1,0 +1,43 @@
+---
+layout: post
+title: 'AI: Towards Utility-Based AI'
+date: 2017-03-31 15:14:35.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _oembed_c9c9608cd94a050a6c4b79d2e40d44d5: "{{unknown}}"
+  _rest_api_published: '1'
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '3485263975'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1615913922;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1368;}i:1;a:1:{s:2:"id";i:964;}i:2;a:1:{s:2:"id";i:1168;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '69'
+author:
+permalink: "/2017/03/31/ai-towards-utility-based-ai/"
+---
+<p>I started <a href="http://www.gameaipro.com/GameAIPro/GameAIPro_Chapter09_An_Introduction_to_Utility_Theory.pdf">reading</a> and watching <a href="http://intrinsicalgorithm.com/IAonAI/2013/02/both-my-gdc-lectures-on-utility-theory-free-on-gdc-vault/">presentations by Dave Mark on utility-based AI</a>. It's excellent stuff!</p>
+<p>The gist of utility-based AI is that you make <strong>decision</strong> for which action to select based on the "<strong>fitness</strong>" of each action, which is calculated as a function of an arbitrary number of inputs (considerations). There is an important distinction between the <strong>value </strong>of an input, and its <strong>utility </strong>for a particular action. The value is objective (e.g. getting an ice-cream is not that important in life); the utility is subjective and context-specific (if I'm really really hungry, the ice-cream's perceived value skyrockets).  A utility score is calculated from a value using <em>response curves </em>(linear, quadratic, logistic, etc) of the form y= f(x) , where x,y in [0,1].</p>
+<p>I've already implemented my own version (heavily borrowed, slightly adjusted, developed with the help of the wonderful <a href="https://www.desmos.com/">Desmos</a>) of the curves so that they are as simple to use as possible. So far, there are 3 curves:</p>
+<p>(below images link to the corresponding Desmos graphs when clicked)</p>
+<p><strong>Linear/Quadratic</strong></p>
+<p><a href="https://www.desmos.com/calculator/n1mrjgqax3"><a href="{{ site.baseurl }}/assets/2017/03/rc_linquad.webp"><img class="alignnone size-full wp-image-949" src="{{ site.baseurl }}/assets/2017/03/rc_linquad_thumb740.webp" alt="rc_linquad.png" width="1178" height="820" /></a></a></p>
+<p><strong>Logistic</strong></p>
+<p><a href="https://www.desmos.com/calculator/j7ucn0rkfc"><a href="{{ site.baseurl }}/assets/2017/03/rc_logistic.webp"><img class="alignnone size-full wp-image-951" src="{{ site.baseurl }}/assets/2017/03/rc_logistic_thumb740.webp" alt="rc_logistic.png" width="1178" height="820" /></a></a></p>
+<p><strong>Logit</strong></p>
+<p><a href="https://www.desmos.com/calculator/q9hkfpqc2s"><a href="{{ site.baseurl }}/assets/2017/03/rc_logit.webp"><img class="alignnone size-full wp-image-952" src="{{ site.baseurl }}/assets/2017/03/rc_logit_thumb740.webp" alt="rc_logit.png" width="1178" height="820" /></a></a></p>
+<p>and planning to add a sine and a normal distribution and that should be it for starters. In the above graphs, <strong>m</strong> and <strong>k</strong> modify the shape of the curve while <strong>b</strong> and <strong>c</strong> translate it in x/y axes.</p>
+<p>What <strong>doesn't</strong> make sense with the utility AI that I've seen so far is the combinatorial explosion that looks like it is encouraged: e.g. for an Attack decision score, it would calculate scores for Attack(Target0) Attack(Target1) for N targets. But what happens when there are lots of targets? In one presentation, number of targets is limited to 12, which is a poor approach, although practical. But what happens if actions are parameterizable in many more ways? I don't want to create multithreaded AI and evaluations once-per-X-seconds because it takes forever.</p>
+<p><strong>Problem Scenario: </strong>Spellcaster<strong> </strong>NPC with a dagger, with a sword and an axe in the inventory, able to cast Frost Ray, Fire Bolt, Acid Touch and Lightning, is surrounded by 10 enemies. A melee attack can be a Power Attack, Normal or Quick Attack. This creates (10 x 3 x 3) + (10 x 4) combinations of attack actions only! Not even considering retreat or other actions. This is <strong>way too many</strong> decisions to be evaluated just for a single unit.</p>
+<p>What some people advocate is to use utility-based AI as part of a <a href="http://www.gamasutra.com/blogs/ChrisSimpson/20140717/221339/Behavior_trees_for_AI_How_they_work.php">Behavior Tree</a>: the Selector node. That node will run the utility calculations to select the best-scoring child node . Of course that requires a behavior tree implementation, which is something that I'm planning for later. Of course, it also complicates the implementation, as we now have 2 AI systems to worry about.</p>
+<p>A simple alternative that I've been thinking is to use for starters a tiered form of utility calculations, akin to a behavior tree composed only of Selector nodes.</p>
+<p><strong>Tier 1:</strong> Select between high-level behaviors (e.g Attack, Retreat, SelfBuff, Idle)</p>
+<p><strong>Tier 2:</strong> Select among commands that satisfy that behavior (e.g. MeleeAttack, RangedAttack, HeadButt, SuperKick, TornadoStrike)</p>
+<p><strong>Tier 3:</strong> Execute a mini-<strong>FSM</strong> that sets up the command's parameters and executes the command. A melee attack FSM would for example select a target, and if the target was at melee range, it would schedule the attack (and the FSM completes), or if the target is not at melee range, it would schedule a move towards the target (and the FSM, again, completes). Such small FSMs are not a big fuss to implement, and allow scriptability and fast execution. The FSM should be able to reuse whatever intermediate data have been computed by the previous tiers.</p>
+<p>A couple notes: sometimes tier 1 could directly lead to tier 3 (e.g. there are no particular "retreat" skills, besides I guess an Expeditious Retreat spell :) ). Additionally, while I mentioned FSM, there no reason why that could not be a small behavior tree, or even a class that runs a few if-then-else statements. The <strong>goal</strong> of tier 3 is the same: <strong>set the parameters and schedule a command for execution.</strong></p>
+<p>So that's it for now, all talk and no action. Next time hopefully with an implementation of the above tiered system.</p>

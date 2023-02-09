@@ -1,0 +1,31 @@
+---
+layout: post
+title: 'Porting to Unity VI: RPG elements, Time'
+date: 2019-03-08 16:05:34.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1617282214;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2373;}i:1;a:1:{s:2:"id";i:1974;}i:2;a:1:{s:2:"id";i:1992;}}}}
+  _publicize_twitter_user: "@aotdev1"
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '27'
+author:
+permalink: "/2019/03/08/porting-to-unity-vi-rpg-elements-time/"
+---
+<p><!-- wp:paragraph --></p>
+<p>This week I ported another bulk of data, namely RPG-system related stuff such as <a href="{{ site.baseurl }}/2018/10/10/attributes-skills-and-masteries/">attributes, skills, skill categories, skill mastery levels</a> and <a href="{{ site.baseurl }}/2018/10/19/adventurer-archetypes-level-up-strategies/">level-up strategies</a>.  The data all became scriptable objects (as they're constant assets), and all except the level-up strategies were enum-ified as it is quite likely that in the code I'll be referring to particular skills/attributes/etc (e.g. if  skills[dexterity] > 10, do something)</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>I've added a much-needed global object with all the game configuration parameters (e.g. max character levels, skill points per level, etc), while in C++ it was pretty much a dictionary loaded from json to avoid recompiles, here I have it as a scriptable object with fixed fields, so access is faster, compiles fast and data are interchangeable. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Another addition is a very simplified form of date/time. I opt out of using C#'s DateTime or TimeSpan as they are for real-world time and therefore do not allow flexibility. What I'm using instead is a simple long value wrapped in a struct (called TimeUnit), representing microseconds. The struct stores loads of constants and helpers for printing and manipulating, so that in the end a TimeUnit is just an integral type with benefits. 64 bits support quite a bit of a range, so it should be enough for the game's time system resolution. </p>
+<p><!-- /wp:paragraph --></p>

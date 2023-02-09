@@ -1,0 +1,44 @@
+---
+layout: post
+title: City-state relations
+date: 2018-08-12 10:18:41.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1617768154;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1929;}i:1;a:1:{s:2:"id";i:1913;}i:2;a:1:{s:2:"id";i:1916;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '44'
+author:
+permalink: "/2018/08/12/city-state-relations/"
+---
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/08/territory_relations_232_s2_b0.4.webp" alt="" width="512" height="512" /></p>
+<p>There are <a href="{{ site.baseurl }}/2018/07/21/overworld-territories/">lots of city states</a> in the world, <a href="{{ site.baseurl }}/2018/08/10/what-makes-a-city-state/">each with their own race composition, core values, guilds, and alignment</a> among other things. As history has taught us, nations can like or dislike each other in varying degrees. In the game, I have the following simple scale: Hatred, Dislike, Annoyed, Neutral, Accept, Like, Love.  So, how do we set up relations between city states?</p>
+<ul>
+<li><strong>Alignment.</strong> Chaotic good and lawful evil cities are (almost) never going to be friendly. Similarly aligned cities are more likely to have positive bonds with each other. So, alignment is used to bias a relation towards love/hate.</li>
+<li><strong>Common core values. </strong>City-states with similar core values are more likely to be friendly, and vice versa. Since each city has an array of weights per core value, we can just treat the arrays as N-dimensional vectors and calculate the euclidean norm. As the major core value dictates the government, we can give a bit of extra weight in the major core values of each pair of cities.</li>
+<li><strong>Proximity.</strong> The farther two city-states are, the more unlikely they are to have (or have had) any significant connection. So, relations are dampened based on distance. I use a simple linear scale to do that.</li>
+</ul>
+<p>So, the whole process can be described as follows:</p>
+<ul>
+<li>Generate a random relation value</li>
+<li>Add a bias based on alignment and common core values</li>
+<li>Scale by a user-defined parameter, to control how "emotional" the relations between city-states are.</li>
+<li>Dampen based on proximity</li>
+<li>Add a user-defined bias, to control the general relation "direction" towards love/hate.</li>
+</ul>
+<p>So it's quite simple and generates some nice results I think. Here's an example, varying the user-defined parameters. The purple territory is the city-state in question, shades of green represent accept/like/love while shades of red represent annoyed, dislike, hatred. Black is indifferent/neutral.</p>
+<p align="center"><strong>Scale = 1, bias = 0.0</strong></p>
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/08/territory_relations_22_s1_b0.webp" alt="" width="512" height="512" /></p>
+<p align="center"><strong>Scale = 1, bias = 0.4</strong></p>
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/08/territory_relations_22_s1_b0.4.webp" alt="" width="512" height="512" /></p>
+<p align="center"><strong>Scale = 2, bias = 0.4</strong></p>
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/08/territory_relations_22_s2_b0.4.webp" alt="" width="512" height="512" /></p>
+<p>&nbsp;</p>

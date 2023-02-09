@@ -1,0 +1,112 @@
+---
+layout: post
+title: 'Porting to Unity II : ECS basic form'
+date: 2019-01-25 13:08:14.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _publicize_twitter_user: "@aotdev1"
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1612320637;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2102;}i:1;a:1:{s:2:"id";i:728;}i:2;a:1:{s:2:"id";i:1635;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '31'
+author:
+permalink: "/2019/01/25/porting-to-unity-ii-ecs-basic-form/"
+---
+<p><!-- wp:paragraph --></p>
+<p>Immediately after the biome and resource maps generation, next is the city placement. We're getting near the first "interaction" with the entity system, as at the end of this step, we should have city entities. Therefore, it becomes apparent that there needs to be a basic ECS machinery in place. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading --></p>
+<h2>ECS using ScriptableObject<br /></h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Doubt No 1: Custom machinery for efficient component access.</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>In the C++ version of the entity system, each component type had their own storage vector, and the entity system did the following to access a component:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Use the entity ID to <strong>look-up</strong> its component-index data, and the required component ID to <strong>look-up</strong> if the entity has valid index for the component, and if it does, use the retrieved index to <strong>look-up</strong> in the component storage</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>So this does involve a few lookups/jumps, so I wouldn't call it too optimized or cache-friendly.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Doubt No 2:  Entities adjust their components at runtime. </strong></p>
+<p>Typical ECS allows for runtime composition of components, using the aforementioned machinery. Adding a component is as simple as allocating a component and storing the index in the "component index" entry of the entity.  Question is, when do we need that? Answer is, depends on how granular the components are, and how dynamic some of these component types can be.  From my theoretical design so far, <strong>adding components dynamically is a solution to a <em>future </em>problem, while it creates other problems <em>now</em>. </strong>Problems such us opportunities for nonsensical component combinations (city having a character sheet,  adventure location having movement component, etc).</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Components as ScriptableObjects</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Reading about Unity one reads a lot about "the tyranny of MonoBehaviour" and how heavyweight MonoBehaviours are. At the same time, it looks like the consensus says "Use the fancy new scriptable objects". Therefore, wanting to go the suggested route, and because components should just store data, ScriptableObjects become a quite reasonable solution (so far) to that issue.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Entities as ScriptableObjects, interfaces and components</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>C# is an interface-happy language, so I decided to go that route. Here's the current line of thought:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>The base Entity class now is a ScriptableObject</li>
+<li>The entity-has-such-and-such-components composition is implemented via <strong>interfaces</strong></li>
+<li>There are subclasses like CityEntity, DungeonEntity, CreatureEntity, etc. These subclasses implement the interfaces they need</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>The Entity types and interfaces code is generated from a json file and looks like:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:enlighter/codeblock --></p>
+{% highlight csharp %}
+namespace cmp // namespace for components
+{
+    public class Location : ScriptableObject
+    {
+        public Vector2Int tile;
+        public int mapId;
+    }
+    // more components ...
+}
+
+// interfaces for accessing components
+interface ICity { cmp.City City(); }
+interface IAdvLoc { cmp.AdvLoc AdvLoc(); }
+interface ICharSheet { cmp.CharSheet CharSheet(); }
+interface IController { cmp.Controller Controller(); }
+interface IMembership { cmp.Membership Membership(); }
+interface ILocation { cmp.Location Location(); }
+interface IMovement { cmp.Movement Movement(); }
+
+public class Entity : ScriptableObject {}
+
+public class CityEntity : Entity, ICity, ILocation
+{
+    private cmp.City city;
+    public cmp.City City() { return city; }
+    private cmp.Location location;
+    public cmp.Location Location() { return location; }
+}
+{% endhighlight %}
+<p>Now we can check if an entity called "someEntity" implements an interface to see if it has a location component simply by "<code>someEntity is ILocation</code>" The above code was autogenerated from python using a small dictionary:</p>
+{% highlight json %}
+entity_data = {
+    "Creature" : ["Movement","Location", "CharSheet","Membership","Controller"],
+    "City" : ["City","Location"],
+    "AdvLoc" : ["AdvLoc","Location"],
+    "Level" : ["Location"]
+}
+{% endhighlight %}
+<p>To wrap up with the ECS basics we still need to define the systems and where they live, as well as message handling, but that's for next time. Also in the future I'll possibly need to sort out the access so that's it's generally read-only, but that might be tricky.</p>

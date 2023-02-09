@@ -1,0 +1,44 @@
+---
+layout: post
+title: Spiders, webs, and bugs in general
+date: 2021-05-27 12:22:55.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2021/05/spiderweb_small.png
+video: assets/video/spiderweb_small.mp4
+meta:
+author:
+permalink: "/2021/05/27/spiders-webs-and-bugs-in-general/"
+---
+<p><!-- wp:embed {"url":"https://i.imgur.com/qUO14nN.mp4","type":"rich","providerNameSlug":"embed-handler","responsive":true,"className":""} --></p>
+<figure>
+<div class="video-container"><iframe src="{{ site.baseurl }}/assets/video/spiderweb_small.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>A spider chasing the player, but also randomly spinning webs. Player gets stuck in web and loses a few turns. </figcaption>
+</figure>
+<p><!-- /wp:embed --></p>
+
+<p><strong>Spiders, webs and poisoning</strong></p>
+<p>Once in a while I test the robustness and the extensibility of the engine by thinking of some new content that requires some "minor" extra features to be implemented. The question then becomes: can the engine support it as-is? If not, how many modifications need to be implemented, and how many side-effects could they have? The brainstorming session starts with some wild ideas which are invariably bad and over-complicated. Eventually, the chaos soon transforms into something more practical, maybe changing the feature functionality ever-so-slightly but requiring far less work.</p>
+<p>One such case was the addition of spiders. I want spiders of course in the game, and having recently played ADOM again, I like the idea of <em>spiders occasionally spinning web</em> that may cause other creatures to get stuck. At the same time, <em>"web" is a perfectly acceptable spell for magic users</em> too, so any code reuse is good. Spiders can cause the <em>Poisoned </em>status effect. Finally, players should be able to break free of webs somehow, preventatively destroy them from a neighbouring position. Here's how all these were implemented.</p>
+<ul>
+<li>Added a new active ability: "Spin web". This is a ranged spell that can target neighbouring cells (8-connected). The spell effect is an object generator which gets executed at the target tile: we generate an object of type "web" (more about that below)</li>
+<li>Added new creature traits: "web spinner" and "poisonous". Whoever possesses the former can use the active ability "Spin web", whereas whoever possesses the latter, their natural attacks may cause "poisoned" status</li>
+<li>Added new status effects, "restrained" and "poisoned". They both last for several turns.</li>
+<li>I eventually decided to implement webs as an "interactive object" that, when used, it simply gets destroyed.</li>
+<li>I added some extra functionality for interactive objects, an optional "trigger" effect, which gets activated when an entity moves to the same location as the object. The trigger effect for webs is applying the "restrained" status to the entity, followed by a "self-destruct" action, so the webs cause the entity to get stuck and get immediately destroyed. There's a catch: both of the trigger effects are executed only if the target does not have the "web spinner" trait, so that means that spiders can't get caught in webs.</li>
+<li>I added some special "utility" calculation for the "Spin web" action: if there's an enemy in range, we get some standard utility value (it's useful to web enemies). If there's no enemy in range and we have the web spinner trait, then we randomly think it's a good idea to spin some web to some random neighbouring tile, because spider's gonna do what a spider's gotta do.</li>
+</ul>
+<p>And that's it! The above also allows easy addition of AoE web effects (e.g. 3x3 area)</p>
+<p><strong>Website</strong></p>
+<p>More website work, ported everything now, added some alpha version of a repeating background image and changed all images to .webp, so the performance of the site should be pretty good I hope. It's still a bit rough around the edges, for example, the home page is just a dump of all posts, latest first, which is a side-effect of just using the default Jekyll Minima theme. I still haven't found a good way to author the text, so I'm just using an online html editor and then edit image/video blocks manually. I've made a twitter account, under the name "Byte Arcane" which should be more resistant to game name change, that I'm going to try to use slightly more, for sharing stuff.</p>
+<p><strong>RNG debugging rabbit hole</strong></p>
+<p>So, I had a "weird" issue that I decided to resolve, which ended up being this massive red herring. I experienced some seemingly non-deterministic behaviour from the RNG, as I would save before instantiating a level, entering a level, see how it looks, then reload and re-instantiate, enter and then it would be very slightly different! So, why was the RNG playing tricks? I went ballistic with the logging, as I've had some RNG weirdness before with lambdas and ref vars (C#).</p>
+<p>Step 1 was to ensure native plugin resulted in deterministic input/output cycle. I added some CRC code, and checked that given the same input, the output data that were sent back to C# were always the same. Step 2 was to start littering the instantiation code with logs that call the rng, and identify at which point do the values start deviating. After a shallow bit of research, I assumed (NEVER assume, dammit!) it would be the event handling code: entity gets created during instantiation, and several event handlers get called on OnEntityCreated signal. If the event handlers get called in random order, I'm done for. According to C# docs the order should be fixed, but it's the Unity runtime so you never know. So I started refactoring so that there was a clear trace of what RNG gets used in which event handler. After about 2-3 hours I realized that I had to pass an rng object to half the functions of the codebase, and I decided to revert the changes (git discard &lt;3), dig deeper and hope it's not that. And it was not that.</p>
+<p>After a binary-search-style logging, I finally found the source of the issue, and it has nothing to do with the RNG, but with flyweight entity configuration objects. So, I have a database of entity configurations that I use to instantiate certain classes of entities (items, equipment, traps, interactive objects); other entity configurations I create on the fly. Unfortunately (for my sanity and code quality) I can't declare these db entries as const as I would C++ (oh how I miss C++ in such scenarios), so now they're modifiable, and modification code occasionally creeps in as I might forget that I should not be doing that. In one of the configurations, I have a variable for ammo quantity. If it's invalid, use RNG to generate a number and set it. And that was it: during the Configure() function that configures an entity, the state of the configuration object was altered. First time it was invalid, then every time thereafter it was set using the RNG, so the RNG state would be different the first time compared to any other time. Ooof. How to solve this? The "lazy" and safest option would be to only ever return clones of configurations every time I need one. I do not like this option as it's slow and puts a lot of pressure on the GC. Every single item that would be instantiated in a chain of dungeon levels would have to clone the configuration: every item on the ground, in a chest/container, or in a creature's inventory or equipment. The other option is to ensure that the state of the object is identical when it enters the Configure() function and when it leaves it. I did that, and lo and behold, *that* issue was fixed!</p>
+<p>But that was not all, the non-determinism was still there, but only happened between the 1st run, and every subsequent load. Long story short, during the course of this rabbit hole I found several more related bugs which caused non-determinism, and they were promptly squashed, so back to determinism again.</p>
