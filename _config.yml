@@ -22,10 +22,10 @@ title: Age of Transcendence
 email: byte.arcane@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   Fantasy roguelike/RPG, featuring a fully procedurally generated world, rendered in colorful 16-bit graphics.
-#baseurl: "/age-of-transcendence/" # the subpath of your site, e.g. /blog
-#url: "https://byte-arcane.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-baseurl: ""
-url : ""
+baseurl: "/sigil-of-kings-website/" # the subpath of your site, e.g. /blog
+url: "https://byte-arcane.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+#baseurl: ""
+#url : ""
 twitter_username: ByteArcane
 github_username:  byte-arcane
 
