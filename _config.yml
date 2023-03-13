@@ -49,6 +49,7 @@ plugins:
   - jekyll-feed
   - jekyll-analytics
   - jekyll-sitemap
+  - jekyll-seo-tag
   
 # Google Analytics
 google_analytics: G-TENV5J91CE
