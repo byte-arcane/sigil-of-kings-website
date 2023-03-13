@@ -24,6 +24,14 @@
   }
 }
 
+.site-masthead {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 .site-nav {
   float: right;
   line-height: $base-line-height * $base-font-size * 2.25;
