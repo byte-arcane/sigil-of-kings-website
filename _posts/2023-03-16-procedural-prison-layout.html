@@ -1,0 +1,79 @@
+---
+layout: post
+title: Procedural Prison Layout
+date: 2023-03-16 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/03/prison_map.png
+meta:
+author:
+permalink: "/2023/03/16/procedural-prison-layout/"
+---
+
+<p>Lots of work this week, with 2 main focal points that I want to share for now: the creation of a procedural prison layout, and website related updates</p>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2023/03/prison_map.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/prison_map.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/prison_map.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/prison_map-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/prison_map-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/prison_map-320w.webp 320w" alt="A prison inside a watery cavern" width="1920" height="1080" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>A prison inside a watery cavern</figcaption>
+</figure>
+
+<p><strong>Prison layout</strong></p>
+<p>In the beginning I almost overcomplicated the prison layout design, thinking of different types and sizes of cells etc. My partner thankfully reminded me that prisons are one of the most regular structures out there in terms of room sameyness and organisation, so I put in the design that all rooms should have the same size and can be connected on any side, and they should be the same shape too, typically rectangular. This made everything So Much Easier. Because I&#39;m still a big fan of procgen, I needed to design the layout in a way that can be configured for different scenarios. Instead of a pure word salad, here are images and corresponding parameters, in order of importance.</p>
+<p><strong>Block size</strong> is a 2D quantity that determines how big each cluster will be</p>
+<p>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/block_size_1x3.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/block_size_1x3.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/block_size_1x3.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/block_size_1x3-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/block_size_1x3-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/block_size_1x3-320w.webp 320w" alt="Block size: 1x3" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Block size: 1x3</figcaption>
+</figure>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/block_size_3x3.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/block_size_3x3.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/block_size_3x3.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/block_size_3x3-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/block_size_3x3-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/block_size_3x3-320w.webp 320w" alt="Block size: 3x3" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Block size: 3x3</figcaption>
+</figure>
+</p>
+<p><strong>Block number</strong> is a 2D quantity that determines how many clusters we have in each dimension</p>
+<p>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/block_num_1x1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/block_num_1x1.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/block_num_1x1.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/block_num_1x1-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/block_num_1x1-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/block_num_1x1-320w.webp 320w" alt="Block number: 1x1" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Block number: 1x1</figcaption>
+</figure>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/block_num_2x2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/block_num_2x2.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/block_num_2x2.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/block_num_2x2-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/block_num_2x2-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/block_num_2x2-320w.webp 320w" alt="Block number: 2x2" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Block number: 2x2</figcaption>
+</figure>
+</p>
+<p><strong>Corridor width</strong> specifies the width of corridors</p>
+<p>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/corr1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/corr1.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/corr1.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/corr1-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/corr1-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/corr1-320w.webp 320w" alt="Corridor width: 1" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Corridor width: 1</figcaption>
+</figure>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/corr2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/corr2.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/corr2.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/corr2-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/corr2-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/corr2-320w.webp 320w" alt="Corridor width: 2" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Corridor width: 2</figcaption>
+</figure>
+</p>
+<p>Prison area borders can be open or closed, which can be useful depending on the map they are in and requirements.</p>
+<p>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/bopen.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/bopen.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/bopen.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/bopen-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/bopen-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/bopen-320w.webp 320w" alt="Open border" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Open border</figcaption>
+</figure>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/bclosed.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/bclosed.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/bclosed.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/bclosed-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/bclosed-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/bclosed-320w.webp 320w" alt="Closed border" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Closed border</figcaption>
+</figure>
+</p>
+<p>In some cases I might want to use this layout for a regularly-structured map where each cell is a room. This parameter allows <strong>connections to inner rooms</strong> and makes this possible.</p>
+<p>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/inner_blocked.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/inner_blocked.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/inner_blocked.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/inner_blocked-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/inner_blocked-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/inner_blocked-320w.webp 320w" alt="No inner connections (prison)" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>No inner connections (prison)</figcaption>
+</figure>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/inner_open.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/inner_open.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/inner_open.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/inner_open-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/inner_open-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/inner_open-320w.webp 320w" alt="Inner connections allowed (other building)" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Inner connections allowed (other building)</figcaption>
+</figure>
+</p>
+<p><strong>Prison contents</strong></p>
+<p>Prison cells need prisoners and other stuff, like cobwebs, some skulls from dead previous prisoners, and a bed for prisoners to sleep in. This required a few modifications/improvements to the prefab placement algorithm, that can trickle to everything else, such as running a generator of a particular element a number of times (or none) so that we generate &quot;between 1 and 3 chairs&quot; or &quot;20% chance to generate a skull&quot;. I&#39;ve also shared some more code with the older &quot;sparse feature placement&quot; code, in particular the ability to identify if we&#39;re at a corner/wall and make that a constraint, e.g. must be by wall or by corner, etc. So cobwebs are always in corners and beds are always by the wall, not next to the entrance.</p>
+<p><strong>Website updates</strong></p>
+<p>I&#39;ve been making slight changes to the website (as you might have noticed), e.g. including a logo in every page and changing the background. I&#39;m still terrible with web dev/design, so this means I know that it&#39;s still not looking great but atm I have no idea how to improve it (while still using Jekyll of course). Something about the font, colors and background shapes bugs me. </p>
+<p>I&#39;ve also just realised the existence of Google Search Console, so trying to figure how to use that, create a sitemap, index pages and so on. Stone age stuff I suppose! The reason for this bit of work is that Google would not be able to find the new website even if I put all the terms. Small victories: now it does :D</p>
+<p>Next week: revisiting the layout generator, and stress testing! Also prison needs warden(s) and office.</p>
+

@@ -1,0 +1,283 @@
+---
+layout: post
+title: 'Overworld Graphics Redux: Vegetation'
+date: 2020-06-05 07:33:13.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- art
+- programming
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619236909;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1890;}i:1;a:1:{s:2:"id";i:2126;}i:2;a:1:{s:2:"id";i:1738;}}}}
+  _publicize_twitter_user: "@aotdev1"
+  _oembed_46101c82265ba576ef6f84490f05b1be: <blockquote class="imgur-embed-pub" lang="en"
+    data-id="rNR1wVy"><a href="https://imgur.com/rNR1wVy">View post on imgur.com</a></blockquote><script
+    async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>
+  _oembed_time_46101c82265ba576ef6f84490f05b1be: '1590743322'
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  _edit_last: '1'
+  rank_math_analytic_object_id: '15'
+author:
+permalink: "/2020/06/05/overworld-graphics-redux-vegetation/"
+---
+<p><!-- wp:image {"id":2884,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2020/06/image-old.webp"><img src="{{ site.baseurl }}/assets/2020/06/image-old_thumb740.webp" alt="" class="wp-image-2884" width="740" height="462" loading="lazy"/></a><br />
+<figcaption><em>Old, HoMM 3-style graphics</em></figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>Before I start rambling on details, just a little bit of motivation on <strong>why</strong> should the overworld graphics need to be worked on. For reference, here's how it looked a few months earlier:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2128} --></p>
+<figure class="wp-block-image"><a href="{{ site.baseurl }}/assets/2020/06/image.webp"><img src="{{ site.baseurl }}/assets/2020/06/image_thumb740.webp" alt="" class="wp-image-2128" width="740" height="508" loading="lazy"/></a><br />
+<figcaption><em>New graphics (WIP)</em></figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>So far I've been using <a href="https://www.gog.com/game/heroes_of_might_and_magic_3_complete_edition">HoMM 3</a> assets as a temporary placeholder solution, and of course this would need to change, as it's fine for a tech demo, but not for anything publishable. I <strong>love</strong> HoMM 3's artstyle, and if at some point my game is nearer completion and I got the budget, I'll hire an artist and point my finger at HoMM 3, pleading for more of the same, but different. But here we are now, and we'll make do with the fantastic 16-bit tiles from Oryx.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Tiling</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Many 2D games (such as HoMM 3) use a 2D grid for placing things such as walls, floors, objects, trees, creatures, etc. Techniques such as autotiling, in addition to well-designed art, can hide the nature of the grid. HoMM 3 is again a really good example of this:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2886,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2020/06/homm3-maped.webp"><img src="{{ site.baseurl }}/assets/2020/06/homm3-maped_thumb740.webp" alt="" class="wp-image-2886" width="740" height="392" loading="lazy"/></a><br />
+<figcaption><em>A HoMM 3 level in the map editor, showing the grid nature of the graphics</em></figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>Another very good animated example is from Warcraft II:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:core-embed/imgur {"url":"https://i.imgur.com/rNR1wVy.gif","type":"rich","providerNameSlug":"imgur","className":""} --></p>
+<figure class="wp-block-embed-imgur wp-block-embed is-type-rich is-provider-imgur">
+<div class="wp-block-embed__wrapper">
+<img src="https://i.imgur.com/rNR1wVy.gif" alt="" class="wp-image-2886" />
+</div>
+<figcaption><em>Source: https://pixelation.org/index.php?topic=9865.msg107117#msg107117</em></figcaption>
+</figure>
+<p><!-- /wp:core-embed/imgur --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, to maximally utilise this trick, we need good art. To render this on screen is very very cheap: For a single layer, a single tile is assigned per grid cell. Combining multiple layers and transitioning between tilesets can be a more challenging task. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Requirements</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>In the game, the overworld is a grid, where each cell stores details about the contained biome, for example temperature/humidity/altitude, if it's a river, if it's sea or a lake, if it's a hill or a mountain, etc.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The art requirements for the overworld are as roughly follows:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list {"ordered":true} --></p>
+<ol>
+<li>Tiles and variations for backgrounds of each biome</li>
+<li><s>A way to do transitions between biomes</s> [<a href="{{ site.baseurl }}/2018/02/23/autotiling-adventures-part-ii-procedural-masks-for-biomes-and-rivers/">using transition masks</a>]</li>
+<li><strong>A way to depict varying vegetation per biome</strong> [this post]</li>
+<li>A way to depict hills and mountains </li>
+<li>A way to depict decorative props in each biome (e.g. skulls in the desert) [should be very similar to vegetation]</li>
+</ol>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>In the above, [1] is currently using HoMM assets, but it's very simple to replace, and will do shortly with Oryx tiles to begin with. This post will focus on vegetation.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>For enough variation for all biomes, a lot of art is needed. Add to that the autotiling art requirements, and that becomes quite a big task. So, what do we do? As usual, let the computer do the hard work.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Vegetation Distribution using Instancing + Poisson Disk Sampling </h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Instead of carefully designing tilesets, a different approach is to just use basic art elements (a single tree, a single bush, etc) and distribute them nicely. We do not have to be restricted by the grid anymore: e.g. a tree can be placed anywhere in the continuous 2D space. As one might imagine, for a large overworld, we will need a lot of trees. In this case, as it turned out, half a million of them. The best way to render multiple objects of the same type is using <a href="https://en.wikipedia.org/wiki/Geometry_instancing">instancing</a>. Any reasonable game/graphics engine or API should provide such functionality. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>A standard way to distribute vegetation is <a href="https://www.jasondavies.com/poisson-disc/">Poisson Disk Sampling</a>, as it has some desirable characteristics, most importantly a minimum distance between each pair of elements. We can use this to generate positions of vegetation elements within a single tile. For example, a dense forest tile could contain 8 trees, whereas a desert might contain a single cactus element. Therefore, we can pre-generate multiple variations of poisson sample sets for the most dense scenario (8 elements per tile) and use those for calculating the position of each vegetation element. Here is how a pre-generated sample set looks like (8 variations):</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2900,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><img src="{{ site.baseurl }}/assets/2020/06/poisson_all.webp" alt="" class="wp-image-2900" width="520" height="260" loading="lazy"/></figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, how do we generate the positions for all trees? Here's some pseudocode:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:enlighter/codeblock {"language":"cpp"} --></p>
+{% highlight python %}
+// 64 variations of 8 positions within the unit square
+vec2 poisson_sample_sets[64][8] = ... 
+for each grid cell on the map:
+	// select a random set
+	rand0 = hash( cell_coordinate )
+	pset = poisson_sample_sets[ rand0 % 64]
+	N = calculate number of vegetation elements for cell
+	// create a random starting element for this sample set
+	i0 = hash( cell_coordinate + 123 ) % N
+	for each i in N:
+		sample = pset[(i0 + i)%N]
+{% endhighlight %}
+<p><!-- /wp:enlighter/codeblock --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, we need to randomize a lot, but also be consistent: e.g. the elements for each tile must all use the same sample set. Also, if 2 tiles use the same sample set and need to place 4 out of 8 trees, by starting at different positions in the sample set guarantees greater variety.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>A simple way to utilize this, is to pre-generate the positions of each tree and simply render those using instancing. For actual numbers, I'll use the real numbers that I have for a standard overworld map:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>28911 tiles, 1 tree per tile (sparse vegetation: deserts, tundra, etc)</li>
+<li>31563 tiles, 2 trees per tile (total: 63126 instances)</li>
+<li>40686 tiles, 4 trees per tile (total: 162744 instances)</li>
+<li>37952 tiles, 8 trees per tile (total: 303616 instances, dense vegetation: jungle, swamp, etc)</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>So the above is about 550,000 instances. The memory requirements using 16 bits for each coordinate (it's enough) will be 2.2MB, so not bad! We just have to figure out in the shader:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>which tile we're on =&gt;</li>
+<li>what biome we're on =&gt;</li>
+<li>what trees are ok to use for this biome =&gt;</li>
+<li>pick a tree!</li>
+<li>[bonus] scale the tree randomly between 90%-110% </li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>Rendering the instances should be blazing fast, and if it's not, you can use <a href="https://en.wikipedia.org/wiki/Z-order_curve">linear quadtrees with morton order</a>, which will definitely make it blazing fast (I've been using this for neuroscience data, 2 orders of magnitude greater in number). Actually, I should implement that next, as when the lockdown is over, I might develop more on the laptop.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, how does the distribution look like more practically? Here are a few screenshots using different number of available poisson sample sets:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"align":"center","id":2902,"sizeSlug":"large"} --></p>
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="{{ site.baseurl }}/assets/2020/06/image-14.webp"><img src="{{ site.baseurl }}/assets/2020/06/image-14_thumb740.webp" alt="" class="wp-image-2902" width="740" height="435" loading="lazy"/></a><br />
+<figcaption><em>Just a single poisson set. Grid visible in dense areas. Sparse areas still look varied because of the randomisation of the starting sample index</em></figcaption>
+</figure>
+</div>
+<p><!-- /wp:image --></p>
+<p><!-- wp:image {"id":2904,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2020/06/image-16.webp"><img src="{{ site.baseurl }}/assets/2020/06/image-16_thumb740.webp" alt="" class="wp-image-2904" width="740" height="435" loading="lazy"/></a><br />
+<figcaption><em>2 poisson sets</em></figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:image {"id":2905,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2020/06/image-17.webp"><img src="{{ site.baseurl }}/assets/2020/06/image-17_thumb740.webp" alt="" class="wp-image-2905" width="740" height="435" loading="lazy"/></a><br />
+<figcaption><em>4 poisson sets</em></figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:image {"id":2906,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2020/06/image-18.webp"><img src="{{ site.baseurl }}/assets/2020/06/image-18_thumb740.webp" alt="" class="wp-image-2906" width="740" height="435" loading="lazy"/></a><br />
+<figcaption><em>8 poisson sets. Even dense areas do not show repetition</em></figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Note:</strong> Care needs to be taken so that samples do not end up in rivers or at sea. I do that by checking the tile and neighbours. I split the unit-space in a 3x3 subgrid, calculate "isGround" values for each subtile based on biome data, and discard samples that fall into a subtile that is not set as ground.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Z-layers: Decals vs Billboards</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>The previous images use a trick to handle the overlaps correctly. Well ok, it's not really a trick, it's standard Z-buffer, we just need to be careful with the coordinates of our rendered quads.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Sprites such as trees are also called "<a href="http://www.computer-graphics.se/TSBK07-files/pdf17/10c%20Billboards.pdf">billboards</a>" in 3D graphics: they look like they are facing the viewer. The sprites typically look like a picture taken in front of the tree: the bottom part is the trunk, and the top is the canopy. Therefore we can say that the Y axis roughly corresponds to height. Here are some examples:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image --></p>
+<figure class="wp-block-image"><img class="imgc" src="{{ site.baseurl }}/assets/2020/06/aa1991a658869216ef8656a6c2c6805a.webp" alt="Trees trees trees! (With images) | Pixel art design, Pixel art ..." /><br />
+<figcaption><em>Source: http://pixeljoint.com/pixelart/119151.htm</em></figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>Some other sprites, such as flowers or bushes, look as viewed from above, rather than from the front (as was with trees). In this case, the image Y axis does <strong>not</strong> correspond to height anymore, but corresponds to depth instead. Let's call these "decals", as they are like stickers over the terrain. Several shown below:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2893,"width":574,"height":479,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large is-resized"><img class="imgc" src="{{ site.baseurl }}/assets/2020/06/image-6.webp" alt="" class="wp-image-2893" width="574" height="479" /><br />
+<figcaption><em>Source: https://thestoryteller01.files.wordpress.com/2014/07/vx-plants-tileset1.png</em></figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>These two have a fundamentally different behaviour in a two related aspects: depth perception and shadows.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Decals don't really have depth, as they are like stickers: nothing is "behind" them, as only the background is under them. Trees on the other hand have depth. Things can be behind trees. Here's an in-game example of the Toothy Troll hiding behind some conifer trees, and in front of some other trees</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2889,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><img src="{{ site.baseurl }}/assets/2020/06/image-2.webp" alt="" class="wp-image-2889" width="615" height="362" loading="lazy"/><br />
+<figcaption><em>I'm coming for you, hobbits!</em></figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>whereas flowers are not a good place to hide:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2890,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><img src="{{ site.baseurl }}/assets/2020/06/image-3.webp" alt="" class="wp-image-2890" width="644" height="386" loading="lazy"/><br />
+<figcaption><em>A stomp (err, stroll) in the meadows</em></figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>In order to achieve this depth effect, we need to manipulate the depth of the rendered quad vertices. But first, a bit about the camera used: it's an orthographic camera from an overhead view, so Z is camera depth, which also represents the world's height. Therefore, the background is always at Z=0. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>When we're rendering sprites, such as the troll or the trees, the bottom part touches the ground (Z=0) while the top part has some height (e.g. Z=1). By doing just this, we've ensured correct rendering. Below is an example of 3 trees rendered like this, in 3 subsequent grid cells (side view):</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2894,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><img class="imgc" src="{{ site.baseurl }}/assets/2020/06/image-7.webp" alt="" class="wp-image-2894" /></figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>You can see that the camera ray might not reach the trunk of the middle tree as it might be obscured by the canopy of the right tree. So, because of the need for depth, we need to use alpha masking instead of blending.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The information about what's billboard or decal can be encoded along with other per-sprite data, and just needs a single bool flag (or 1 bit).</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Billboard Shadows</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Billboards, because they encode height, can typically cast shadows. We'd expect trees and creatures to cast shadows, but not necessarily flowers and bushes (decals). The easiest way to cast shadows is to render an additional pass with all instances, with a couple of changes:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Adjust the quad geometry so that it's sheared</li>
+<li>Use black/grey instead of colour</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>Here's a quad and it's "shadow" transformation: it fakes a light source from the top left (=&gt; right shearing) that casts a perspective shadow (<a href="https://courses.byui.edu/art110_new/art110/week01/diminution.html">diminuition effect</a>)</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2895,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><img src="{{ site.baseurl }}/assets/2020/06/image-8.webp" alt="" class="wp-image-2895" width="512" height="256" loading="lazy"/></figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>Below: with and without the shadows:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2896,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2020/06/image-9.webp"><img src="{{ site.baseurl }}/assets/2020/06/image-9_thumb740.webp" alt="" class="wp-image-2896" width="740" height="491" loading="lazy"/></a><br />
+<figcaption><em>With shadows</em></figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:image {"id":2897,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2020/06/image-10.webp"><img src="{{ site.baseurl }}/assets/2020/06/image-10_thumb740.webp" alt="" class="wp-image-2897" width="740" height="366" loading="lazy"/></a><br />
+<figcaption><em>Without shadows (except troll)</em></figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>I think it's much better with shadows! And they come for free really, development-wise. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>To simulate soft shadows, we can use a distance field, that records distance to the silhouette of the sprite, from inside the sprite. I maintain such distance fields for all sprites as they are useful in more cases, but here we can map distance to shadow strength via a smooth curve.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Pixelated river flow</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Finally, I've added some pixelated mild noise on rivers, to have some animation but without using any flow direction. Here's an image, but this is better seen in a video</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2899,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2020/06/image-12.webp"><img src="{{ site.baseurl }}/assets/2020/06/image-12_thumb740.webp" alt="" class="wp-image-2899" width="740" height="447" loading="lazy"/></a></figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p><!-- /wp:paragraph --></p>

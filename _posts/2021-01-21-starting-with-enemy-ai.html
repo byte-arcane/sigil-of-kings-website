@@ -1,0 +1,103 @@
+---
+layout: post
+title: Starting with enemy AI
+date: 2021-01-21 19:40:26.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- design
+- programming
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"37550b67d263a3ce789993dc25046c5f";a:2:{s:7:"expires";i:1619249283;s:7:"payload";a:6:{i:0;a:1:{s:2:"id";i:1168;}i:1;a:1:{s:2:"id";i:964;}i:2;a:1:{s:2:"id";i:728;}i:3;a:1:{s:2:"id";i:793;}i:4;a:1:{s:2:"id";i:3274;}i:5;a:1:{s:2:"id";i:1453;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  rank_math_seo_score: '79'
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_primary_category: '5'
+  rank_math_focus_keyword: ai
+  _wpas_done_all: '1'
+  rank_math_analytic_object_id: '8'
+author:
+permalink: "/2021/01/21/starting-with-enemy-ai/"
+---
+<p><!-- wp:image {"id":3226,"sizeSlug":"large","linkDestination":"none"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2021/01/image.webp"><img src="{{ site.baseurl }}/assets/2021/01/image_thumb740.webp" alt="" class="wp-image-3226" width="740" height="456" loading="lazy"/></a><br />
+<figcaption><em>A skeleton archer opening a door and running away from the player</em></figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>AI is a huge topic, and it can range from if-then-else to incredibly complicated systems, meshing different techniques together to create the ultimate autonomous agents. There are plenty of choices out there, some more suitable than others. Suitability really depends on the game genre, the agents that we want simulate, how smart should they be, how capable should they be, how much emergent gameplay can they facilitate, etc. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>AI Requirements</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>In Sigil of Kings, as in most RPGs/roguelikes, most enemies are not around for long. So, incredible development effort on AI will most likely be wasted. You can't see how smart the angry hungry wolf is, if it's there for 5 turns! So, Keep It Simple for standard enemies.</li>
+<li>In The Future, when I add NPC adventurers into the game, because they need to survive for far longer, they'll need better AI than run-of-the-mill monsters.</li>
+<li>Different monsters need to behave differently, to have some variation. A wolf attacks with its pack, an archer will try to shoot you from afar, a zombie will come to smash your face from up close. Dnd 4th edition has this lovely breakdown of <strong>monster roles</strong> (<a href="https://www.reddit.com/r/DMAcademy/comments/75frby/monster_roles_in_combat/" class="rank-math-link">here's a nice write-up</a>). </li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>AI techniques</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>This is by all means not a complete list, just a few I know and I've contemplated using one time or another:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li><strong>If-then-else</strong>. The basics! We need to start from here, AI 101, the zombie: If character in sight, then if in melee distance, attack, else move towards melee distance. </li>
+<li><strong>(H)FSM</strong>. Tempting approach due to its simplicity, but when things get complex, it becomes a nightmare to edit/maintain.</li>
+<li><strong>GOAP</strong>. Well-used approach, typically for real-time games. As long as we abstract our game logic into the things GOAP needs (world state, available actions, action cost, action preconditions and effects), then we can request action plans (a list of sequential actions) that can be used to achieve a goal (e.g. kill all visible threats)</li>
+<li><strong>Behavior trees</strong>. Another well-used approach, they became very popular, but their popularity has been in steady decline. There's a <a href="https://takinginitiative.wordpress.com/2020/01/07/behavior-trees-breaking-the-cycle-of-misuse/" class="rank-math-link">recent article</a> that advocate them being used more for agent actuation (executing a plan) rather than decision making</li>
+<li><strong>Utility AI</strong>. This is another relatively recent method, that assigns utility value to available actions, and selects the appropriate course of action based on what has the greatest utility. It's a nice system, but it's number-sensitive (== a lot of time spent in designing/testing curves)</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>After testing in toy scenarios all of these techniques, I'm most inclined to start with the venerable if-then-else. In fact, because it's so simple, I've already implemented 2 basic enemy behaviours, the "basic melee" and the "basic ranged". </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The basic melee enemy wanders until they see the player. When they see the player, they plan a path towards them, and when they get in melee distance, they attack.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The basic ranged enemy wanders until they see the player. When they see the player, if the range is appropriate, they perform a ranged attack. If the player is too close, they flee using an appropriate flee map. The flee map is the well-described variation of Dijkstra map, inverted, scaled and rescanned. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Because it's such a common scenario, I've added the ability for creatures to be able to open doors if their intelligence is high enough, so that they can flee/chase more effectively.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Where to go from here? The first few steps:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Instead of using the default attacks, try and use any available abilities</li>
+<li>Occasionally use any consumables</li>
+<li>Start forming AI archetypes like dnd4's monster roles.</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Miscellaneous</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>The enemy FoV and planned path can be visualized with a hotkey</li>
+<li>When enemies swap positions (they can), a cooldown needs to pass before they can swap again, otherwise they can be perpetually swap while trying to get to the player</li>
+<li>Dead creatures dump their inventory</li>
+<li>Enchantments are now color-coded based on if they are beneficial or not (green vs red)</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>Here's a video that shows all the above</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:embed {"url":"https://www.youtube.com/watch?v=hegEmfnMgQY","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/hegEmfnMgQY" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/hegEmfnMgQY?autoplay=1><img src=https://img.youtube.com/vi/hegEmfnMgQY/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video hegEmfnMgQY"></iframe>
+</div>
+</figure>
+<p><!-- /wp:embed --></p>

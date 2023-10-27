@@ -1,0 +1,51 @@
+---
+layout: post
+title: Misc updates
+date: 2023-06-29 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/06/campfire_stories.png
+meta:
+author:
+permalink: "/2023/06/29/misc-updates/"
+---
+
+<p>&quot;Holidays&quot; are over, so back to work and gamedev work! The general theme of work on Sigil of Kings has been bug smashing and a bit of content. So, the zoo of changes in the past couple of weeks are as follows:</p>
+<ul>
+<li>Added a few more sprites, scooped from itch.io or authored, like campfire, mushrooms and reeds. </li>
+<li>Wildlife spawning rate in wilderness is linked to overworld cell &quot;wildlife density&quot; property. This means that in deserts and polar regions, don&#39;t expect much wildlife. </li>
+<li>Added a &quot;decal&quot; layer to really properly support decorative tilesets like carpets. </li>
+<li>Better support for spawning/requesting specific zones, e.g. I want this procgen dungeon as usual, but include a cemetery somewhere in the wilderness</li>
+<li>Animals have been spawning in water so far, so I&#39;ve done a bit of work on that front. Still unhappy though as it gets complex and I don&#39;t differentiate for movement costs between shallows, freshwater, deep sea etc. </li>
+<li>Flying animals are better rendered over water (can see shadow and they are not submerged at all).</li>
+<li>Added variety for bone objects: the same object can spawn with a variety of sprites</li>
+<li>Torches (and all binary switches) are generated in &quot;off&quot; state in all abandoned areas, and 50% to be &quot;on&quot; everywhere else. So, torches in ruined areas that contain the &quot;abandoned&quot; tag will not be lit, same way as when you go to an abandoned house the lights would not be on.</li>
+<li>Carpet tileset has been augmented/changed from &quot;9 slice&quot; to a &quot;rug&quot; format</li>
+</ul>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2023/06/beastcave_1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/06/variants/beastcave_1.webp" srcset="{{ site.baseurl }}/assets/2023/06/variants/beastcave_1.webp 772w, {{ site.baseurl }}/assets/2023/06/variants/beastcave_1-640w.webp 640w, {{ site.baseurl }}/assets/2023/06/variants/beastcave_1-320w.webp 320w" alt="Beast cave 1" width="772" height="772" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Beast cave 1</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/06/beastcave_2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/06/variants/beastcave_2.webp" srcset="{{ site.baseurl }}/assets/2023/06/variants/beastcave_2.webp 724w, {{ site.baseurl }}/assets/2023/06/variants/beastcave_2-320w.webp 320w" alt="Beast cave 2" width="724" height="724" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Beast cave 2</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/06/campfire_stories.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/06/variants/campfire_stories.webp" srcset="{{ site.baseurl }}/assets/2023/06/variants/campfire_stories.webp 802w, {{ site.baseurl }}/assets/2023/06/variants/campfire_stories-640w.webp 640w, {{ site.baseurl }}/assets/2023/06/variants/campfire_stories-320w.webp 320w" alt="Wolf tells scary stories to his buddies over the campfire" width="802" height="879" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Wolf tells scary stories to his buddies over the campfire</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/06/coastal_dungeon.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/06/variants/coastal_dungeon.webp" srcset="{{ site.baseurl }}/assets/2023/06/variants/coastal_dungeon.webp 946w, {{ site.baseurl }}/assets/2023/06/variants/coastal_dungeon-640w.webp 640w, {{ site.baseurl }}/assets/2023/06/variants/coastal_dungeon-320w.webp 320w" alt="A coastal dungeon" width="946" height="696" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>A coastal dungeon</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/06/dungeon_prison.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/06/variants/dungeon_prison.webp" srcset="{{ site.baseurl }}/assets/2023/06/variants/dungeon_prison.webp 739w, {{ site.baseurl }}/assets/2023/06/variants/dungeon_prison-320w.webp 320w" alt="A dungeon with a prison" width="739" height="875" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>A dungeon with a prison</figcaption>
+</figure>

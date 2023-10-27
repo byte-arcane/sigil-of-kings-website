@@ -1,0 +1,160 @@
+---
+layout: post
+title: Autotiling adventures
+date: 2018-02-09 09:55:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _oembed_6df6f16107ba12a7052f4b151e3d0c1f: "{{unknown}}"
+  _oembed_c985c0174893a3b981cd38d54e5158ec: "{{unknown}}"
+  _oembed_fa9ae3270f489e54b78f96487e3fc98b: "{{unknown}}"
+  _oembed_93f8d20ff6e9f4c87e307bcef3caec50: "{{unknown}}"
+  _oembed_8cc51f69f842e079ab598760591a7ac5: "{{unknown}}"
+  _oembed_d15df5b31d95012de0ffd25047dfc0c3: "{{unknown}}"
+  _oembed_7f86fd38d0363f952c3f2b0cea27b46e: "{{unknown}}"
+  _oembed_2a6693bf49c2adeb5b611b02dcd3f5f3: "{{unknown}}"
+  _oembed_148b4787d856879b7f9a7146944fdf0e: '    <blockquote class="reddit-card" >      <a
+    href="https://www.reddit.com/r/gamedev/comments/261na5/2d_tiles_creating_smooth_transitions_between_tile/?ref_source=embed&amp;ref=share">2D
+    Tiles - Creating smooth transitions between tile art</a> from      <a href="https://www.reddit.com/r/gamedev/">gamedev</a>    </blockquote>    <script
+    async src="https://embed.redditmedia.com/widgets/platform.js" charset="UTF-8"></script>'
+  _oembed_time_148b4787d856879b7f9a7146944fdf0e: '1518131987'
+  _oembed_82f2bec555f56312d6807d8818194989: "{{unknown}}"
+  _oembed_159850c6c689638c51a3d7f5d40d4b43: "{{unknown}}"
+  _oembed_4e36b995c2c1d5c173e930689f34d9d1: "{{unknown}}"
+  _oembed_f1e960f525badef7137f43aeea792389: "{{unknown}}"
+  _oembed_72b4ca7f863f1d5e15c83417e3b502ce: "{{unknown}}"
+  _oembed_d4c726cda8a2ea49ec899073ee88a252: "{{unknown}}"
+  _oembed_af4a4281a2510b83cfcb238d2e9d280b: "{{unknown}}"
+  _oembed_ba835ae65d95de45eeb358a5c40e4d4c: "{{unknown}}"
+  _oembed_3e5eaa4b5188d4b7e4bd5a535d18ce79: "{{unknown}}"
+  _oembed_b04fb3dbab640e512ff92316d47d766f: "{{unknown}}"
+  _oembed_a4a12186b4b74cb88c221d88255376c7: "{{unknown}}"
+  _oembed_44365582b4524244fc920dd2c178a193: "{{unknown}}"
+  _oembed_36720b6c6ee0a1c89d7b4494b7ba70b6: "{{unknown}}"
+  _oembed_73bd7736505bfcfb6904806aea2e8bea: "{{unknown}}"
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619571289;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1869;}i:1;a:1:{s:2:"id";i:2883;}i:2;a:1:{s:2:"id";i:1738;}}}}
+  _oembed_07d74da0518afbe2585818ae8a55be72: '    <blockquote class="reddit-card" >      <a
+    href="https://www.reddit.com/r/gamedev/comments/261na5/2d_tiles_creating_smooth_transitions_between_tile/?ref_source=embed&amp;ref=share">2D
+    Tiles - Creating smooth transitions between tile art</a> from      <a href="https://www.reddit.com/r/gamedev/">gamedev</a>    </blockquote>    <script
+    async src="https://embed.redditmedia.com/widgets/platform.js" charset="UTF-8"></script>'
+  _oembed_time_07d74da0518afbe2585818ae8a55be72: '1518132066'
+  _oembed_0b6ebaea7a5bc381439ed442f1df4193: "{{unknown}}"
+  _oembed_31e9b895352d80df892debf6a4923868: "{{unknown}}"
+  _oembed_ed74e9b86710ee4646c277cd3de103c5: <blockquote class="imgur-embed-pub" lang="en"
+    data-id="APGraYf"><a href="https://imgur.com/APGraYf">View post on imgur.com</a></blockquote><script
+    async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>
+  _oembed_time_ed74e9b86710ee4646c277cd3de103c5: '1518161175'
+  _wpas_done_all: '1'
+  _oembed_315217e76e31fad9d61d89fd53ae62e5: "{{unknown}}"
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '51'
+author:
+permalink: "/2018/02/09/autotiling-adventures/"
+---
+<p>So, we have a <a href="{{ site.baseurl }}/2017/12/14/overworld-map-generation/">procedurally generated biome map</a>, where each pixel is an individual biome. If we zoom in, it's obviously quite pixelated. If we add sprites, it just doesn't look right (besides the lighting and colors)</p>
+<p><a href="{{ site.baseurl }}/assets/2018/02/bb_topdown.webp"><img class="aligncenter size-full wp-image-1744" src="{{ site.baseurl }}/assets/2018/02/bb_topdown_thumb740.webp" alt="" width="1088" height="704" /></a></p>
+<p>We have reasonably detailed sprites on a single-colored squares. It's just ugly. We <strong>need</strong> to add some texture/detail.</p>
+<h1></h1>
+<h2 style="text-align: left;">Auto-tiling</h2>
+<p>&nbsp;</p>
+<p>Enter <strong>auto-tiling</strong> (or transition tiles): a method to automatically place tiles with texture so that each tile matches perfectly with their neighbours. It's a bit of a wild west out there in terms of approaches, so here are some resources (or resource lists) that I found useful:</p>
+<p>https://pixelation.org/index.php?topic=9865.msg107117#msg107117<br />
+https://gamedevelopment.tutsplus.com/tutorials/how-to-use-tile-bitmasking-to-auto-tile-your-level-layouts--cms-25673<br />
+http://www.cr31.co.uk/stagecast/wang/blob.html<br />
+https://www.codeproject.com/Articles/106884/Implementing-Auto-tiling-Functionality-in-a-Tile-M</p>
+<p>https://gamedev.stackexchange.com/questions/32583/map-tile-terrain-transitions-with-3-4-different-types<br />
+https://www.gamedev.net/forums/topic/606520-tile-transitions/<br />
+https://gamedev.stackexchange.com/questions/26152/how-can-i-design-good-continuous-seamless-tiles<br />
+http://allacrost.sourceforge.net/wiki/index.php/Video_Engine_Visual_Effects#Transition_Tiles<br />
+https://web.archive.org/web/20161023185925/http://www.saltgames.com/article/awareTiles/<br />
+https://www.gamedev.net/search/?q=tile%20transitions&amp;fromCSE=1#gsc.tab=0&amp;gsc.q=tile%20transitions&amp;gsc.page=1<br />
+https://www.gamedev.net/articles/programming/general-and-gameplay-programming/tilemap-based-game-techniques-handling-terrai-r934/<br />
+http://www-cs-students.stanford.edu/~amitp/gameprog.html#tiles<br />
+http://playtechs.blogspot.co.uk/2007/04/tileset-design-tip.html<br />
+https://opengameart.org/forumtopic/auto-tiling-standardization<br />
+https://forums.tigsource.com/index.php?topic=21237.0<br />
+http://www.pascalgamedevelopment.com/showthread.php?22862-Tilemaps-and-autotiles<br />
+https://gamedev.stackexchange.com/questions/125284/what-is-the-term-for-a-3x3-tile-set-used-to-create-larger-areas/125285<br />
+https://forum.unity.com/threads/2d-tile-mapping-in-unity-demystified.441444/</p>
+<p>Quite a few.</p>
+<p>There are two main ways to consider art when using autotiles: using masks, or using premade textures. A good example is shown <a href="http://allacrost.sourceforge.net/wiki/index.php/Video_Engine_Visual_Effects#Transition_Tiles">here</a>:</p>
+<p><strong>Autotiling example</strong></p>
+<p><a href="{{ site.baseurl }}/assets/2018/02/Autotileex.gif" target="_blank"><img src="{{ site.baseurl }}/assets/2018/02/Autotileex.gif" alt="Showing image {{ site.baseurl }}/assets/2018/02/Autotileex.gif" width="289" height="149" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2018/02/variants/Autotileex.webp 289w"/></a></p>
+<p><strong>Blend masks example</strong></p>
+<p><a href="https://allacrost.sourceforge.net/wiki/images/3/34/Blendmaskex.gif"><img class="aligncenter" src="{{ site.baseurl }}/assets/2018/02/Blendmaskex.gif" alt="http://allacrost.sourceforge.net/wiki/images/3/34/Blendmaskex.gif" /></a></p>
+<p>The premade tiles have the obvious benefit that they can be very nicely done, but of course they are tied to the content they represent.  The blend masks do not look as good, but are easier to develop, and they are more flexible in terms of what textures we want to seamlessly mix. I decided to use masks as I want transitions between <strong>any</strong> biome: for 16 biome types, that's 120 unique combinations. It's not an option to ask an artist to develop 120 different autotiles, that needs quite a bit of money and time. And also, that would have no variation; each autotile would be replicated all over the place, so it would be easy to distinguish patterns.</p>
+<p>&nbsp;</p>
+<h2>Grid shifting</h2>
+<p>The first naive thought that comes to mind (and I went with it for a while actually) is "ok, we have a tile, it is neighbour to 4 or 8 other tiles, so generate masks according to that relationship". Example <a href="https://gamedevelopment.tutsplus.com/tutorials/how-to-use-tile-bitmasking-to-auto-tile-your-level-layouts--cms-25673">here</a>. As one can see, the 4-connected version is less interesting than the 8-connected version (and we don't want less-interesting), but the 8-connected version results in a lot of combinations! So what do we do? Well, <a href="http://playtechs.blogspot.co.uk/2007/04/tileset-design-tip.html">we shift the grid</a>. This way, we always have 4 potentially different tiles (quarters of them anyway)</p>
+<p>Below, we shift the whole grid top-left by half a tile. Now, each grid cell (<strong>red</strong>) always contains parts of 4 tiles.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/02/autotile_corner_offset.webp"><img class="aligncenter size-full wp-image-1825" src="{{ site.baseurl }}/assets/2018/02/autotile_corner_offset_thumb740.webp" alt="" width="1000" height="562" /></a></p>
+<p>While this is mentioned in a few articles, it's demonstrated perfectly in a non-technical article, <a href="https://pixelation.org/index.php?topic=9865.msg107117#msg107117">here</a>. That's what sold me, as I find the results amazing!</p>
+<p>&nbsp;</p>
+<h2>Reducing unique combinations</h2>
+<p>So, that's what I mostly found so far in reference material. Now, a 2x2 grid as described can contain 4 different biomes. That's 4 bits, therefore 16 possible total combinations/arrangements. Here's how they look like (<a href="https://pixelation.org/index.php?topic=9865.msg107117#msg107<a href="{{ site.baseurl }}/assets/2018/02/APGraYf_thumb740.gif" target="_blank"><img src="{{ site.baseurl }}/assets/2018/02/APGraYf_thumb740.gif" width="740" height="740" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2018/02/variants/APGraYf_thumb740.webp 740w, {{ site.baseurl }}/assets/2018/02/variants/APGraYf_thumb740-320w.webp 320w" alt="Showing image {{ site.baseurl }}/assets/2018/02/APGraYf_thumb740.gif"/></a></p>
+<p>&nbsp;</p>
+<p>In the "16 most basic tiles" above, we can observe the following:</p>
+<ul>
+<li>No 16 can be expressed by transforming 15 (180 deg rotation)</li>
+<li>No 11,13,14 can be expressed by transforming 10 ( 90,180, 270 deg rotation)</li>
+<li>No 3,9,7 can be expressed by transforming 1 ( 90,180, 270 deg rotation)</li>
+<li>No 2,6,8 can be expressed by transforming 4 ( 90,180, 270 deg rotation)</li>
+<li>No 5,12 contains no spatially varying data</li>
+</ul>
+<p>This implies that the only unique tiles are 1,4,10,15,5,12. Furthermore, the only unique tiles with spatially varying data are 1,4,10,15. So, that is 4 tiles instead of 16. We can arrange such a mask of 4 tiles like this:</p>
+<p><img class="aligncenter size-full wp-image-1828" src="{{ site.baseurl }}/assets/2018/02/autotile_mask.webp" alt="" width="258" height="1026" /></p>
+<p>This has a nice continuous shape, if for example we want to ask an artist to draw some of those. Note that with this arrangement, the transformation will differ, as now the masks are already transformed compared to what I showed above. What's really important is that the amount of white vs black at the borders that contain both <strong>needs to always match, </strong>so that tiles are seamlessly combined. In my case above, I'm splitting them at 50%, but that's of course configurable. What I'm not going to cover, as I've given it some thought and gets very complicated, is to support variable black/white border percentages, ensuring that they match There are many more complications involved and I'm not sure if it's worth it in the end.</p>
+<p>So, now we have 4 unique combinations. These can be nicely stored in an RGBA texture (one mask per channel) by converting the above 1x4 tile image. In the shader, given a mask value in [0,15], we effectively do the following:</p>
+{% highlight cpp %}
+mask = ... // obtain mask value from 4 underlying biome map tiles. Value in [0,15]
+(mask_unique, transform) = get_transform(mask); // use a lookup table to get the unique mask index [0,3] and the transform needed
+uv2 = apply_transform(uv, transform); // transform the texture coordinates
+mask_rgba = sample_mask_texture(uv2); // sample the mask values
+mask_value = -1;
+switch(mask_unique)
+{
+    case 4:  mask_value = 0; break; // whole mask is empty
+    case 5:  mask_value = 1; break; // whole mask is full
+    default: mask_value = mask_rgba[mask_unique]; // get the component that we need
+}
+{% endhighlight %}
+<p>Most of the above can be done in the vertex shader, whereas the last two steps (sampling the texture and getting the component) need to be done in the pixel shader. So, it's quite cheap.</p>
+<h2>Rendering tiles</h2>
+<p>So, we have a method to render tiles given a very small number of masks. How do we render the tiles? Here's the naive approach, for a 512x512 biome map:</p>
+<ul>
+<li>We have 16 biome layers, so I assign each a priority. E.g. shallow water covers coast. Water covers shallow water and coast. Deep water covers water, shallow water and coast. And so on.</li>
+<li>For each layer, we generate tile render data as follows:
+<ul>
+<li>For each tile <strong>corner </strong>in the biome (513x513 grid of points)
+<ul>
+<li>Sample the 4 adjacent biome types (clamp to border if out of bounds)</li>
+<li>Create the mask where we set 1 if the layer is equal or higher priority than current, or 0 if the layer is of lower priority than current</li>
+<li>Based on the mask value, calculate unique mask index and transform, and store in this tile's render data</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>So, now we have a list of 513x513x16 tiles = 4.21 million. That's quite a lot. But as I said, that's the naive version. Observations:</p>
+<ul>
+<li>When the unique mask index corresponds to constant 0 (mask_unique index == 4), we don't need to consider the tile for rendering.</li>
+<li>When all of the four biome values in a tile are of higher priority than the  current layer, this means that the tile will be completely covered by higher priority layer tiles, and therefore we don't need to render it.</li>
+</ul>
+<p>By applying these two, for my test map I reduced the number of tiles to 0.4 million, which is 10x better. Of course, that's still a lot, but it doesn't take into account any spatial hierarchy and other optimisations that could be done.</p>
+<p>Here are some examples using the above un-nice mask. Zoomed-out:</p>
+<p><a href="{{ site.baseurl }}/assets/2018/02/noautotile_zoomout.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2018/02/noautotile_zoomout.webp" alt="Showing image {{ site.baseurl }}/assets/2018/02/noautotile_zoomout.webp" width="508" height="509" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2018/02/variants/noautotile_zoomout.webp 508w, {{ site.baseurl }}/assets/2018/02/variants/noautotile_zoomout-320w.webp 320w"/></a> <img class="aligncenter size-full wp-image-1837" src="{{ site.baseurl }}/assets/2018/02/autotile_zoomout.webp" alt="" width="508" height="509" /></p>
+<p>Zoomed-in</p>
+<p><img class="aligncenter size-full wp-image-1838" src="{{ site.baseurl }}/assets/2018/02/noautotile_zoomin.webp" alt="" width="508" height="509" /></p>
+<p><img class="aligncenter size-full wp-image-1835" src="{{ site.baseurl }}/assets/2018/02/autotile_zoomin.webp" alt="" width="508" height="509" /></p>
+<p>Ok, so my mask looks bad, and there's little to none variation, so you can see patterns everywhere.</p>
+<h2>Increasing variation</h2>
+<p>Using 256x256 masks, a single RGBA texture needs 256K of memory. We can have a texture array of such masks, using however many layers we can afford memory-wise. In runtime, we can select the layer based on various conditions. E.g. some texture layers could contain transition masks for particular biomes, or more generally, we can select a layer based on a function of the tile coordinates.</p>
+<h2>Next...</h2>
+<p>Next post will be about procedurally-generating lots of masks, using distance fields versus using binary masks, and also determination of locations for placement of props.</p>

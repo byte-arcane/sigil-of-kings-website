@@ -1,0 +1,62 @@
+---
+layout: post
+title: Improving coastal maps
+date: 2023-08-11 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/08/coastal_before_after.png
+meta:
+author:
+permalink: "/2023/08/11/improving-coastal-maps/"
+---
+
+<p>Back from mini hiatus due to some work deadlines and a cold (yes, most of you are roasting, but the British Isles are cursed weather-wise). A variety of topics since last time, but I&#39;m going to focus on a couple, a &quot;done&quot; and a &quot;not-done&quot;.</p>
+<p><strong>Improving coastal maps</strong></p>
+<p>Being summer, one cannot help but think about nice beaches and water, right? So, <em>obviously</em> to the deranged gamedev mind this means &quot;make your coastal maps better!&quot;. Previously, water maps had ... a lot of water, and I don&#39;t expect much action to take place in water, in a level at least. Another problem was that optional prefabs were placed in water and connected to land, but they were ... too close to water. E.g. a rectangular cemetery-island situation. Not nice. So why not (figuratively speaking) kill two birds with one stone? Enter, or better, re-enter, distance fields. Before I bore you, here&#39;s a before-after picture pair.</p>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2023/08/coastal_before_after.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/08/variants/coastal_before_after.webp" srcset="{{ site.baseurl }}/assets/2023/08/variants/coastal_before_after.webp 1845w, {{ site.baseurl }}/assets/2023/08/variants/coastal_before_after-960w.webp 960w, {{ site.baseurl }}/assets/2023/08/variants/coastal_before_after-640w.webp 640w, {{ site.baseurl }}/assets/2023/08/variants/coastal_before_after-320w.webp 320w" alt="Before-after adding islands to coastal maps. New regions are all nicely accessible" width="1845" height="922" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Before-after adding islands to coastal maps. New regions are all nicely accessible</figcaption>
+</figure>
+
+<p>I&#39;ve used distance fields previously in coastal maps to differentiate shallow and deep water. So, how do we use them effectively to fix the problems above? </p>
+<ul>
+<li>Calculate a distance field to landmasses and gather all points above a certain distance. Keep up to 10 of those points, randomly. These will be the island seed points.</li>
+<li>Calculate a distance field to different zones AND to the island seed points calculated above</li>
+<li>Go through all water tiles int he map, and sample this new distance field. Perturb the distance with a bit of noise, and for all points where this perturbed distance is lower than some threshold, set this to land. <strong>This adds land padding</strong>. Padding for an island seed point results in an island, and padding for a subzone border means ... natural environment border, rather than abrupt/direct one (e.g. rectangular cemetery island).</li>
+<li>Fill the new tiles with randomised floor or blocked elements.</li>
+<li>Run some connected component algorithm to carve out blocked elements so that all areas some accessible. Otherwise a teleport trap would teleport you in-between some trees and that&#39;s no fun.</li>
+</ul>
+<p>Here are a few images from intermediate stages.</p>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/08/coastal_stage_1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/08/variants/coastal_stage_1.webp" srcset="{{ site.baseurl }}/assets/2023/08/variants/coastal_stage_1.webp 536w, {{ site.baseurl }}/assets/2023/08/variants/coastal_stage_1-320w.webp 320w" alt="Stage just before the addition of islands. White is floor, black is blocked, blue is water." width="536" height="560" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Stage just before the addition of islands. White is floor, black is blocked, blue is water.</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/08/coastal_stage_2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/08/variants/coastal_stage_2.webp" srcset="{{ site.baseurl }}/assets/2023/08/variants/coastal_stage_2.webp 536w, {{ site.baseurl }}/assets/2023/08/variants/coastal_stage_2-320w.webp 320w" alt="Added islands and randomised floor/blocked of new land" width="536" height="560" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Added islands and randomised floor/blocked of new land</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/08/coastal_stage_3.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/08/variants/coastal_stage_3.webp" srcset="{{ site.baseurl }}/assets/2023/08/variants/coastal_stage_3.webp 536w, {{ site.baseurl }}/assets/2023/08/variants/coastal_stage_3-320w.webp 320w" alt="Connected regions" width="536" height="560" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Connected regions</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/08/coastal_stage_4.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/08/variants/coastal_stage_4.webp" srcset="{{ site.baseurl }}/assets/2023/08/variants/coastal_stage_4.webp 536w, {{ site.baseurl }}/assets/2023/08/variants/coastal_stage_4-320w.webp 320w" alt="Adding depth" width="536" height="560" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Adding depth</figcaption>
+</figure>
+
+<p><strong>Boss zones</strong></p>
+<p>Part of the time was spent <s>misering over</s> improving and thinking more about integration of boss zones/lairs. It&#39;s a complex combo of procedural prefab areas with content that should be controllable on the fly. It&#39;s a nightmare really to set in a remotely clean way. For example: we have a dragon&#39;s lair, which is a procedural zone (cavernous) that includes a procedural prefab preset for placement of things, like &quot;dragon&quot; and &quot;hoard&quot;. So, &quot;dragon&quot; and &quot;hoard&quot; can be placed dutifully according to rules, but the runtime code, without using a fugly if-else, should be able to provide a way to instantiate this &quot;dragon&quot; and &quot;hoard&quot; according to the current adventure location requirements. More on this to come, hopefully next week with some prefabs after I flog myself to action.</p>
+<p><strong>In other news</strong></p>
+<ul>
+<li>I&#39;ve made some Unity editor window to ease with test dungeon generation, allowing some level of configuration</li>
+<li>Prefab zones now can belong in groups, so that I can control the randomness better. E.g. if I have 5 varieties of &quot;beast caves&quot; and I spawn 5 optional zones in a map, we shouldn&#39;t ever spawn 5 beast caves. Pick something else you silly RNG! </li>
+<li>Bug fixing, this time on team config. This bug was clearly visible when I spawned a bunch of monsters in a boss room and they started attacking each other. Disgruntled employees I guess.</li>
+</ul>
+

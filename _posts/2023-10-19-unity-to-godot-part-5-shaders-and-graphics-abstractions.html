@@ -1,0 +1,31 @@
+---
+layout: post
+title: "Unity to Godot Part 5: Shaders and graphics abstractions"
+date: 2023-10-19 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/10/mountains.png
+meta:
+author:
+permalink: "/2023/10/19/unity-to-godot-part-5-shaders-and-graphics-abstractions/"
+---
+
+<p>More porting work this week, focussed on porting shaders and graphics abstractions. Since I&#39;ve moved to architecture updates for now, work is less mechanical and more architectural, which means less ... text here.</p>
+<p>I wrote some abstractions for commonly used concepts, like a framebuffer, a quad, a render pass and of course a shader database that can reload on a whim (plenty of iterations expected). Also, abstractions for handling textures, a texture array database (for all the atlases), uniform sets and push constants. This is important because a lot of work is repeated, so as a good OOP citizen I have to encapsulate, abstract and parameterize for reuse. </p>
+<p>Previously I wasn&#39;t able to load my entire json config database due to some issue with dynamic atlases, now this is addressed so the database loads just fine (it&#39;s loads of classes with loads of data, so that&#39;s good)</p>
+<p>I&#39;ve written some basic infrastructure for editor-friendly &quot;tools&quot;. For example, making binary blobs for texture arrays so that I can load them quickly. Instead of reading 2000 PNGs every time I run the game, I load a binary blob that includes mipmaps, which means it&#39;s ultra fast. For development, I can even load them lazily, when needed, so I don&#39;t pay upfront cost at execution.</p>
+<p>I&#39;ve re-added some biome distribution visualization in the overworld generator and I noticed I was not generating jungles because of some inverted min/max value in requirements, so that was promptly fixed.</p>
+<p>I&#39;ve fixed some mipmapping issue during world generation, which was causing rivers to be swamps and located in deserts. This happened because rivers provide humidity, but instead of lowering and diffusing it in the surrounding area (using mipmaps) I ended up adding lots of humidity to the river tile, converting it to a swamp! So, that was fixed.</p>
+<p>I&#39;ve ported over a few complex shaders for overworld visualization: backround tiles, sea, rivers and even mountains. During the port, I&#39;ve also had to fix setting up depth writing/testing correctly. I&#39;m doing a depth trick where I can just splat mountain sprites all over the map and they&#39;re correctly layers properly overlapping each other. During the mountain visualization I realized I had too many mountains, so I went back to the overworld generation code, added some mountain visualisation mode and messed with the config until the distribution is reasonable (otherwise it&#39;s &quot;Alpine World&quot;).</p>
+<p>That&#39;s it so far! Next is overworld decals, mountain shadows, trees and tree shadows, so that the overworld is more or less complete, at which point I&#39;m going to clean up and move the code to an appropriate standalone class (currently it&#39;s on some test project, where I observe what needs to be shared/parameterised etc)</p>
+<p>Closing with a note: while the porting velocity seems to massively drop here, all this work will pretty much be used to do a sweep-replace a lot of the high-hanging fruit at once: materials, shaders, compute buffers, draw calls, and texture related stuff. They are all connected and they are all going to be replaced together when the time is right. The trickier and unexpected-effort part will be porting all shaders since I&#39;m converting to GLSL with explicit layout specification and all the vulkan verbosity, and there&#39;s a LOT of shader code...</p>
+
+<figure><img src="{{ site.baseurl }}/assets/2023/10/mountains.png" alt=""/><br />
+<figcaption>Background tiles, sea, rivers and mountains</figcaption>
+</figure>

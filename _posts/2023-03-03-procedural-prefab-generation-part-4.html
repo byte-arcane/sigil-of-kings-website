@@ -1,0 +1,61 @@
+---
+layout: post
+title: Procedural Prefab Generation part 4
+date: 2023-03-03 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/03/cavern_and_prefab2.png
+meta:
+author:
+permalink: "/2023/03/03/procedural-prefab-generation-part-4/"
+---
+
+<figure><a href="{{ site.baseurl }}/assets/2023/03/cavern_and_prefab.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/cavern_and_prefab.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/cavern_and_prefab.webp 1912w, {{ site.baseurl }}/assets/2023/03/variants/cavern_and_prefab-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/cavern_and_prefab-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/cavern_and_prefab-320w.webp 320w" alt="Example of the "wilderness lodge area" prefab in the cavern" wilderness="None" lodge="None" area"="None" prefab="None" in="None" the="None" cavern"="None" width="1912" height="1036" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Example of the "wilderness lodge area" prefab in the cavern</figcaption>
+</figure>
+
+<p>More refactoring this week on the native plugin side, for integration of procedural prefabs. </p>
+<p>The integration is going well, and now rooms and/or zones can have procedural content special to the room/zone, with some nice distance-based rules. I&#39;ve set my mind to create one of the examples I was talking about a couple of weeks ago: a wilderness area with a cabin, a campfire, some objects by the wall of the cabin and some objects lying around. The test was successful and is now 90% integrated correctly in the generator (the last 10% is a bug that I&#39;ve yet to fix). But I digress; back to the scenario, but in more detail:</p>
+<p><strong>Wilderness lodge area</strong></p>
+<ul>
+<li>The area is an empty area (blobby square shape) with a single room, of type &quot;WildernessCabin&quot;, that fits in a 16x16 box</li>
+<li>The area is using a &quot;WildernessCabinArea&quot; preset, with the following placement rules:<ul>
+<li>place up to 3 jugs next to a &quot;wall&quot; tile. Make sure they don&#39;t block the way, and they&#39;re not next to the zone&#39;s border</li>
+<li>place up to 3 crates on a tile that is NOT next to a wall tile. Make sure they don&#39;t block the way, and they&#39;re not next to the zone&#39;s border</li>
+<li>place a campfire on a tile that is NOT next to jugs or crates or a wall (in fact, at least 3 manhattan distance away)</li>
+</ul>
+</li>
+<li>The &quot;WildernessCabin&quot; preset uses 2 rules for placing things INSIDE the cabin:<ul>
+<li>place a carpet cover in the largest rectangular area in the cabin</li>
+<li>place a bed that is next to a wall and not near the entrance</li>
+</ul>
+</li>
+</ul>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/03/prefab_vars.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/prefab_vars.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/prefab_vars.webp 3270w, {{ site.baseurl }}/assets/2023/03/variants/prefab_vars-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/prefab_vars-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/prefab_vars-320w.webp 320w" alt="Prefab variations. The black area is the parent zone: a cavern, wilderness, dungeon, etc. " width="3270" height="1051" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Prefab variations. The black area is the parent zone: a cavern, wilderness, dungeon, etc. </figcaption>
+</figure>
+
+<p>This works pretty well! The distance rules have been extremely convenient actually, and allow a wealth of choices like &quot;must be within 2 tiles of wall&quot; or &quot;must not be within 3 tiles of campfire&quot; and so on, and it&#39;s flexible to add more generic rules.</p>
+<p>Currently there&#39;s a bug where if I try to add this preset into a bigger map, the placement rules for the cabin do not work, but it&#39;s probably something silly, I just ran out of time.</p>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/03/cavern_and_prefab2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/cavern_and_prefab2.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/cavern_and_prefab2.webp 1914w, {{ site.baseurl }}/assets/2023/03/variants/cavern_and_prefab2-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/cavern_and_prefab2-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/cavern_and_prefab2-320w.webp 320w" alt="Another example of the prefab in the cavern" width="1914" height="1037" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Another example of the prefab in the cavern</figcaption>
+</figure>
+
+<p>Other changes: </p>
+<ul>
+<li>Some boring refactoring, like renaming source files, breaking down complex files into smaller ones etc. </li>
+<li>Some bug fixing in the generators. This is a bit of whack-a-mole, as the generator is overall complex enough that a small change might have side effects in very certain scenarios.</li>
+<li>Some visualisation fix for this round of refactoring: don&#39;t display tiles that are not near a walking area or border walls, as it just looks nicer that way.</li>
+<li>Some GUI for placing prefab zones</li>
+</ul>
+
+
+

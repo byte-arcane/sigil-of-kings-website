@@ -1,0 +1,120 @@
+---
+layout: post
+title: Unity to Godot Part 2
+date: 2023-09-27 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/09/input_map.png
+meta:
+author:
+permalink: "/2023/09/28/unity-to-godot-part-2/"
+---
+
+<p>More porting this week! <strong>WARNING: plenty of rambling ahead,</strong> as I make things up as I go.</p>
+<p>After discovering the &quot;global using&quot; and reading <a href="https://lunarlabs.itch.io/oni-hunters/devlog/596276/devblog-2-from-unity-to-godot-in-a-weekend">this article</a>, which is another data point in the code-driven development approach, I decided to go all-out with keeping Godot out of the codebase, in case the final build has severe problems and I need to change again. So, extra care must be taken into setting up the final code folder hierarchy (which doubles-up as namespaces)
+So, first thing was to replace Godot.Mathf with System.MathF and glm as appropriate, and use aliases for Rect2,Color and Colors</p>
+<p><strong>PlayerPrefs</strong></p>
+<p>This was only used in a very simple way in a static class &quot;Cache&quot; that would do save/load of binary or json files, and might decide or not to reuse cached versions. Truth is, it&#39;s possibly buggy in its embedded logic that decides of we can or cannot reuse some cached files (and that&#39;s where PlayerPrefs is used) so it can be refactored out. Done.</p>
+<p><strong>JsonUtility</strong></p>
+<p>As easy as it gets. I was using it very simply with some old code, so I straight-up replaced it with Newtonsoft.Json.JsonConvert.[De]serializeObject&lt;&gt;.</p>
+<p><strong>UnityEngine.Profiling.Profiler, ProfilerMarker</strong></p>
+<p>I didn&#39;t find something like this in Godot, but thankfully I have my own simple solution for profiling so it was an easy replacement.</p>
+<p><strong>Color32</strong></p>
+<p>Yet another effortless port, just needed to define implicit casts between Color32 and Color</p>
+<p><strong>SerializeFieldAttribute, ISerializationCallbackReceiver</strong></p>
+<p>Godot uses [Export] and not callbacks AFAIK, and because I did not use that feature much and to avoid polluting the main game with these attributes, this kicked the bucket. One way to refactor is to ... refactor <em>out</em>.</p>
+<p><strong>Application, Time, LogType</strong></p>
+<p>Starting with Time. It&#39;s moved to a godot namespace, because we&#39;re getting the data through godot. Application.time can be ported to Godot.Time.GetTicksMsec() (with scaling to convert msec to sec), but delta time is trickier as it&#39;s pushed through Godot&#39;s _process method. Still, not hard, just changing the game&#39;s API so that systems get delta time like this. frameCount was replaced with .time, as it was used for some tests only.</p>
+<p>For the aplication now, things are getting tricky. Can&#39;t find any log hooks, like &quot;Application.logMessageReceived&quot;. Where was I using that? So that when Unity logged something, my log handler would listen to it. Ok, not going to cry a lot here, so removing this feature. My log system and Godot&#39;s log system will remain separate. Paths were easy to fix too, dataPath was replaced by res:// and temporaryPath points to a special folder in res://.temp which is ignored by both git and godot.</p>
+<p>Ok, low hanging fruit are done! Onwards to medium hanging fruit.</p>
+<p><strong>Singleton</strong></p>
+<p>To be able to test anything else from now on, I need to be able to run the game, in whatever chopped down form. So, the basis of that is the Singleton. I&#39;ve made an autoload node as per instructions, but instead of using the not-very-efficient GetNode<Global>(&quot;/root/Global&quot;); as per example, I&#39;m just storing this in a static variable that&#39;s updated every frame (for good measure), so that all C# scripts get access through that static. Here&#39;s where the serious refactoring begins as well, as so far (for various reasons) the main game state class ecs.Ecs is now moved to game.Game. Testing this, I realise I have access to the global in the _Process function, but not in the _Ready function of any other script, at least when starting the game.</p>
+<p><strong>Console</strong> </p>
+<p>That&#39;s going to be ultra useful for testing things, so I might as well fix it now. Trying to do this right wrt Godot, so after a bit of fiddling, I&#39;ve added a CanvasLayer in which I place a LineEdit node under. CanvasLayer is necessary otherwise the controls get misplaced when I change the camera&#39;s zoom level. Minus for Godot: I don&#39;t like the 2D camera, it&#39;s unintuitive to me, I preferred Unity&#39;s. Plus for Godot: setting up the input map is a <strong>breeze</strong>. Unity&#39;s new input system was a horrible overcomplicated mess. Minus for Godot: I had to setup the shortcut to be shift-tab for toggle console because things like &quot;#&quot;, &quot;`&quot;, &quot;~&quot; do not work well for me. The &quot;Listening for input&quot; field is pretty handy though to figure things out.</p>
+<p>I&#39;ve set up a LineEdit for the command and a Label for contextual info regarding the command. Now, compared to the previous implementation, I need to split it into a game-agnostic component (which is Godot specific) and the game-specific component, with a bit of refactoring. This is now done, and I think I have a slightly healthier developer console as a result, split in 3 parts: a generic console utility, the godot control/events/handling and the game-specific commands.</p>
+<p><strong>Camera</strong></p>
+<p>Ok now the base game skeleton is ready: An autoload gamenode with the state, a 2D root, a Sprite2D for rendering the world, a Sprite2D for rendering the level and a Camera2D. The first priority is to get the camera working, which means I need to figure out its relationship to the viewport and the scale of things in the world. First interesting find: by default the scale of things remain the same if you resize the window. I changed that to stretch the content appropriately in Project Settings -&gt; Display -&gt; Window -&gt; Stretch (mode: disabled to viewport). The sprite now fills the screen always when Camera sets zoom level of 5, or the sprite scale sets a scale of 5. I&#39;ll set the sprite scale at the world units, so for the world sprite it&#39;s going to be 512, and the camera&#39;s zoom level needs to be set at 5/512. So far so good, behaviour is as expected.</p>
+<p>The main camera object is being used to manipulate movement in the world and levels, so it&#39;s part of the game scene. The camera move behaviour script, after a lot of contemplation, will transform into a game system (in the ECS sense), listening for level changes, etc, and it will access the godot node to set its values, like position, zoom and offsets. </p>
+<p>I spent about 2 days trying to get the camera to work, and my honest opinion is that Godot&#39;s <strong>Camera2D sucks</strong>. It is way too specialised for some particular use cases, and there&#39;s not simpler camera to derive from. I literally spent several hours to figure out why my bounds checking was incorrect (being ill/tired didn&#39;t help), only to realise that some built-in default Drag settings (horizontal/vertical) were enabled, applying some sort of limits to the camera. Also, add the fact that there is Position, GlobalPosition and ScreenTargetPosition that are not explained very clearly in the docs wrt their differences. In any case, I managed to make that work after a bit of pain and a huge dip in porting speed. Camera is now bounded at level dimensions, can convert between mouse cursor and WCS without raycasts, we can click-and-drag or move with arrow keys, zoom with mouse wheel or +/-. There is also (as of now untested) support again for scripted panning and zooming. So, after refactoring few more bits and bobs (e.g. screenshake implementation), it&#39;s done for now and awaiting more serious testing. Overall, this was a high-hanging fruit, and it felt like it.</p>
+<p><strong>Palettes and color indices</strong></p>
+<p>This is a funny one. I thought in the beginning I&#39;m going to use some color lookups so I made some classes for colormaps and palettes and ... the usage was problematic and underwhelming. So I&#39;m going to remove most of that and use just a Color32 for colors. A single exception is the use of a colormap for GUI, as my colormap was identical to Godot&#39;s colors (<a href="https://en.wikipedia.org/wiki/X11_color_names">X11 colors</a>), so I&#39;m keeping that. Code blasting commencing, and (a couple of hours later) done! Part of the work involved exposing Godot&#39;s color names as a named list (other people think that&#39;s an omission too) and replace the use of palette colors for sprite skin tones etc, which was done using some Python scripts.</p>
+<ul>
+<li><strong>AudioSource,AudioClip,AudioMixer</strong></li>
+</ul>
+<p>Removed AudioMixer because I don&#39;t think I was using that yet. And based on my understanding from a quick read, AudioClip is AudioStream and AudioSource is AudioStreamPlayer (with 2D/3D variants). </p>
+<p>Now the &quot;fun&quot; begins. The documentation of AudioStreamPlayer2D says that it updates the audio panning based on where the object is on screen. The API does not seem to allow me to specify where the object is in the 2D world relatively to the listener. So, it probably requires the source is attached to a node that can be seen from the camera, but my &quot;nodeless&quot; programming style is incompatible with that. Thankfully, Godot is open source! So I go into the <a href="https://github.com/godotengine/godot/blob/df0a822323a79e1a645f0c6a17d51c7602f23166/scene/2d/audio_stream_player_2d.cpp">audio stream player 2D code</a>. I must confess I&#39;m not impressed by the level of comments in the header file. Code could also be a bit better, I&#39;ll stop judging though. The _update_panning function gets the position of some audio listener from each viewport to calculate the panning. Turns out the panning code is super simple, taking into account only the X axis, and I got example code which uses some AudioFrame class that I was not aware of. The problem though is that class, which controls panning is C++ only! Oops. So, we can&#39;t easily control panning from C#. Need to get creative.</p>
+<p>Time for a little demo experiment: I play some sound effects within some seconds, there might be some overlap in sounds. Each sound effect is coming from a different position (with different panning level). Need to:</p>
+<ul>
+<li>Create one AudioListener2D, attach to sprite (for game, AudioListener would be under Audio node)</li>
+<li>Create a list of AudioStreamPlayer2D, e.g 16 (max of 16 SFX)</li>
+<li>Every second, trigger a stream player 2D from the appropriate position.</li>
+</ul>
+<p>Demo/proof of concept was successful, you can hear/see <a href="https://i.imgur.com/C5STC7J.mp4">here</a>.</p>
+<p>After a bit more refactoring, I&#39;ve split my AudioSystem code to the part that&#39;s handled by a Godot &quot;audio manager&quot; node of sorts, where we just manage music tracks and SFX without any game-specific information, and the AudioSystem which listens to game events and sends instructions to the audio manager to play/stop tracks. </p>
+<p>While dealing with audio, I read how asset imports work (yeah, I didn&#39;t RTFM earlier, it was just after the basics), so my hacky &quot;AssetBindings&quot; class that I was using in Unity to store at runtime all resources (shaders/audio/etc) is effectively moot, as I can use e.g. ResourceLoader.Load<AudioStream>(streamPath) and this, supposedly, will be costly just the first time and will be fine the rest of times. I&#39;m happy with that during development and later on I can preload as necessary. </p>
+<p>Ok, for now, audio is done!</p>
+<p><strong>GUIStyle, GUILayout</strong></p>
+<p>Time to deal with developer GUI! Which is what I&#39;ve been using so far, and unfortunately people have assumed that this is the actual game GUI. Oh well... Anyway. I need some developer GUI for basic UI mock, and I had GUILayout in Unity. But, what do we have in Godot? Well, well, well, it looks like there is support for Dear ImGui, and latest release is from last week for Godot 4.x. Shortly after this discovery, I had an ImGui window showing, so that&#39;s super promising. After a couple of hours of refactoring, that&#39;s also done! It&#39;s probably going to look very ugly, but that&#39;s a surprise for later. And maybe it will be a motivation to set up some more appropriate game gui.</p>
+<p><strong>ReadOnly/WriteOnlyAttribute, Job, IJob, IJobParallelFor</strong></p>
+<p>I&#39;m going to cheat a bit with these. Instead of porting them right now to the C++ plugin, I&#39;ll provide a working implementation which is single-threaded, which is very simple to do, and I&#39;ll port them to C++ at the end after the game&#39;s basis is working again. Done that, to be tested after the overworld generation works.</p>
+<p><strong>Input, KeyCode, Event.keyCode</strong></p>
+<p>This is going to be another &quot;fun&quot; one. Unity allowed sprinkling the code with Input.GetKeyDown() whereas in Godot this is clearly discouraged and you can either hack your way (I&#39;d rather not) or make good use of actions and the node input event handling. </p>
+<p>My codebase is sprinkled with input checks, and I might as well clean this mess up. Here is a record of where input is getting used ((D) are debugging actions)</p>
+<ul>
+<li>Trigger some console command shortcuts with LCtrl+LAlt+[1-9] (D)</li>
+<li>F6 swaps the player with the hovered entity as a sensor (we can see through the eyes of the entity) (D)</li>
+<li>F10 hides the main dev gui, I used it for clean recording</li>
+<li>F7 starts some fire effect on the map, I had added that when testing that fire effect (D)</li>
+<li>X,Y are used to highlight creatures and object on the map</li>
+<li>When LCtrl is pressed and we hover over a location, we show gui for quick travel</li>
+<li>LShift + [1-4]: some debug controls, e.g. clear a tile, add a poison tile etc. (D)</li>
+<li>Escape: sprinkled in a few places. E.g. skip cutscenes or &quot;go back one step&quot; in multi-stage commands</li>
+<li>Left/Right arrow: move through pages in inventory &quot;screen&quot;. Also used in some GUI screen for stack splitting that I can&#39;t remember much</li>
+<li>[1-9]: select option in multiple-choice &quot;screen&quot;</li>
+<li>F12: pause realtime (so, animation frames freeze) (D)</li>
+<li>F11: change realtime speed to a number of slow motion presets (1/2, 1/4 etc), useful for some animation debugging (D)</li>
+<li>9 starts a lightning weather effect (D)</li>
+<li>various keys with optional modifiers are used by the &quot;input action database&quot;, that provides a data-driven approach of things that happen based on input. This includes a number of actions types<ul>
+<li>&quot;InputActionAAWrapper&quot;, parameterised on an active ability. During execution, it creates/pushes a new GUI stage as necessary</li>
+<li>&quot;InputActionHotkey&quot; : that was a half-baked attempt of handling hotkeys. Can die in a fire.</li>
+<li>&quot;InputActionNoGui&quot; : base class for actions like Teleport, Look, Quicksave, Quickload. These, as the name suggests, can happen immediately without any more GUI-driven parameters (e.g. teleport on hovered tile, look at hovered tile)</li>
+<li>&quot;InputActionPressed&quot; : base class for actions that happen only while a key/btn is pressed, e.g. minimap, highlighting objects and/or treasure</li>
+</ul>
+</li>
+</ul>
+<p>Alright, what are the observations from the above? </p>
+<ul>
+<li>I need a singular place to put all my debugging stuff with various weird key combos. This can be a .cs file with classes that implement some key handling interface, and those classes can be instantiated and registered in the main game node, whose input function we&#39;re listening. AKA organised, contained mess!</li>
+<li>Useful non-debug stuff like the multi-purpose use of Escape or LCtrl could be mapped to global, fixed Input actions in project settings</li>
+<li>The key controls for the devgui will disappear. Incentive to prototype a game gui! The game gui nodes can then listen for input for e.g. &quot;press the button, or press 1 to activate option&quot;</li>
+<li>Setup global input actions like other titles do it, with premade actions for hotkeys etc (I checked out Skyrim as an inspiration, not 100% relevant but doesn&#39;t matter)</li>
+</ul>
+<p>So, how should I be supposed to be triggering actions now? Generally, looking back at my previous implementation ... well, I need to apply KISS. </p>
+<ul>
+<li>Have all debugging actions declared in one place. Each can be triggered with a different key combo. The keys will be checked during &quot;unhandled input&quot; check on the game node, which means it will happen only if no standard action has been handled. This is an improvement already.</li>
+<li>Different &quot;states&quot; listen to different subsets of input actions. These could typically be:<ul>
+<li>&quot;world&quot; : when waiting for input while on overworld</li>
+<li>&quot;level&quot; : when waiting for input while in a level</li>
+<li>&quot;tile select&quot; : when we have abilities that require selection of a tile</li>
+<li>container: input key shortcuts when we have a container/inventory screen </li>
+<li>menu: input key shortcuts when we have a menu screen with options</li>
+<li>slider: input key shortcuts when we have a slider, e.g. splitting stacks.</li>
+</ul>
+</li>
+<li>On player turn, we should be in one of the above states. The input should either be given by the fictional GUI elements (one day...) or by any supported key input action associated with the state. </li>
+<li>Handling input actions could either result in something that is not considered a move (quicksave, look at tile, highlight objects) or something that is a move (trigger a hotkey, move right)<ul>
+<li>Non-moves could either be triggered by press-and-hold input (e.g. hold key to highlight) or by press-once types (look at tile)</li>
+<li>Move inputs are triggered by &quot;press the key once&quot; type of input, and, depending if the ability needs configuration (e.g. target) we might or might not need to spawn more GUI stages.</li>
+<li>I need info on which action is press-and-hold. I guess it can live in a config next to the &quot;state to input actions&quot; mapping. Sounds like a fine job for an InputSystem json config.</li>
+</ul>
+</li>
+<li>To augment the previous statement, on player turn, based on the state, we start checking if any of the supported inputs need to be triggered, and handle accordingly.</li>
+</ul>
+<p>I think that&#39;s it for now, more rambling next time!</p>
+

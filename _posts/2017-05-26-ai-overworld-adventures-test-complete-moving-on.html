@@ -1,0 +1,39 @@
+---
+layout: post
+title: 'AI: Overworld Adventures Test - Complete, moving on'
+date: 2017-05-26 10:08:31.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_published: '1'
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '5456561803'
+  _thumbnail_id: '1513'
+  _oembed_time_cc4a7dc20090142e697decb7a3030a4d: '1506329330'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1615676307;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:964;}i:1;a:1:{s:2:"id";i:1368;}i:2;a:1:{s:2:"id";i:580;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '63'
+author:
+permalink: "/2017/05/26/ai-overworld-adventures-test-complete-moving-on/"
+---
+<p>After some bug fixing and restructuring the Blackboard class (yet again), I did manage to fix the AI. After a lot of sweating swearing and sighing, I decided to have 2 Blackboard classes, which are annoyingly similar:</p>
+<p>One Blackboard class is for <strong>general variable storage</strong> explicitly handled by the client, typically application states. So that they can for example pass variables from one state to another.</p>
+<p>The other Blackboard class is for <strong>automatic variable storage </strong>where the variables, on request for access, are calculated automatically via functions and cache their values to avoid recalculations. So there can be automatic function chaining if a variable depends on another and so on. This can still be overridden by the user, and in that case I need to track dependencies to invalidate the cached values of all dependents. Example:</p>
+<p><a href="{{ site.baseurl }}/assets/2017/05/dotex1.webp"><img class="alignnone size-full wp-image-1506" src="{{ site.baseurl }}/assets/2017/05/dotex1_thumb740.webp" alt="dotex.png" width="772" height="251" /></a></p>
+<p>In the above, if I explicitly set "entity:CurrentEnemy", then float:EnemyPowerLevel and float:BattleSuccessEstimate both become dirty, therefore next time I request them they need to run their respective functions. This functionality will be used in the <a href="{{ site.baseurl }}/2017/05/12/ai-overworld-adventures-test-blackboard-dependency-chains/">Instanced Decision Groups that I mentioned in another post</a></p>
+<p>Now the AI manages to actually stay alive for a while. So compared to 8 months of survival (1 move is approx one day), the new AI can stay alive for more than 7 years!</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/fee1M89C3Xo" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/fee1M89C3Xo?autoplay=1><img src=https://img.youtube.com/vi/fee1M89C3Xo/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video fee1M89C3Xo"></iframe>
+</div>
+<p>So I guess I'll consider that good enough for now and move on to other things. As an interlude, I wanted to do some graphics... So I was testing some visualizations and recreated a style that I want to have at some point in the game, perhaps in the form of a cutscene or who knows... So, here it goes!</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/51NxTUXZ1BY" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/51NxTUXZ1BY?autoplay=1><img src=https://img.youtube.com/vi/51NxTUXZ1BY/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video 51NxTUXZ1BY"></iframe>
+</div>
+<p>The style is reminiscent of SNES Mode 7 when applied for overworld visualization, and I remember it (and loved it) from the <a href="https://www.youtube.com/watch?v=GTBQvKaJGBU&amp;feature=youtu.be&amp;t=519">ending of Chrono Trigger</a></p>
+<p>At the moment of course the tile visualization is severely boring and flat (even though I like the palette), soon-to-come features will be smooth tile transitions, textures (whenever I find good enough textures for all the biomes), trees, mountains, and some water animation. And perhaps try a few visualization tricks :)</p>

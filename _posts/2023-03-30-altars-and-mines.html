@@ -1,0 +1,48 @@
+---
+layout: post
+title: Altars and Mines
+date: 2023-03-30 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/03/altar_3.png
+meta:
+author:
+permalink: "/2023/03/30/altars-and-mines/"
+---
+
+<p>More work on procedural placement of things this week, plus some refactor, although I was quite distracted by Diablo IV open beta during the weekend (good distraction!)</p>
+<p><strong>Altar areas</strong></p>
+<p>Altar area specification is rather simple. It&#39;s a small 9x9 empty area (blobby shape) with an altar in the middle, the occasional bones/blood and statues, placed in one of several patterns, around it. There&#39;s not much more to be said, and it works as intended! Later on, variations will be created, for abandoned altars, altars with a cult around, and so on.</p>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2023/03/altar_1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/altar_1.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/altar_1.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/altar_1-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/altar_1-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/altar_1-320w.webp 320w" alt="Altar example 1" width="1920" height="1080" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Altar example 1</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/03/altar_2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/altar_2.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/altar_2.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/altar_2-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/altar_2-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/altar_2-320w.webp 320w" alt="Altar example 2" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Altar example 2</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/03/altar_3.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/altar_3.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/altar_3.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/altar_3-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/altar_3-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/altar_3-320w.webp 320w" alt="Altar example 3" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Altar example 3</figcaption>
+</figure>
+
+<p><strong>Mines</strong></p>
+<p>One of the map archetypes that I want to have is mines. Precious metals are a thing in Sigil of Kings and can be used to improve a city&#39;s wealth and to construct equipment from them, with special properties. So, naturally, there should be mines and adventures related to mines. And what is a characteristic of a map in a mine? Mine cart rails of course! This was an excuse to write an algorithm to calculate the track tiles, which was not more complicated than using the walkable areas as a binary mask and run a skeletonization process. The final result was connected just along the diagonals and was a bit too excessive, so I had to make a few edits to make it a bit better looking. The result is not too bad I think! It&#39;s going to be more challenging to create the art for autotiled tracks, even if it&#39;s really 2 tiles (straight and 90 degree turn) with overlays/reflections/rotations.</p>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/03/minecart_track.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/minecart_track.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/minecart_track.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/minecart_track-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/minecart_track-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/minecart_track-320w.webp 320w" alt="Mines map" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Mines map</figcaption>
+</figure>
+
+<p><strong>Misc</strong></p>
+<ul>
+<li>I just found an excuse to use std::variant for generic dictionaries and I quite like it! Previously, prefab placement algorithms had custom state which was stored as a class hierarchy, but now the state data are just stored as a variant dictionary.</li>
+<li>I&#39;ve been doing a lot of thinking about how the prefab placement code can be used later on to augment existing placement algorithms with quest-specific information. I&#39;ve settled currently that the placement element name (reminder: a procedural placement configuration generates a number of named elements, each specifying algorithm and properties) will be used as a lookup in C# to instantiate whatever it needs however it needs. For example, for some quest to slay the legendary beast &quot;Blood Fang&quot;, I&#39;ll be instantiating a &quot;Beast Cave&quot; and I instantiate for the &quot;beast&quot; element the &quot;Blood Fang&quot; creature.</li>
+</ul>
+

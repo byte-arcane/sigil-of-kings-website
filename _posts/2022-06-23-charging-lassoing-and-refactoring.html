@@ -1,0 +1,29 @@
+---
+layout: post
+title: Charging, lassoing and refactoring
+date: 2022-06-23 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/06/lasso_hurl.png
+meta:
+author:
+permalink: "/2022/06/23/charging-lassoing-and-refactoring/"
+---
+
+<p>Still refactoring/expending the ability system, as I&#39;m trying to add some challenging cases that play well with the other abstractions. Being sick for several days certainly did not help. Managed to add two example skills, a variation of &quot;Charge&quot; that can target a wall tile and breaks it, and a variation of the Lasso skill which can select an object or a creature and hurls it towards another object/creature/tile, which can cause some knockback as well. This involved some bug-fixing in the animation order/delay system, and the creation of a shader that renders a bezier-powered lasso for the hurling animation. I&#39;m quite happy with how it looks overall.</p>
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/juggernaut_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Charging towards a wall to escape enemies</figcaption>
+</figure>
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/lasso_swing_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Lasso hurling tricks</figcaption>
+</figure>

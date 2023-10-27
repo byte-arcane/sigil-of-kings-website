@@ -1,0 +1,282 @@
+---
+layout: post
+title: 'Level generation I: Layout'
+date: 2019-08-15 22:28:07.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1615898452;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2220;}i:1;a:1:{s:2:"id";i:2257;}i:2;a:1:{s:2:"id";i:2373;}}}}
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '23'
+author:
+permalink: "/2019/08/15/level-generation-i-layout/"
+---
+<p><!-- wp:image {"id":2162} --></p>
+<figure class="wp-block-image"><a href="{{ site.baseurl }}/assets/2019/08/final2_map1_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final2_map1_tiles_sparse_thumb740.webp" alt="" class="wp-image-2162" width="740" height="370" loading="lazy"/></a></figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>After a break working on other things (and playing games for research purposes :) ), at about July I started working on level generation, as an exciting way back in to development. Exciting does not mean short, however, as I have certain expectations from the level generator to be quite capable and flexible, instead of just generating  a "caves" level, a "dungeon" or a "forest". As a result, 6 weeks later, I'm nowhere near done, but some parts now do work, and this is what this and following posts will be about.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":3} --></p>
+<h3>Parts of level generation</h3>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Levels are not generated in a single pass; the process is split into the following (tentative) order:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li><strong>Layout</strong>: Passable/impassable areas, rocks, trees, doors, water, open sea, etc. Where creatures can move.
+<li><strong>Gateways</strong>: Staircases, etc. How to connect one level to another
+<li><strong>Foreground objects</strong>: altars, fountains, bookshelves, tables, etc. 
+<li><strong>Traps, puzzles</strong>, <strong>secret</strong> <strong>doors</strong>
+<li><strong>Creatures</strong>
+<li><strong>Decoration</strong>: Grass, cobwebs, carpets, etc
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>The order, while not final, should reflect some form of logical dependent order, for example layout comes first, gateways need a layout, foreground objects need a layout and also need to avoid staircases, traps are based on layout and foreground objects, creatures need to be generated based on the dungeon layout and also need to be aware of traps and maybe foreground objects, and finally decoration is applied to layout but needs to know about other elements, such as gateways and foreground objects, that exist on the level.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":3} --></p>
+<h3>Requirements and use-cases</h3>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Example levels should contain:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Building interiors ( manor, guild hall, temple complex)
+<li>Buildings outdoors (village, ruins, cabin in the woods)
+<li>Outdoors environments (forest, desert, sea coast, and generally biome-themed areas)
+<li>Typical dungeon
+<li>Cave complex
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Zones: The ${dungeon_type} in the ${biome_type}</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>
+One of the goals of the level generation system is to be able to utilise<br />
+ multiple generators for single level, so that level separation is not<br />
+always artificial. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>An example is the first level of a wizard tower in some location. The tower can be located in the swamp (don't ask me how they built it, it's probably not too structurally sound), in the snow, near the sea, in the desert etc. In order to add some sense of exploration, we want the player to wander a bit in the biome to find the tower.  So, we need a biome-specific generator, depending on our location. When we find the building, instead of having some sort stairs to change to a different level, we can generate the first level of the tower embedded within the biome map. So you find the tower, open the door, get in and explore the ground floor of the tower, all in the same level. To achieve this, we need 2 different generators, the biome generator and a "wizard tower ground floor" generator, and embed the latter into the former and make sure the entrance is accessible and makes sense. The areas belonging to different generators will be called from now on <strong>zones</strong>.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Masks: Controlling the shape of zones</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Instead of using simplistic rectangles to differentiate between areas, we can use some more freeform masks using noise and cleaning up the shape by removing islands, or even custom ones. As a result, we get zones like this:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2166,"align":"center","width":315,"height":158} --></p>
+<div class="wp-block-image">
+<figure class="aligncenter is-resized"><img src="{{ site.baseurl }}/assets/2019/08/Coastal2_map0_zoneid.webp" alt="" class="wp-image-2166" width="315" height="158" loading="lazy"/><br />
+<figcaption>Coastal map (red) with lighthouse (green)</figcaption>
+</figure>
+</div>
+<p><!-- /wp:image --></p>
+<p><!-- wp:image {"id":2167,"align":"center","width":317,"height":159} --></p>
+<div class="wp-block-image">
+<figure class="aligncenter is-resized"><img src="{{ site.baseurl }}/assets/2019/08/final2_map0_zoneid.webp" alt="" class="wp-image-2167" width="317" height="159" loading="lazy"/><br />
+<figcaption>Outdoors (red), mountain (green), dungeon (blue)</figcaption>
+</figure>
+</div>
+<p><!-- /wp:image --></p>
+<p><!-- wp:image {"id":2168,"align":"center","width":312,"height":156} --></p>
+<div class="wp-block-image">
+<figure class="aligncenter is-resized"><img src="{{ site.baseurl }}/assets/2019/08/final3_map0_zoneid.webp" alt="" class="wp-image-2168" width="312" height="156" loading="lazy"/><br />
+<figcaption> Outdoors (red), mountain (green), temple (blue) </figcaption>
+</figure>
+</div>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>Each zone uses its own generator, and we just need to make sure that the zones can be connected. Zones can be "open" or "closed". Open zones are ones where the default location is passable, for example outdoors. Closed locations are ones where the default is impassable, such as caverns, dungeons, etc, as these are spaces carved into rock. We have to worry about connecting zones if at least one of them is closed.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Prefabs: Handcrafted areas in procedural levels</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Procedural generation nice, but sometimes we want to place particular, handcrafted rooms and areas and mix them with procedural elements. Examples:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Boss lair: specially designed room, but we shouldn't know where to find it
+<li>Fortress entry hall. If we enter the fortress we're in that room, but we don't know the rest of the layout
+<li> Fortress prison. It has a fixed layout, but we don't know where it is.
+<li>Glade in the forest. We want a small area in the forest to have a very particular look (special placement of lake, trees, ruins), but we won't know where to find it.
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>In the example images in this page, I use a small number of prefab rooms: </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Entry hall</strong>: When I use this, it's always the first room to be connected to a connecting zone, via the door on the top. The doors appear exactly at that location, and we won't have any more doors.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2164,"align":"center","width":267,"height":288} --></p>
+<div class="wp-block-image">
+<figure class="aligncenter is-resized"><img src="{{ site.baseurl }}/assets/2019/08/image-1.webp" alt="" class="wp-image-2164" width="267" height="288" loading="lazy"/><br />
+<figcaption>Entry hall</figcaption>
+</figure>
+</div>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Lair</strong>:  When I use this, I ensure that it's never connected to a  different zone, so all doors lead somewhere in the same zone. The doors appear exactly at  that location, and we won't have any more doors. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2163,"align":"center","width":509,"height":236} --></p>
+<div class="wp-block-image">
+<figure class="aligncenter is-resized"><img src="{{ site.baseurl }}/assets/2019/08/image.webp" alt="" class="wp-image-2163" width="509" height="236" loading="lazy"/><br />
+<figcaption>Lair, in case it wasn't clear</figcaption>
+</figure>
+</div>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>OpenArea</strong>: This is an example of an area that is open and has a few things in.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2165,"align":"center","width":258,"height":198} --></p>
+<div class="wp-block-image">
+<figure class="aligncenter is-resized"><img src="{{ site.baseurl }}/assets/2019/08/image-2.webp" alt="" class="wp-image-2165" width="258" height="198" loading="lazy"/><br />
+<figcaption>Open area</figcaption>
+</figure>
+</div>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>Not fancy, but serving as proof of concept.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Configurability</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>A very important part of the process is being able to configure the generator using simple data structs, loadable from configuration files (or dynamically created configurations). This "heterogeneous" generator was designed with that in mind, so that creating permutations is easy, although there are still quite a few parameters to set up. In this page I'm using 3 presets:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li><strong>The dungeon under the mountain V1:</strong> An outdoors map, with a cavern system on the left side, that leads to a dungeon map
+<li><strong> The dungeon under the mountain V2:</strong> An outdoors map, with a cavern system on the left side, that leads to a temple. The temple generator is different than the dungeon generator in V1, and uses a dragon-shaped mask, so that any rooms are forced to be confined in that shape
+<li><strong>The lighthouse by the sea:</strong> An outdoors map, bordering with the sea, that contains the lower level of a lighthouse: a circular tiny "dungeon" which is effectively a few rooms (maybe even one) and a staircase. Players might or might not traverse water to get to the lighthouse.
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:heading {"level":3} --></p>
+<h3>Examples</h3>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Below are some examples, 10 per preset. Using basic tiles and minimal decoration, more on that in another post.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:gallery {"ids":[2169,2170,2171,2172,2173,2174,2175,2176,2177,2178,2179,2180,2181,2183,2188,2191,2193,2194,2195,2198,2200,2201,2202,2203,2204,2205,2206,2208,2209],"columns":1,"imageCrop":false} --></p>
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final2_map0_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final2_map0_tiles_sparse_thumb740.webp" alt="" data-id="2169" data-link="{{ site.baseurl }}/?attachment_id=2169#main" class="wp-image-2169" width="740" height="370" loading="lazy"/></a></figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final2_map1_tiles_sparse-1.webp"><img src="{{ site.baseurl }}/assets/2019/08/final2_map1_tiles_sparse-1_thumb740.webp" alt="" data-id="2170" data-link="{{ site.baseurl }}/?attachment_id=2170#main" class="wp-image-2170" width="740" height="370" loading="lazy"/></a></figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final2_map2_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final2_map2_tiles_sparse_thumb740.webp" alt="" data-id="2171" data-link="{{ site.baseurl }}/?attachment_id=2171#main" class="wp-image-2171" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final2_map3_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final2_map3_tiles_sparse_thumb740.webp" alt="" data-id="2172" data-link="{{ site.baseurl }}/?attachment_id=2172#main" class="wp-image-2172" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final2_map4_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final2_map4_tiles_sparse_thumb740.webp" alt="" data-id="2173" data-link="{{ site.baseurl }}/?attachment_id=2173#main" class="wp-image-2173" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final2_map5_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final2_map5_tiles_sparse_thumb740.webp" alt="" data-id="2174" data-link="{{ site.baseurl }}/?attachment_id=2174#main" class="wp-image-2174" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final2_map6_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final2_map6_tiles_sparse_thumb740.webp" alt="" data-id="2175" data-link="{{ site.baseurl }}/?attachment_id=2175#main" class="wp-image-2175" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final2_map7_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final2_map7_tiles_sparse_thumb740.webp" alt="" data-id="2176" data-link="{{ site.baseurl }}/?attachment_id=2176#main" class="wp-image-2176" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final2_map8_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final2_map8_tiles_sparse_thumb740.webp" alt="" data-id="2177" data-link="{{ site.baseurl }}/?attachment_id=2177#main" class="wp-image-2177" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final2_map9_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final2_map9_tiles_sparse_thumb740.webp" alt="" data-id="2178" data-link="{{ site.baseurl }}/?attachment_id=2178#main" class="wp-image-2178" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final3_map0_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final3_map0_tiles_sparse_thumb740.webp" alt="" data-id="2179" data-link="{{ site.baseurl }}/?attachment_id=2179#main" class="wp-image-2179" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final3_map1_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final3_map1_tiles_sparse_thumb740.webp" alt="" data-id="2180" data-link="{{ site.baseurl }}/?attachment_id=2180#main" class="wp-image-2180" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final3_map2_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final3_map2_tiles_sparse_thumb740.webp" alt="" data-id="2181" data-link="{{ site.baseurl }}/?attachment_id=2181#main" class="wp-image-2181" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final3_map3_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final3_map3_tiles_sparse_thumb740.webp" alt="" data-id="2183" data-link="{{ site.baseurl }}/?attachment_id=2183#main" class="wp-image-2183" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final3_map4_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final3_map4_tiles_sparse_thumb740.webp" alt="" data-id="2188" data-link="{{ site.baseurl }}/?attachment_id=2188#main" class="wp-image-2188" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final3_map5_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final3_map5_tiles_sparse_thumb740.webp" alt="" data-id="2191" data-link="{{ site.baseurl }}/?attachment_id=2191#main" class="wp-image-2191" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final3_map6_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final3_map6_tiles_sparse_thumb740.webp" alt="" data-id="2193" data-link="{{ site.baseurl }}/?attachment_id=2193#main" class="wp-image-2193" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final3_map7_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final3_map7_tiles_sparse_thumb740.webp" alt="" data-id="2194" data-link="{{ site.baseurl }}/?attachment_id=2194#main" class="wp-image-2194" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final3_map8_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final3_map8_tiles_sparse_thumb740.webp" alt="" data-id="2195" data-link="{{ site.baseurl }}/?attachment_id=2195#main" class="wp-image-2195" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/final3_map9_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final3_map9_tiles_sparse_thumb740.webp" alt="" data-id="2198" data-link="{{ site.baseurl }}/?attachment_id=2198#main" class="wp-image-2198" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/Coastal2_map0_tiles_sparse-1.webp"><img src="{{ site.baseurl }}/assets/2019/08/Coastal2_map0_tiles_sparse-1_thumb740.webp" alt="" data-id="2200" data-link="{{ site.baseurl }}/2019/08/15/level-generation-i-layout/coastal2_map0_tiles_sparse-1/#main" class="wp-image-2200" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/Coastal2_map1_tiles_sparse-1.webp"><img src="{{ site.baseurl }}/assets/2019/08/Coastal2_map1_tiles_sparse-1_thumb740.webp" alt="" data-id="2201" data-link="{{ site.baseurl }}/2019/08/15/level-generation-i-layout/coastal2_map1_tiles_sparse-1/#main" class="wp-image-2201" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/Coastal2_map2_tiles_sparse-1.webp"><img src="{{ site.baseurl }}/assets/2019/08/Coastal2_map2_tiles_sparse-1_thumb740.webp" alt="" data-id="2202" data-link="{{ site.baseurl }}/2019/08/15/level-generation-i-layout/coastal2_map2_tiles_sparse-1/#main" class="wp-image-2202" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/Coastal2_map3_tiles_sparse-1.webp"><img src="{{ site.baseurl }}/assets/2019/08/Coastal2_map3_tiles_sparse-1_thumb740.webp" alt="" data-id="2203" data-link="{{ site.baseurl }}/2019/08/15/level-generation-i-layout/coastal2_map3_tiles_sparse-1/#main" class="wp-image-2203" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/Coastal2_map4_tiles_sparse-1.webp"><img src="{{ site.baseurl }}/assets/2019/08/Coastal2_map4_tiles_sparse-1_thumb740.webp" alt="" data-id="2204" data-link="{{ site.baseurl }}/2019/08/15/level-generation-i-layout/coastal2_map4_tiles_sparse-1/#main" class="wp-image-2204" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/Coastal2_map5_tiles_sparse-1.webp"><img src="{{ site.baseurl }}/assets/2019/08/Coastal2_map5_tiles_sparse-1_thumb740.webp" alt="" data-id="2205" data-link="{{ site.baseurl }}/2019/08/15/level-generation-i-layout/coastal2_map5_tiles_sparse-1/#main" class="wp-image-2205" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/Coastal2_map6_tiles_sparse-1.webp"><img src="{{ site.baseurl }}/assets/2019/08/Coastal2_map6_tiles_sparse-1_thumb740.webp" alt="" data-id="2206" data-link="{{ site.baseurl }}/2019/08/15/level-generation-i-layout/coastal2_map6_tiles_sparse-1/#main" class="wp-image-2206" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/Coastal2_map8_tiles_sparse-1.webp"><img src="{{ site.baseurl }}/assets/2019/08/Coastal2_map8_tiles_sparse-1_thumb740.webp" alt="" data-id="2208" data-link="{{ site.baseurl }}/2019/08/15/level-generation-i-layout/coastal2_map8_tiles_sparse-1/#main" class="wp-image-2208" width="740" height="370" loading="lazy"/></a></figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2019/08/Coastal2_map9_tiles_sparse-1.webp"><img src="{{ site.baseurl }}/assets/2019/08/Coastal2_map9_tiles_sparse-1_thumb740.webp" alt="" data-id="2209" data-link="{{ site.baseurl }}/2019/08/15/level-generation-i-layout/coastal2_map9_tiles_sparse-1/#main" class="wp-image-2209" width="740" height="370" loading="lazy"/></a></figure>
+
+<p><!-- /wp:gallery --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>UPDATE</strong>: Here are some videos showing the process of generating the dungeons:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:core-embed/youtube {"url":"https://youtu.be/MbAvdZ1mGzE","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-4-3 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed-youtube wp-block-embed is-type-video is-provider-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/MbAvdZ1mGzE" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/MbAvdZ1mGzE?autoplay=1><img src=https://img.youtube.com/vi/MbAvdZ1mGzE/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video MbAvdZ1mGzE"></iframe>
+</div>
+</figure>
+<p><!-- /wp:core-embed/youtube --></p>
+<p><!-- wp:core-embed/youtube {"url":"https://youtu.be/empcbwHF7h4","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-4-3 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed-youtube wp-block-embed is-type-video is-provider-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/empcbwHF7h4" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/empcbwHF7h4?autoplay=1><img src=https://img.youtube.com/vi/empcbwHF7h4/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video empcbwHF7h4"></iframe>
+</div>
+</figure>
+<p><!-- /wp:core-embed/youtube --></p>
+<p><!-- wp:core-embed/youtube {"url":"https://youtu.be/y5nLl6Be5jg","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-4-3 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed-youtube wp-block-embed is-type-video is-provider-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/y5nLl6Be5jg" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/y5nLl6Be5jg?autoplay=1><img src=https://img.youtube.com/vi/y5nLl6Be5jg/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video y5nLl6Be5jg"></iframe>
+</div>
+</figure>
+<p><!-- /wp:core-embed/youtube --></p>

@@ -1,0 +1,39 @@
+---
+layout: post
+title: Procedural Prefab Generation
+date: 2023-02-09 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/02/rect_wall_pp_hall_of_heroes.png
+meta:
+author:
+permalink: "/2023/02/09/procedural-prefab-generation/"
+---
+
+<figure><a href="{{ site.baseurl }}/assets/2023/02/rect_wall_pp_hall_of_heroes.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/02/variants/rect_wall_pp_hall_of_heroes.webp" srcset="{{ site.baseurl }}/assets/2023/02/variants/rect_wall_pp_hall_of_heroes.webp 480w, {{ site.baseurl }}/assets/2023/02/variants/rect_wall_pp_hall_of_heroes-320w.webp 320w" alt="Carpet, statues and throne generated procedurally based on script" width="480" height="240" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Carpet, statues and throne generated procedurally based on script</figcaption>
+</figure>
+
+I've started working on refactoring the room/zone prefab code in the dungeon generation process. Just to get the terms out of the way, a level map can be comprised by different zones which can be embedded in each other, e.g. a dungeon zone could be part of wilderness-forest zone, and inside the dungeon zone we could have some cathedral zone, and so on (if one can stomach all the configuration to set that up, which is manual atm). On the other hand, certain dungeon generators use "rooms" as the units to place (e.g. your typical dungeon, rather than the wilderness). <br><br>
+
+Rooms or zones can be prefabs or completely procedural. The problem is that currently, prefabs are quite static: There's some allowance to procedurally generate generic things like encounters, treasures, traps, etc in them, but there's no thematic/structured generation really.  <br><br>
+
+What I want to do (and I am doing now) is a hybrid prefab model, where I can specify some parameters and generate a thematic prefab, e.g. I want a throne room with statues, but it should be able to be placed in arbitrary sized rooms, and ideally I should be able to generate infinite variations: keep the "structure" but change the flavor and positions of things. We're amazing at detecting patterns, so copy-paste prefabs are easily identifiable and break the immersion. <br><br>
+
+This procedural prefab work is currently done at the native plugin level: the algorithms do not know much about game elements etc, but only about rules. I want to place a "thing" that is a blocker (chair, table, statue) so I can't place it on top of other blockers, or in a way that's blocking a narrow passage, etc. Or I want to place a carpet in the room, in the largest possible clear rectangle. Or place things (like statues, or a throne, or tables) along such a rectangle. The algorithm input includes some identifiers, specified dynamically from the game, so that during the game we can tell the algorithm "generate a creature somewhere there next to the throne" and in the place of the creature we can put Gormm the bloodthirsty barbarian king. And also include another algorithm that says "generate some object in the back of the room" and these can be mapped to chests in the game. The algorithm does not know about chests, it only knows that it's a blocker object. <br><br>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/02/rect_wall_pp_hall_of_heroes_script.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/02/variants/rect_wall_pp_hall_of_heroes_script.webp" srcset="{{ site.baseurl }}/assets/2023/02/variants/rect_wall_pp_hall_of_heroes_script.webp 484w, {{ site.baseurl }}/assets/2023/02/variants/rect_wall_pp_hall_of_heroes_script-320w.webp 320w" alt="Script for above figure" width="484" height="781" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Script for above figure</figcaption>
+</figure>
+
+<br><br><br>
+
+At the moment I have a few such algorithms set up, and I'm setting up a better toolchain in C++ (that I love to work in anyway). This will include a procedural prefab editor to see results immediately, so that I'll be able to quickly generate procedural prefabs. At the moment the C++ side of things does not include autotile rules, so visualisation is a bit primitive. <br><br>
+
+After I've explored this space a bit, I need to hook it up to the rest of the dungeon generation, and this will include refactoring of some of the C++ dungeon generation, some of the C# post-dungeon-generation code , and the data transmission format which needs to include this new procedural prefab generated data.

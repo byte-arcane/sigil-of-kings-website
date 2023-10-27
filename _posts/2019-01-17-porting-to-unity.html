@@ -1,0 +1,86 @@
+---
+layout: post
+title: Porting to Unity
+date: 2019-01-17 21:22:09.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619209868;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2868;}i:1;a:1:{s:2:"id";i:2102;}i:2;a:1:{s:2:"id";i:2084;}}}}
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '32'
+author:
+permalink: "/2019/01/17/porting-to-unity/"
+---
+<p><!-- wp:paragraph --></p>
+<p>Over the holidays, I've been thinking about the party system and its complications, and tried to move on with more code. I caught myself, before doing any fun stuff, I still have to write some boilerplate code for class reflection ( print out some structs, read from json, serialize for save files etc). This is very cumbersome and it's not automated, unless I'm only writing class definitions using code generators. I've actually written 3 code generators so far: for message definitions, action commands and components. So, the lack of reflection in c++ ends up hurting quite a bit, and I like data-driven development that is painful without reflection.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, given that recently for work I started again with Unity (had some brief encounters before), I thought maybe Unity might solve the unfun issues, and of course I'm not fooling myself it will add other issues. So, I made a list of my woes with the current development "environment":</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li><strong>Lack of reflection:</strong> reason for implementing (over years now) resource loading, serialization, streaming operators etc etc for every single class that I use. Using:
+<ul>
+<li>JsonCPP for loading configuration from json</li>
+<li>Cereal for save/load functionality</li>
+<li>Streaming operators for string formatting</li>
+</ul>
+</li>
+<li><strong>Profiling: </strong>Visual studio profiler takes a while,  I'd have to implement engine hooks myself for something faster &amp; more bespoke. Graphics debugging is not great; apitrace is a nice tool, but still.</li>
+<li><strong>OpenGL is tricky to wrap. </strong>Very tricky. I foolishly didn't use a wrapper, so minus points for foresight. </li>
+<li><strong>Cross-platform and web is tricky. </strong>And emscripten, as magic as it is, is not exactly trivial to integrate. </li>
+<li><strong>Compile speed (in my case) is not great</strong>. C++ supposed to be fast to compile, but I think with all the boilerplates and the suboptimal modularization of the code, it has become slow. </li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>Unity is not supposed to be a panacea, but I think it's going to offer a fresh perspective on how to build a game, same idea but different language, different approach for coding and data management, etc.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading --></p>
+<h2><strong>C++ with Unity, and a bit of woe</strong></h2>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Since I quite like C++, I thought I'll try to use it within Unity, in the form of native plugins. I ran a few experiments successfully, so, the question becomes, where to draw the line?</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Nothing in C++: port everything to C#</li>
+<li>A few things in C++: esp. algorithms with simple inputs/outputs that run complex/expensive calculations. </li>
+<li>Most things in C++: This is an approach encountered <a href="https://jacksondunstan.com/articles/3938">here</a>. </li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>"Most things in C++" became a no-go quickly when I downloaded the latest github repo, ran the code and crashed. Since this is an experimental project and I don't know much about C#, I think this would be more harm than good.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>"Few things in C++" is the current optimistic scenario. If I encounter some code that fits the criteria, I'll write the interop to C++. To test it, I ported part of the biome map generation code to utilize native plugins: C# runs some GPU passes, then somewhere in the middle we pass some pointers and config info to C++ that runs a CPU pass, returns the results and C# happily continues. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>"Nothing in C++" is a probability. I've spent so-much-time dealing with Resource systems, serialization, GUI bindings for all types etc, and all these are for free with Unity's inspector, C#'s reflection and Unity's asset system. So, I need something refreshing at this point, and that's game-related algorithms and content, rather than engine architecture. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The negative bit: I love bitfields and neither C# nor Unity makes my life easy with them. So all my careful bit-packing goes to hell. C# doesn't support bitfields and Unity generates junk shader code for WebGL when use bitwise operators. This is a major pain, as many of my shaders use bitwise operators, and I can't afford to go without. So, problem pending.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Closing with a port of the biome generator, using a native plugin for a few passes, I must confess that besides the learning curve and some of Unity's idiosyncrasies, it's been generally a breeze.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/rrnwY_Ku934" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/rrnwY_Ku934?autoplay=1><img src=https://img.youtube.com/vi/rrnwY_Ku934/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video rrnwY_Ku934"></iframe>
+</div>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/4oilXciQV7Q" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/4oilXciQV7Q?autoplay=1><img src=https://img.youtube.com/vi/4oilXciQV7Q/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video 4oilXciQV7Q"></iframe>
+</div>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><!-- /wp:paragraph --></p>

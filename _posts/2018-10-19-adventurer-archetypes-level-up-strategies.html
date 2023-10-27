@@ -1,0 +1,996 @@
+---
+layout: post
+title: 'Adventurer archetypes: Level-up strategies'
+date: 2018-10-19 10:27:59.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619288275;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2373;}i:1;a:1:{s:2:"id";i:2005;}i:2;a:1:{s:2:"id";i:2016;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '38'
+author:
+permalink: "/2018/10/19/adventurer-archetypes-level-up-strategies/"
+---
+<p>After <a href="{{ site.baseurl }}/2018/10/10/attributes-skills-and-masteries/">writing down the extensive catalog of attributes and skills</a>, it's only natural that we have to create several characters to test things out. Characters (adventurers in this case) can be grouped in terms of their general capabilities and function; in many RPG games this would be a <strong>character class. </strong>In Sigil of Kings, there are no character classes; NPCs and players develop their skills as they see fit. In this model, "classes" are just suggestions on how a character may develop. Below, I call the classes "archetypes" and the development suggestions "level up strategies".</p>
+<p><strong>Spawn Adventurer From Archetype</strong></p>
+<p>An archetype is a configuration to build an infinite set of similar (in some aspects) adventurers. The parameters at the moment are:</p>
+<ul>
+<li>Race list</li>
+<li>Age range</li>
+<li>Alignment list</li>
+<li>Starting level range</li>
+<li>Level-up strategy list</li>
+</ul>
+<p>When creating a character from an archetype, we choose a race from the race list, sample an age from the range, sample alignment from the list, sample a level from the range and choose a level up strategy. The interesting and complicated bit is the level-up strategy.</p>
+<p><strong>Level-Up Strategy</strong></p>
+<p>The level-up strategy is the configuration that the game logic uses to develop characters differently through the levels. For example, a level-up strategy for a fighter would focus on mostly improving strength, and focusing on skills such as body-building, heavy armor and weapon masteries, while one for a thief would focus on agility, daggers and/or bows and stealth skills.</p>
+<p>The approach that I'm using is a mix of coarse and fine granularity weights, and it consists of:</p>
+<ul>
+<li><strong>Attribute improvement weights:</strong> a weight value per attribute, so that when we want to allocate attribute points, we do weighted sampling.</li>
+<li><strong>Well-rounded-ness: </strong>This is a scalar specifying how balanced a character will be. A balanced character will improve many attributes and skills, while an unbalanced will be more of a savant type, focusing heavily on a few skills, ignoring most others.</li>
+<li><strong>Skill focus: </strong>A list of tuples (skill name, target mastery level, allow surpassing target mastery level).</li>
+<li><strong>Skill category weights: </strong>A list of weights, one per skill category.</li>
+</ul>
+<p>When we level up, we first allocate the unspent attribute points based on their respective weights.</p>
+<p>Immediately after, we allocate a percentage of the unallocated skill points (based on wellroundedness: savants use more) to improve skills in the focus list, until we reach a target mastery level. When we reach the mastery level, we either never touch the skill again, or if we allow surpassing the target mastery level, we still consider it for advancement as explained below.</p>
+<p>After we allocate focus skills, we have a remainder of skill points. These will be allocated to the rest of the skills, excluding the focus skills that have reached the target mastery and can't improve. The weight for each of these remainder skills is the product of a) the skill's category weight, b) the number of skills in the category and c) the distance of the skill's value to the required skill value of the maximum mastery we can achieve with the current attributes. (<strong>note:</strong> (b) looks odd but it's useful, as if we say that Offence (with about 10 skills) is as important as Adventuring (3 skills), it's 3 times more likely that a skill in Adventuring gets a point)</p>
+<p>There's an extra important consideration. Some skills form subcategories, such as all "Weapon style"skills forming the "Weapon Style" subcategory, all "Melee weapon mastery" ones, etc. In these cases it's more typical that a character develops one or two more than others, rather than equally developing the whole selection. For this reason, I</p>
+<p>Finally, well-roundedness is used every time we do weighted sampling by replacing the weights with "w = pow(w,2-well_roundedness)". It's also used for the skill subcategories in the same way.</p>
+<p>Below are some example level-up progression results using matplotlib. Title shows some info (Yes, some is bonkers, like neutral paladins). Y axis is the skill value, with grid lines at mastery levels (30 is Master, 50 is Grandmaster). X axis shows attributes (first 5) and skills. Darker colors show values at earlier levels, while lighter colors show values at later levels, as explained in the legend. The images are large, so you might need to open them in a separate window, or zoom.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/10/testchar_15.webp"><img class="aligncenter size-full wp-image-1993" src="{{ site.baseurl }}/assets/2018/10/testchar_15_thumb740.webp" alt="" width="3630" height="2176" /></a> <a href="{{ site.baseurl }}/assets/2018/10/testchar_17.webp"><img class="aligncenter size-full wp-image-1994" src="{{ site.baseurl }}/assets/2018/10/testchar_17_thumb740.webp" alt="" width="3630" height="2176" /></a> <a href="{{ site.baseurl }}/assets/2018/10/testchar_26.webp"><img class="aligncenter size-full wp-image-1995" src="{{ site.baseurl }}/assets/2018/10/testchar_26_thumb740.webp" alt="" width="3630" height="2176" /></a> <a href="{{ site.baseurl }}/assets/2018/10/testchar_14.webp"><img class="aligncenter size-full wp-image-2000" src="{{ site.baseurl }}/assets/2018/10/testchar_14_thumb740.webp" alt="" width="3630" height="2176" /></a> <a href="{{ site.baseurl }}/assets/2018/10/testchar_11.webp"><img class="aligncenter size-full wp-image-1999" src="{{ site.baseurl }}/assets/2018/10/testchar_11_thumb740.webp" alt="" width="3630" height="2176" /></a> <a href="{{ site.baseurl }}/assets/2018/10/testchar_8.webp"><img class="aligncenter size-full wp-image-1998" src="{{ site.baseurl }}/assets/2018/10/testchar_8_thumb740.webp" alt="" width="3630" height="2176" /></a> <a href="{{ site.baseurl }}/assets/2018/10/testchar_4.webp"><img class="aligncenter size-full wp-image-1997" src="{{ site.baseurl }}/assets/2018/10/testchar_4_thumb740.webp" alt="" width="3630" height="2176" /></a> <a href="{{ site.baseurl }}/assets/2018/10/testchar_1.webp"><img class="aligncenter size-full wp-image-1996" src="{{ site.baseurl }}/assets/2018/10/testchar_1_thumb740.webp" alt="" width="3630" height="2176" /></a></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>...</p>
+<p>&nbsp;</p>
+<p>Still here? Well, there are videos of these progressions too :)</p>
+<p>&nbsp;</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/qW9kCIMyObA" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/s1rCUBcok10" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/BAYqV8TFRG8" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/2vHdwwWvIR0" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/DPBXN3nDxq8" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/FW_iCzYdYp8" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/mJ5TYUJE1Mg" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/-wKN2HWLR08" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/H2AJddAFuQU" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/M9Mwn01BJtw" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/-VSSMMBc_3w" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/f2u8FBFFDzw" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/BM6cLMwBwHc" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/WpW-wnPee-c" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/EekT5w6mngM" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<p>&nbsp;</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/TjRDSfUNkkQ" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<p>&nbsp;</p>
+<p>Here still? Here's my spreadsheet with the draft level-up strategy configuration. Well-roundedness seems to have an inverse effect, so I'd say that the graphs were helpful in noticing that :)</p>
+<p>&nbsp;</p>
+<style type="text/css"><!--td {border: 1px solid #ccc;}br {mso-data-placement:same-cell;}--></style>
+<table dir="ltr" border="1" cellspacing="0" cellpadding="0">
+<colgroup>
+<col width="261" />
+<col width="89" />
+<col width="91" />
+<col width="95" />
+<col width="95" />
+<col width="103" />
+<col width="90" />
+<col width="102" />
+<col width="103" /></colgroup>
+<tbody>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Archetype Name&quot;}">Archetype Name</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;FighterX&quot;}">FighterX</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;FighterS&quot;}">FighterS</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Fighter&quot;}">Fighter</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Thief&quot;}">Thief</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Mage&quot;}">Mage</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Bard&quot;}">Bard</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ranger&quot;}">Ranger</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Paladin&quot;}">Paladin</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;STR&quot;}">STR</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:4}">4</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:4}">4</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:4}">4</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;AGI&quot;}">AGI</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2.5}">2.5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2.5}">2.5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2.5}">2.5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1.5}">1.5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;INT&quot;}">INT</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:4}">4</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;PER&quot;}">PER</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1.5}">1.5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1.5}">1.5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1.5}">1.5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2.5}">2.5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;CHA&quot;}">CHA</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;[total]&quot;}">[total]</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:10}" data-sheets-formula="=SUM(R[-5]C[0]:R[-1]C[0])">10</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:10}" data-sheets-formula="=SUM(R[-5]C[0]:R[-1]C[0])">10</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:10}" data-sheets-formula="=SUM(R[-5]C[0]:R[-1]C[0])">10</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:10}" data-sheets-formula="=SUM(R[-5]C[0]:R[-1]C[0])">10</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:10}" data-sheets-formula="=SUM(R[-5]C[0]:R[-1]C[0])">10</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:10}" data-sheets-formula="=SUM(R[-5]C[0]:R[-1]C[0])">10</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:10}" data-sheets-formula="=SUM(R[-5]C[0]:R[-1]C[0])">10</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:10}" data-sheets-formula="=SUM(R[-5]C[0]:R[-1]C[0])">10</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Body/Mind&quot;}">Body/Mind</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Offense&quot;}">Offense</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:6}">6</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:6}">6</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:6}">6</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Defense&quot;}">Defense</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:6}">6</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:6}">6</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:6}">6</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Stealth&quot;}">Stealth</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Lore&quot;}">Lore</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Perception&quot;}">Perception</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:4}">4</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Crafts&quot;}">Crafts</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Magic&quot;}">Magic</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Social&quot;}">Social</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Adventure&quot;}">Adventure</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:3}">3</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;[total]&quot;}">[total]</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:25}" data-sheets-formula="=SUM(R[-10]C[0]:R[-1]C[0])">25</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:25}" data-sheets-formula="=SUM(R[-10]C[0]:R[-1]C[0])">25</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:25}" data-sheets-formula="=SUM(R[-10]C[0]:R[-1]C[0])">25</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:25}" data-sheets-formula="=SUM(R[-10]C[0]:R[-1]C[0])">25</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:25}" data-sheets-formula="=SUM(R[-10]C[0]:R[-1]C[0])">25</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:25}" data-sheets-formula="=SUM(R[-10]C[0]:R[-1]C[0])">25</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:25}" data-sheets-formula="=SUM(R[-10]C[0]:R[-1]C[0])">25</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:25}" data-sheets-formula="=SUM(R[-10]C[0]:R[-1]C[0])">25</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Well rounded&quot;}">Well rounded</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0.5}">0.5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0.5}">0.5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0.5}">0.5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0.5}">0.5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0.5}">0.5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0.5}">0.5</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Athletics&quot;}">Athletics</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Fortitude&quot;}">Fortitude</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Adept+&quot;}">Adept+</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Reflexes&quot;}">Reflexes</td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Adept+&quot;}">Adept+</td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Willpower&quot;}">Willpower</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Concentration&quot;}">Concentration</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Body building&quot;}">Body building</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Adept+&quot;}">Adept+</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Meditation&quot;}">Meditation</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Novice&quot;}">Novice</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Novice&quot;}">Novice</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Novice&quot;}">Novice</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Weapon style [two-handed]&quot;}">Weapon style [two-handed]</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Grandmaster&quot;}">Grandmaster</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Weapon style [one-handed]&quot;}">Weapon style [one-handed]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Grandmaster&quot;}">Grandmaster</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Weapon style [dual-wielding&quot;}">Weapon style [dual-wielding</td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Weapon style [ranged]&quot;}">Weapon style [ranged]</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Melee weapon mastery [blunt]&quot;}">Melee weapon mastery [blunt]</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Melee weapon mastery [slashing]&quot;}">Melee weapon mastery [slashing]</td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Melee weapon mastery [daggers]&quot;}">Melee weapon mastery [daggers]</td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Melee weapon mastery [polearms]&quot;}">Melee weapon mastery [polearms]</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ranged weapon mastery [bows/crossbows]&quot;}">Ranged weapon mastery [bows/crossbows]</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ranged weapon mastery [slings/blowpipes]&quot;}">Ranged weapon mastery [slings/blowpipes]</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ranged weapon mastery [thrown]&quot;}">Ranged weapon mastery [thrown]</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Armor [light]&quot;}">Armor [light]</td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert&quot;}">Expert</td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Armor [medium]&quot;}">Armor [medium]</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Armor [heavy]&quot;}">Armor [heavy]</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Shield mastery&quot;}">Shield mastery</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Sleight of hand&quot;}">Sleight of hand</td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Hide&quot;}">Hide</td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Lockpicking&quot;}">Lockpicking</td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Grandmaster&quot;}">Grandmaster</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Move silently&quot;}">Move silently</td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Item lore&quot;}">Item lore</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Creature lore&quot;}">Creature lore</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert&quot;}">Expert</td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;History and legends&quot;}">History and legends</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Adept&quot;}">Adept</td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Dungeon lore&quot;}">Dungeon lore</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Adept&quot;}">Adept</td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Arcane lore&quot;}">Arcane lore</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Literacy&quot;}">Literacy</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Adept&quot;}">Adept</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Detect traps&quot;}">Detect traps</td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert&quot;}">Expert</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Spot&quot;}">Spot</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert&quot;}">Expert</td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Listen&quot;}">Listen</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert&quot;}">Expert</td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Sixth sense&quot;}">Sixth sense</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Disarm traps&quot;}">Disarm traps</td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert&quot;}">Expert</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Repair&quot;}">Repair</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Cooking&quot;}">Cooking</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Make weapons&quot;}">Make weapons</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Make armor&quot;}">Make armor</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Make accessories and utility&quot;}">Make accessories and utility</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Enchant item&quot;}">Enchant item</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Alchemy&quot;}">Alchemy</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Wand mastery&quot;}">Wand mastery</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Staff mastery&quot;}">Staff mastery</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert+&quot;}">Expert+</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Magic school mastery [command]&quot;}">Magic school mastery [command]</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Magic school mastery [alteration]&quot;}">Magic school mastery [alteration]</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Magic school mastery [divination]&quot;}">Magic school mastery [divination]</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Magic school mastery [creation]&quot;}">Magic school mastery [creation]</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Magic school mastery [destruction]&quot;}">Magic school mastery [destruction]</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Leadership&quot;}">Leadership</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert&quot;}">Expert</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Persuasion&quot;}">Persuasion</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Haggling&quot;}">Haggling</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Renown&quot;}">Renown</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Perform&quot;}">Perform</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Grandmaster&quot;}">Grandmaster</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Scouting&quot;}">Scouting</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Survival&quot;}">Survival</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Grandmaster&quot;}">Grandmaster</td>
+<td></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Luck&quot;}">Luck</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>(Formatting (bold, colors) is not copied over unfortunately, I'll update this if I find out how)</p>

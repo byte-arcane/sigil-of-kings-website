@@ -1,0 +1,32 @@
+---
+layout: post
+title: Widget-based rendering back end
+date: 2017-10-26 19:06:03.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618161873;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1651;}i:1;a:1:{s:2:"id";i:79;}i:2;a:1:{s:2:"id";i:429;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '60'
+author:
+permalink: "/2017/10/26/widget-based-rendering-back-end/"
+---
+<p><img class="wp-image-1620 size-full aligncenter" src="{{ site.baseurl }}/assets/2017/10/render_testbedd-2017-10-26-20-04-31-95.webp" alt=""/></p>
+<p><em>Using Dear ImGui to dynamically configure my own widget framework</em></p>
+<p>&nbsp;</p>
+<p>During the last few months, I've also redone how rendering should work. The crux is still the same though: rendering is <strong>widget-based</strong>. It's all OpenGL 3.3, as that's all that my decrepit laptop can handle.</p>
+<p>An application state controls a root widget. The root widget is the root of a hierarchy of containers, buttons, text boxes, list boxes and tile grids. Each widget stores "renderables": the description of how to render themselves. Typically, one for widget body, one for widget margin, and one for the text layer. So, when an application state needs to be rendered, it asks from the root widget to be rendered, and the rest happens organically.</p>
+<p><strong>Renderers and Renderables in the framework</strong></p>
+<p>A <strong>renderable </strong>is a description of how something should be rendered. Like a "material" in UE/Unity. It stores a reference to a <strong>renderer </strong>that knows how to render it. Widget renderables have access to the widget for vital parameters, and also know where they should be rendered. For example, tilegrid and tilegrid selection renderables both use the tilegrid widget to access the size of the grid displayed, the pixels per cell, etc.</p>
+<p>A <strong>renderer </strong>is the object that contains the logic for rendering <strong>a single type of renderable. </strong>A renderable type can be rendered from <strong>many</strong> renderers, while a renderer type can process a single renderable type. For example, a basic renderable can have information about a texture and a colour, and we could have several renderers that can generate an image using different shaders and parameters.</p>
+<p>There is also a <strong>group</strong> renderable with the associated group renderer: A group renderable contains a map&lt; layer , renderable&gt; and the associated renderer processes the layers in order. This allows adding multiple passes, for example for post processing effects or multiple render layers for the tilegrid.</p>
+<p><strong>Now what?</strong></p>
+<p>Well, what I'm doing with the above is effectively preparing a rendering framework so I can easily write tile grid based shaders at will, to try all sorts of different effects and visualizations :) But there's still framework work to be done (obviously)</p>

@@ -1,0 +1,62 @@
+---
+layout: post
+title: Integrating the Level Generator in Unity Part 2
+date: 2023-06-15 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/06/wiz_tower.png
+meta:
+author:
+permalink: "/2023/06/15/integrating-the-level-generator-in-unity-part-2/"
+---
+
+
+<figure><a href="{{ site.baseurl }}/assets/2023/06/wiz_tower.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/06/variants/wiz_tower.webp" srcset="{{ site.baseurl }}/assets/2023/06/variants/wiz_tower.webp 967w, {{ site.baseurl }}/assets/2023/06/variants/wiz_tower-640w.webp 640w, {{ site.baseurl }}/assets/2023/06/variants/wiz_tower-320w.webp 320w" alt="Wizard's tower, outer level" width="967" height="849" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Wizard's tower, outer level</figcaption>
+</figure>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2023/06/wiz_tower2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/06/variants/wiz_tower2.webp" srcset="{{ site.baseurl }}/assets/2023/06/variants/wiz_tower2.webp 968w, {{ site.baseurl }}/assets/2023/06/variants/wiz_tower2-640w.webp 640w, {{ site.baseurl }}/assets/2023/06/variants/wiz_tower2-320w.webp 320w" alt="Wizard's tower, 2nd level" width="968" height="837" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Wizard's tower, 2nd level</figcaption>
+</figure>
+
+<p>More miscellaneous updates this week, all revolving around bug-fixing and expanding the level generation process and the integration with the native plugin.</p>
+<ul>
+<li>Fixed some bugs related to level/zone name generation (zones are areas in a level). Zone names for example are not very useful for the player to know, but for debugging it&#39;s great to hover over a tile and know what zone it belongs to, e.g. &quot;crypt&quot;. </li>
+<li>Changed a bit how tags and weights work. Besides being used for plain requirements (&quot;must be have haunted tag&quot;, &quot;must not have abandoned tag&quot;), we can associate weights with tags that can be added to some base weight. Example: torches would specify a -0.5 weight for the tag &quot;dark&quot;, so dark zones would spawn fewer torches than they normally would</li>
+<li>I tried to use a separate Unity script to see if I can make dynamic changes to the C# script while the game is running, but if I make a change and the code recompiles, everything breaks. Hmmm, there goes this approach of &quot;hot reload&quot;, need to try a few more.</li>
+<li>Fixed a bug where torches were not spawning</li>
+<li>Rewrote lighting algorithm as it was a bit dumb: it was using multi-goal Dijkstra to get contribution from multiple light sources, but that created a few issues, one of which is that lights next to each other were not additive. So I&#39;ve put my super-fast FoV code to do the work (&quot;for every tile in the radius of a lightsource, test visibility&quot;) and so far so good with lots of torches (relatively small radius each)</li>
+<li>Fixed torches having the wrong sprite, this was due to some badly configured JSON which annoyed me so much that I started ...</li>
+</ul>
+<p><strong>The Great JSON purge</strong></p>
+<p>JSON (mis)configurations were a bit hard to detect as I have to maintain C++ &lt;-&gt; JSON &lt;-&gt; C# . So, if I change a field in C# and I don&#39;t fix all the corresponding JSON configurations, I get insidious bugs. So I decided I&#39;ll go a bit more robust about it. A few things fixed:</p>
+<ul>
+<li>Added detection of entries in JSON that do not exist in C# variables. That was a big one, and catches a lot of problems. After I implemented that, it flagged lots of errors in 18 separate JSON files (out of 52). That&#39;s a lot. Overall fixed several classes of errors:<ul>
+<li>json key was old and had been changed in c#</li>
+<li>misplaced key (e.g. in parent object)</li>
+<li>json key only read in C++ plugin and not in C#</li>
+<li>C# config classes had some variables that I had decided to remove</li>
+</ul>
+</li>
+<li>Duplicate detection in JSON. Before I did have a JSON validator script, but now it&#39;s also checking for duplicates, that are allowed but problematic of course.</li>
+</ul>
+<p><strong>Inheritable properties</strong></p>
+<p>After the JSON purge, I also ended up in another rabbit hole: I have a hierarchical zone relationship, and each zone may or may not have certain settings, e.g. floor type, wall/blocked type, dominant biome, difficulty, tags, etc. I might have values, or I might want to say &quot;inherit from parent&quot;. So I did another round of refactoring in both C#/C++ adding support for several zone properties to allow inheritance. Dust is settled on that department for now, and it looks far more reasonable. </p>
+<p><strong>Other changes</strong></p>
+<ul>
+<li>Added support in C# for procedural selection of optional zones, so e.g. prisons may appear in dungeons, altar areas or lean-tos in the wilderness, etc</li>
+<li>Added support for things like being able to easily specify a wizard tower adventure location in JSON by declaring 1) it&#39;s dungeon-style 2) has round shaped levels 3) Further levels go up instead of down 4) levels don&#39;t change size (or slightly shrink) as we&#39;re going up. My holy grail is to easily specify complex dungeons from JSON or simple C# scripting. At the moment I can do exclusively either &quot;easily&quot; or &quot;complex&quot;.</li>
+<li>Added support with a bool to make a coastal map (a map that in the overworld has border with a big body of water) an island or not.</li>
+</ul>
+<p>That&#39;s all for now, next week on holidays so it&#39;s going to get slow for a couple of weeks. Have a nice weekend!</p>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/06/maze.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/06/variants/maze.webp" srcset="{{ site.baseurl }}/assets/2023/06/variants/maze.webp 718w, {{ site.baseurl }}/assets/2023/06/variants/maze-320w.webp 320w" alt="Yet another tower" width="718" height="849" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Yet another tower</figcaption>
+</figure>

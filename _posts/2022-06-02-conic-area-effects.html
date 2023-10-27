@@ -1,0 +1,38 @@
+---
+layout: post
+title: Conic area effects
+date: 2022-06-02 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/06/cone_effects.png
+meta:
+author:
+permalink: "/2022/06/02/conic-area-effects/"
+---
+
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/fire_breath_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Fire breath skill</figcaption>
+</figure>
+
+<p>Miscellaneous but steady game updates this week, while still refactoring the active ability system. </p>
+<ul>
+<li><strong>Cone area effects</strong>. I wanted to support such effects as they&#39;re nice, interesting and commonly found in tactical games. I&#39;ve added 2 skills that exemplify this so far, one that shoots multiple arrows across an arc (replicating a weapon attack multiple times really) and another one that applies fire in the entire cone area. </li>
+<li><strong>Throw randomisation</strong>. When throwing things to a target tile, it might not always land there, depending on the distance and the thrower&#39;s agility score.</li>
+<li><strong>Creature swapping and being restrained</strong>. When a creature cannot move for some reason, another creature cannot swap its position with it</li>
+<li><strong>Web spinning fix</strong>. When spinning a web, a web object is created on the tile and its effect gets triggered when an entity moves into it. So, if that was shot directly at an entity, it wouldn&#39;t activate. Now that&#39;s fixed, as when the web is created, it also triggers immediately if there&#39;s a creature on that tile.</li>
+<li><strong>LINQ allocation reduction</strong>. I use LINQ a lot, and I know it allocates quite a bit. I wanted to reduce those allocations, by adding an extension ToTempList() to replace all those ToList() calls, where a temporary list is retrieved from a pool, and it&#39;s useful when I&#39;m running LINQ statements to get some results that will be temporary (e.g. lists of 2D positions)</li>
+</ul>
+
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/arrow_storm_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Arrow storm skill</figcaption>
+</figure>

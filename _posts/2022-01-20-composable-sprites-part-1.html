@@ -1,0 +1,87 @@
+---
+layout: post
+title: Composable Sprites Part 1
+date: 2022-01-20 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/01/berserker_var_lh=sword_N_rh=shield_10_small_warped.png
+meta:
+author:
+permalink: "/2022/01/20/composable-sprites-part-1/"
+---
+
+<p>Right, so this was one of those weeks that something that has been brewing in my head has been materialised to code, and it works, and it&#39;s amazing and it&#39;s definitely the way forward. I&#39;m talking about <strong>composable sprites</strong>, which are sprites that really consist of a number of layers, in order to make a unique looking sprite. A few examples here, of a sprite with different equipment: </p>
+
+<figure><a href="{{ site.baseurl }}/assets/2022/01/handsfree.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/01/variants/handsfree.webp" alt="Not holding anything" width="480" height="480" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2022/01/variants/handsfree.webp 480w, {{ site.baseurl }}/assets/2022/01/variants/handsfree-320w.webp 320w"/></a><br />
+<figcaption>Not holding anything</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2022/01/berserker_var_lh=sword_N_rh=shield_01_small_warped.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=sword_N_rh=shield_01_small_warped.webp" alt="Sword & shield" width="480" height="480" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=sword_N_rh=shield_01_small_warped.webp 480w, {{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=sword_N_rh=shield_01_small_warped-320w.webp 320w"/></a><br />
+<figcaption>Sword & shield</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2022/01/berserker_var_lh=sword_N_rh=shield_10_small_warped.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=sword_N_rh=shield_10_small_warped.webp" alt="Sword & shield 2" width="480" height="480" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=sword_N_rh=shield_10_small_warped.webp 480w, {{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=sword_N_rh=shield_10_small_warped-320w.webp 320w"/></a><br />
+<figcaption>Sword & shield 2</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2022/01/berserker_var_lh=weapon_dagger_01_LH_rh=shield_41_small_warped.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=weapon_dagger_01_LH_rh=shield_41_small_warped.webp" alt="Dagger & shield" width="480" height="480" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=weapon_dagger_01_LH_rh=shield_41_small_warped.webp 480w, {{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=weapon_dagger_01_LH_rh=shield_41_small_warped-320w.webp 320w"/></a><br />
+<figcaption>Dagger & shield</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2022/01/berserker_var_lh=weapon_dagger_01_LH_rh=weapon_axe_07_RH1_warped.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=weapon_dagger_01_LH_rh=weapon_axe_07_RH1_warped.webp" alt="Dagger & axe" width="480" height="480" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=weapon_dagger_01_LH_rh=weapon_axe_07_RH1_warped.webp 480w, {{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=weapon_dagger_01_LH_rh=weapon_axe_07_RH1_warped-320w.webp 320w"/></a><br />
+<figcaption>Dagger & axe</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2022/01/berserker_var_lh=weapon_mace_20_LH_rh=shield_10_small_warped.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=weapon_mace_20_LH_rh=shield_10_small_warped.webp" alt="Mace & axe" width="480" height="480" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=weapon_mace_20_LH_rh=shield_10_small_warped.webp 480w, {{ site.baseurl }}/assets/2022/01/variants/berserker_var_lh=weapon_mace_20_LH_rh=shield_10_small_warped-320w.webp 320w"/></a><br />
+<figcaption>Mace & axe</figcaption>
+</figure>
+
+<p><strong>Motivation</strong></p>
+<p>The player characters that I&#39;m using from the Oryx tileset (<a href="https://images.squarespace-cdn.com/content/v1/5005d42ce4b0d534734e9706/1374901672164-RJGXDF7ETGP20DOWQEWN/oryx_creatures_preview_2x.gif">first five rows here</a>) are a bit problematic:</p>
+<ul>
+<li>They&#39;ve been reused too many times. The sprites are frequently recognizable, so that&#39;s not good if you&#39;re trying to make something new.</li>
+<li>They are not flexible, as each is a unique combination of race and equipment. There&#39;s no soldier wielding a staff, or a mage wielding an axe. For a proper RPG or roguelike game, where characters can equip lots of things, we want the visual representation to show that too.</li>
+</ul>
+<p><strong>Desired outcome</strong></p>
+<p>The solution is of course to use composable sprites (not sure if there&#39;s a more appropriate name for these things). Effectively, we split a sprite into multiple layers, e.g. naked body, pants, head, left hand equipment, right hand equipment, etc. When the character wields a sword in their right hand, we overlay a sword sprite at the appropriate location. When the character wields a shield in their left hand, as a separate process, we overlay the relevant sprite too. So we can generate the proper sprite given all the individual components. This all sounds reasonable, and it&#39;s not groundbreaking, it just implies quite a bit of work, part of it is art-related. And this is where things get funky.</p>
+<p>Below are some problems and associated solutions.</p>
+<p><strong>Exact attachment placement</strong></p>
+<p>To put a shield to the hands of a sprite, we need two things: location of the hands, and location of the shield handle. So, these need to be marked in advance, and when it&#39;s the time to do the composition, we align the sprites using this information</p>
+<p><strong>Hands visible or not</strong></p>
+<p>Holding some equipment at a certain hand results in the hand being visible or not. E.g. holding a sword, we can see the hand. But while holding a shield, we can&#39;t see anything besides the shield. So each piece of equipment needs to be marked if it hides the hand or not.</p>
+<p><strong>Separating the layers from existing sprites</strong>. </p>
+<p>This is a no brainer, but it&#39;s also manual labour. For certain character sprites, I have to extract the layers manually, which means pixel work. Thankfully this has to be done just once.</p>
+<p><strong>Weapon and equipment sprites</strong>.</p>
+<p>This is the major problem that had to be solved. I need weapon/shield sprites of appropriate size to attach to character hands. Since characters are 24x24 pixels, that means that weapons/shields should be about 12-16 pixels large. Now this is a problem, as while 16px sprites are common, 12 are surely not. And I dare you to simply resize a sprite from 16 to 12 pixels and see what happens. Disaster. To add insult to the injury, I like silhouettes in my sprites, and silhouettes are also getting destroyed by transformations. I even tried that RotSprite algorithm but the results are also abysmal at such low resolutions. The solution? Deceptively simple: use <a href="https://en.wikipedia.org/wiki/Pixel-art_scaling_algorithms">xBRZ</a> a few times, then rotate, then nearest-neighbour downsample to desired resolution. Extra trick: before the transformations, detect and remove silhouette, and after the transformations, add it back again.</p>
+
+<figure>
+<div class="video-container"><iframe src="{{ site.baseurl }}/assets/video/sword_merged.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>16x16 pixel art rotation using xBRZ to upscale before rotating. Top-to-bottom, left-to-right: no upscale, 1x, 2x, etc</figcaption>
+</figure>
+
+<p><strong>45-degree sprite rotation</strong> </p>
+<p>A hyper-specific solution to a problem that maybe nobody cares about (except me?). So, you know all these endless sprite packs where the weapon icons are along the main diagonal? That&#39;s great, and they do it for the extra real-estate, but the problem is that my sprites never hold weapons at such an angle (because they also obstruct the face). <a href="{{ site.baseurl }}/assets/2022/01/handsfree.png">Look at the first image</a>. On the &quot;left&quot; (as we see it) hand, there&#39;s only space to put a weapon that extends upwards. On the right hand, the held weapon can either extend upwards (tangential to ground), either fully to the left (parallel to ground), or a bit angled (almost parallel to ground, but weapon tip slightly higher). So this means that diagonally-oriented weapons would need to be rotated either +45 degrees, or -45 degrees, or about 30 degrees. So, what do we do? Well I developed a really simple transformation that works just for 45 degrees, and is not destructive at all. Here&#39;s an example, and needless to say, I&#39;m super happy with the results!</p>
+
+<figure><a href="{{ site.baseurl }}/assets/2022/01/weapon_sword_07_warped.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/01/variants/weapon_sword_07_warped.webp" srcset="{{ site.baseurl }}/assets/2022/01/variants/weapon_sword_07_warped.webp 320w, {{ site.baseurl }}/assets/2022/01/variants/weapon_sword_07_warped.webp 320w" alt="Original" width="320" height="320" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Original</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2022/01/sword_NW_bad_warped.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/01/variants/sword_NW_bad_warped.webp" srcset="{{ site.baseurl }}/assets/2022/01/variants/sword_NW_bad_warped.webp 480w, {{ site.baseurl }}/assets/2022/01/variants/sword_NW_bad_warped-320w.webp 320w" alt="Rotated via paint.net" width="480" height="480" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Rotated via paint.net</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2022/01/rotsprite_warped.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/01/variants/rotsprite_warped.webp" srcset="{{ site.baseurl }}/assets/2022/01/variants/rotsprite_warped.webp 460w, {{ site.baseurl }}/assets/2022/01/variants/rotsprite_warped-320w.webp 320w" alt="Rotated via rotsprite. Export was unfortunately just BMP" width="460" height="460" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Rotated via rotsprite. Export was unfortunately just BMP</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2022/01/sword_W_warped.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/01/variants/sword_W_warped.webp" srcset="{{ site.baseurl }}/assets/2022/01/variants/sword_W_warped.webp 320w, {{ site.baseurl }}/assets/2022/01/variants/sword_W_warped.webp 320w" alt="Rotated via my method" width="320" height="320" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Rotated via my method</figcaption>
+</figure>
+
+So this was just proof of concept. How does fit together with the game? To be continued...

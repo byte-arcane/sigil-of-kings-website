@@ -1,0 +1,54 @@
+---
+layout: post
+title: 'Front-end: Camera'
+date: 2018-01-08 15:13:21.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  vidbg_metabox_field_mp4_id: '0'
+  vidbg_metabox_field_webm_id: '0'
+  vidbg_metabox_field_poster_id: '0'
+  vidbg_metabox_field_overlay: 'off'
+  vidbg_metabox_field_overlay_color: "#000"
+  vidbg_metabox_field_overlay_alpha: '30'
+  vidbg_metabox_field_no_loop: 'off'
+  vidbg_metabox_field_unmute: 'off'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619155970;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2883;}i:1;a:1:{s:2:"id";i:2257;}i:2;a:1:{s:2:"id";i:3175;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '54'
+author:
+permalink: "/2018/01/08/front-end-camera/"
+---
+<p>We currently have overworld maps that can be visualized with a color per pixel, depending on the pixel's biome data.<br />
+In the actual game, each of these pixels will be a <em>tile</em>, on which we'll map <em>textures</em>, and we can also even put <em>geometry</em>. There are many ways to view such maps, for example various configurations of <em>perspective</em> and <em>orthographic</em> projections.</p>
+<p>So far I've been using a top-down view for the ease of implementation. As I wanted to experiment with several visualizations, I changed the implementation to support a <em>fully configurabl</em>e camera, as well as tile highlighting and edge scrolling as before. Here are some examples of an overworld map, visualized with a few cameras (orthographic top-down and 3 perspective cameras, zoomed in and out) :</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/topdown0.webp"><img class="aligncenter size-full wp-image-1753" src="{{ site.baseurl }}/assets/2018/01/topdown0_thumb740.webp" alt="" width="1088" height="704" /></a><a href="{{ site.baseurl }}/assets/2018/01/topdown1.webp"><img class="aligncenter size-full wp-image-1754" src="{{ site.baseurl }}/assets/2018/01/topdown1_thumb740.webp" alt="" width="1088" height="704" /></a><a href="{{ site.baseurl }}/assets/2018/01/perspc0.webp"><img class="aligncenter size-full wp-image-1751" src="{{ site.baseurl }}/assets/2018/01/perspc0_thumb740.webp" alt="" width="1088" height="704" /></a><a href="{{ site.baseurl }}/assets/2018/01/perspc1.webp"><img class="aligncenter size-full wp-image-1752" src="{{ site.baseurl }}/assets/2018/01/perspc1_thumb740.webp" alt="" width="1088" height="704" /></a><a href="{{ site.baseurl }}/assets/2018/01/perspb0.webp"><img class="aligncenter size-full wp-image-1749" src="{{ site.baseurl }}/assets/2018/01/perspb0_thumb740.webp" alt="" width="1088" height="704" /></a><a href="{{ site.baseurl }}/assets/2018/01/perspb1.webp"><img class="aligncenter size-full wp-image-1750" src="{{ site.baseurl }}/assets/2018/01/perspb1_thumb740.webp" alt="" width="1088" height="704" /></a><a href="{{ site.baseurl }}/assets/2018/01/perspa0.webp"><img class="aligncenter size-full wp-image-1747" src="{{ site.baseurl }}/assets/2018/01/perspa0_thumb740.webp" alt="" width="1088" height="704" /></a><a href="{{ site.baseurl }}/assets/2018/01/perspa1.webp"><img class="aligncenter size-full wp-image-1748" src="{{ site.baseurl }}/assets/2018/01/perspa1_thumb740.webp" alt="" width="1088" height="704" /></a></p>
+<p>The art that I'm going to use will possibly be just 2d sprites. The beauty of 2d sprites is that they can be used both in 2D and 3D views, in the latter, as billboards. The challenge is to make them look good when integrated in a 3D environment. Here are some examples of a basic, naive integration of some <a href="https://crawl.develz.org/download.htm">DCSS</a> tiles in the map:</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/bb_topdown.webp"><img class="aligncenter size-full wp-image-1744" src="{{ site.baseurl }}/assets/2018/01/bb_topdown_thumb740.webp" alt="" width="1088" height="704" /></a></p>
+<p>So, these are the tiles rendered to the top-down view - nothing special so far. Below, we try the billboard rendering, before and after, using a side-camera:</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/persp_bb1.webp"><img class="aligncenter size-full wp-image-1746" src="{{ site.baseurl }}/assets/2018/01/persp_bb1_thumb740.webp" alt="" width="1088" height="704" /></a><a href="{{ site.baseurl }}/assets/2018/01/persp_bb0.webp"><img class="aligncenter size-full wp-image-1745" src="{{ site.baseurl }}/assets/2018/01/persp_bb0_thumb740.webp" alt="" width="1088" height="704" /></a></p>
+<p>When using such cameras, it's clear that sprites look much better as billboards rather than flat mapped onto the terrain. Some more billboard examples using more cameras (1 isometric and 3 perspective):</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/bb_ortho0.webp"><img class="aligncenter size-full wp-image-1740" src="{{ site.baseurl }}/assets/2018/01/bb_ortho0_thumb740.webp" alt="" width="1088" height="704" /></a><a href="{{ site.baseurl }}/assets/2018/01/bb_persp0.webp"><img class="aligncenter size-full wp-image-1741" src="{{ site.baseurl }}/assets/2018/01/bb_persp0_thumb740.webp" alt="" width="1088" height="704" /></a><a href="{{ site.baseurl }}/assets/2018/01/bb_persp1.webp"><img class="aligncenter size-full wp-image-1742" src="{{ site.baseurl }}/assets/2018/01/bb_persp1_thumb740.webp" alt="" width="1088" height="704" /></a><a href="{{ site.baseurl }}/assets/2018/01/bb_persp2.webp"><img class="aligncenter size-full wp-image-1743" src="{{ site.baseurl }}/assets/2018/01/bb_persp2_thumb740.webp" alt="" width="1088" height="704" /></a></p>
+<p><em>(Note: Any sprite overlaps are due to my laziness; the positions for the billboards are generated randomly and therefore sometimes overlap)</em></p>
+<p>I think it's safe to assume that it works well, but they don't integrate perfectly. I'm not an artist, so I need to get some informed opinions on how to improve the visual result by just processing the sprites and data that I have (e.g. using specific, shared color palette for both overworld and sprites, process sprite boundary, add some fake environment lighting, etc). Also, DCSS sprites occasionally have integrated shadows, which funnily enough works for many of the views, but it's baked in the sprite, so not really controllable.</p>
+<p>Here is a video of a perspective/ortho cameras using billboard version, to showcase the 3D look.</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/c6Die_E5GWs" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/c6Die_E5GWs?autoplay=1><img src=https://img.youtube.com/vi/c6Die_E5GWs/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video c6Die_E5GWs"></iframe>
+</div>
+<p>While the 3D effect works, the visuals can be massively improved. For example:</p>
+<ul>
+<li style="list-style-type: none;"></li>
+<li>Actual textures for the overworld, including rivers and sea (tileset hunting plus procedural should do it for now)</li>
+<li>Vegetation and mountain sprites on the tiles (I need tilesets for that)</li>
+<li>better sprite integration with the map (shadows? silhouettes? env lighting?)</li>
+<li>Optionally, a basic elevation visualization, with lighting (mutually exclusive with mountain sprites, but this is easy to do)</li>
+</ul>
+<p>Of course I'll need an artist for sprites and textures, so at the moment I have to make do with my mad (bad?) pcg skills. And for even later, there's also animated fog of war, particle systems and other bells and whistles, because graphics programming is fun :)</p>

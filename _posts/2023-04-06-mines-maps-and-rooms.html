@@ -1,0 +1,37 @@
+---
+layout: post
+title: Mines, maps and rooms
+date: 2023-04-06 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/04/mine6.png
+meta:
+author:
+permalink: "/2023/04/06/mines-maps-and-rooms/"
+---
+
+<p>Various bits and pieces this week, slightly slower due to holidays. </p>
+<p><strong>Better mine map</strong></p>
+<p>Tall title for miniscule changes, but a regular mine map includes the mine cart track (as before) but also miners scattered throughout the level and ore scattered around walls only. Now, the interesting thing is that, at native plugin level, I don&#39;t need to define anything else besides &quot;miner&quot; and &quot;ore&quot;. Maybe some graphic for visualisation like the ones I show in these editor screenshots. These names will be resolved on the C# side. We&#39;ll know that we have e.g. 10 &quot;miner&quot; instances at positions p1,p2,p3,etc, and 25 ore instances at ... For each miner instance, C# will pick up the corresponding entity creation configuration from a dictionary and will instantiate a miner. This configuration will depend on what type of mine it is, what city-state it will belong to, etc, to determine creature race, relations to the player and so on. Same for ore: the type of mine will inform what ore it is, and I think that&#39;s about it.</p>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/04/mine6.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/mine6.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/mine6.webp 1536w, {{ site.baseurl }}/assets/2023/04/variants/mine6-960w.webp 960w, {{ site.baseurl }}/assets/2023/04/variants/mine6-640w.webp 640w, {{ site.baseurl }}/assets/2023/04/variants/mine6-320w.webp 320w" alt="Mines with miners" width="1536" height="864" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Mines with miners</figcaption>
+</figure>
+
+<p><strong>Map generation stream output</strong></p>
+<p>I already have json support for dungeon output, and while it&#39;s nice, it can get a bit large, and I&#39;m worried about parsing times. I used to have a stream representation previously, so I decided to do something similar, that conveniently enough ended up being simpler. I&#39;ve only done the C++ side so far, but there are no visible issues. Effectively, the results of the entire dungeon generation are saved in a stream of 16-bit unsigned integers. They are used to represent counts of instances, instance locations and indices to things in various predefined databases. The end result is very lightweight, far smaller than the json output and much much faster to parse. It is very much like a binary serialization format. I&#39;d provide more details, but I think they might confuse more than be of any real use.</p>
+<p><strong>Room prefabs: new room types and uniqueness</strong></p>
+<p>More work on room prefabs, due to some latest requirements. I have two extra requirements based on brainstorming: rooms with some destructed walls, to represent ruins of buildings, and rooms (typically rectangular) that are missing one or more walls, so they have 1,2 or 3 sides built. The former are super useful in ruined areas of course, while the latter are useful for some particular structures, e.g. representing a lean-to, or a horse stable. Ruined rooms still get automatic assignment of doors if none are specified, but rooms with missing wall sides do not. </p>
+<p>Another thing that needed to change based on the above was how rooms are instantiated. Previously, I&#39;d instantiate each room type supported by the dungeon once, and replicate it and only modify where the doors are. But now, with support for destructed buildings, if I do that I end up with the exact <strong>same</strong> room, with the destruction at the exact same locations, and it looks terrible of course. One solution would be to manually create more destructed rooms and randomly select from them, but that does not scale very well. So, I have now changed the dungeon generation logic so if I end up using 50 instances of a room, I instantiate the layout 50 times. The only restriction is that the instantiations all need to result in a room that occupies a same-sized rectangle, as this coarse representation is used for checking collisions among rooms.</p>
+<p>Finally, previously I had support for prefab transformations, e.g. rotations and flipping along an axis, to increase the number of apparent variations. But this had complexities with autotiles and to be honest it&#39;s not needed any more if I specify the contents with a prefab placement algorithm, so that&#39;s some code removed, on the C# side mainly.</p>
+<p>That is all for now, have a nice weekend!</p>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/04/ruins11.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/ruins11.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/ruins11.webp 1536w, {{ site.baseurl }}/assets/2023/04/variants/ruins11-960w.webp 960w, {{ site.baseurl }}/assets/2023/04/variants/ruins11-640w.webp 640w, {{ site.baseurl }}/assets/2023/04/variants/ruins11-320w.webp 320w" alt="Ruins in the frozen forest, crawling with enemies" width="1536" height="864" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Ruins in the frozen forest, crawling with enemies</figcaption>
+</figure>

@@ -1,0 +1,132 @@
+---
+layout: post
+title: Weather and Performance
+date: 2020-05-22 12:57:10.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- art
+- programming
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619349238;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:309;}i:1;a:1:{s:2:"id";i:2257;}i:2;a:1:{s:2:"id";i:1869;}}}}
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  _edit_last: '1'
+  rank_math_analytic_object_id: '16'
+author:
+permalink: "/2020/05/22/weather-and-performance/"
+---
+<p><!-- wp:paragraph --></p>
+<p>First, regarding this blog's posts: Lately I haven't been doing anything that's big or cohesive enough for a blog post, and that's why the lack of posts. But this week, the "performance" section was pretty critical, so here we are.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Two main bits of work presented here: pretty graphics (I hope) and some really educational (for me) optimisation work. I'll start with the visuals, as the latter is a journey by itself. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Fog, heat haze and time-of-day lighting</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:core-embed/youtube {"url":"https://youtu.be/9cY3Di6WHOE","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed-youtube wp-block-embed is-type-video is-provider-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/9cY3Di6WHOE" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/9cY3Di6WHOE?autoplay=1><img src=https://img.youtube.com/vi/9cY3Di6WHOE/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video 9cY3Di6WHOE"></iframe>
+</div>
+</figure>
+<p><!-- /wp:core-embed/youtube --></p>
+<p><!-- wp:paragraph --></p>
+<p>All these are things I've wanted to find an excuse to do at some point, so here we are. Fog ended up pretty good. It's some simple pixelated Simplex noise, by applying banding to both the output luminance (to create the limited-color-palette effect) AND to the 2D coordinates used to sample the noise function (to make fog look blocky). But we don't band the 3rd noise coordinate, which is time, so the effect remains nice and smooth. Fog will be applied In The Future when the biome's humidity is pretty high, and it's late at night or early in the day (I know, it's a gross simplification, but I don't plan for soil humidity simulation)</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Heat haze is again pretty simple: we just sample the noise function and adjust the horizontal UVs slightly, in a periodic manner. This will be applied In The Future mostly in the deserts during daytime, or in any other case where the ambient temperature is very high.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Time-of-day is a cheat at the moment (i.e. possibly forever), and applies some curves to the RGB components. Normally, the professional way to do that is using <a href="https://en.wikipedia.org/wiki/Color_grading">color grading</a>, for which you need an artist. Until I get an artist or learn how to do it myself, RGB curves it is. For each discrete time-of-day preset (dawn, noon, dusk, night) we have 3 LUTs, one per color component. So I just simply fetch the RGB pixel color, pass it through the LUTs, and get another one. The LUTs are generated from curves in the GUI, as Unity provides some nice animation curves that can be used for this, and they are stored as a texture. In the shader, we sample the values and blend based on time of day. Still need to do this final bit for smooth transitions</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Bursting the optimisation bottlenecks</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, below is a summary of this week's optimisation journey, itself summarized with: "In Unity, for performance, go Native and go Burst".</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>C++ to C# to C++: There And Back Again</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>My world generation phase was fast in C++, but in C# it's SLOW. Generating the 512x512 biome map, precalculating all paths between all cities, generating factions, relations, and territory control costs a lot. In C# that is <strong>4 minutes</strong>. You click the button, go make some coffee, and world may have been generated. In C++ it was <strong>much faster</strong>. Needless to say, when I first ported, I immediately implemented caching of the various stages, so that I don't grow old(er) waiting. This week I decided to have a look and see if things can be sped up, as I can't be hiding from the problem forever.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Pathfinding back to C++: Success!</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The first though was obviously, "why of course, move things to the C++ plugin". Since my old code was C++ and was ported to C#, this was not exactly a daunting task, as I copied C++ code from the old project to the plugin. First major offender was the pathfinding. <a href="{{ site.baseurl }}/2018/09/08/city-based-pathfinding-in-the-overworld/">Reference blog post</a>. Now I'm generating 752 routes that connect 256 cities int the map, and also precalculate some quantities that greatly accelerate pathfinding searches, that involve 8 Dijkstra map calculations on the entire 512x512 map. Here is the first kicker. <strong>From 2 minutes, the process now takes 4 seconds</strong>. Needless to say, that caused extreme joy, and set the blinders on, focused to reduce those 4 minutes for the world generation back to several seconds. Next candidate? Territory control!</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Territory control back to C++: Success? Eventually!</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Drunk with optimisation success, I wanted to get the same boost for the territory control. <a href="{{ site.baseurl }}/2018/07/21/overworld-territories/">Reference blog post about territories</a>. In C#, running the process once for each city (256 of them) takes a total of 6-7 seconds. So I ported the code, and the time went down to 3.5 seconds. Hmmm, not great. But why? Apparently, I had not understood marshalling (moving data between C# and C++) correctly. Every time I passed array, I thought I was passing pointers, but C# was copying memory under the hood. <strong>So for each of those 256 calls, I was copying back-and-forth a few 512x512 maps, so around 5 megabytes worth of data transfers</strong>. Needless to say, that's bad, so I tried to find ways to just pass pointers. And there is a Unity-way, using Native arrays. I switched to native arrays (not too easy but ok), and <strong>the time went drom from 6-7 seconds in C#, to 285ms!</strong>. But all is not rosy, as native arrays are not perfect (see below section) and also it's a bit fussier to call the DLL functions: create an unsafe block, in there get the void* pointer from native array and cast to IntPtr, and then send the IntPtr to the plugin.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Interlude: NativeArray vs managed arrays</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Unity provides NativeArrays which are great for use with native plugins and their job system. But there are 2 major downsides. One: you need to remember to dispose them. Well ok, it's not so bad, I'm trained to do that anyway through C++, it's just more code to manage. The second is that they are <strong>expensive to access elements</strong> through C#. If I loop through a big native array (say quarter of a million elements), it will take at least an order of magnitude more to just access the data, read or write. So you shouldn't just replace everything to native arrays.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>One fun tidbit. You need to remember to call Dispose() when you're done with a resource. All my systems might store Native2D arrays, and the obvious thing to do is, whenever I add a new NativeArray variable, also remember to put it in the Dispose function of that system. But here is where reflection comes to the rescue! This code is put in the base system class:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:enlighter/codeblock {"language":"csharp"} --></p>
+{% highlight csharp %}
+public void Dispose() 
+{
+    var type = GetType();
+    foreach (var f in type.GetFields(BindingFlags.Public | 
+                                     BindingFlags.NonPublic | 
+                                     BindingFlags.Instance))
+        if (typeof(IDisposable).IsAssignableFrom(f.FieldType))
+            ((IDisposable)f.GetValue(this))?.Dispose();
+}
+{% endhighlight %}
+<p><!-- /wp:enlighter/codeblock --></p>
+<p><!-- wp:paragraph --></p>
+<p>This beauty here does the following cheat: it finds all variables that implement the IDisposable interface, and calls the Dispose function. So, when I add a new NativeArray variable in a system, I need to remember <strong>absolutely nothing</strong>, as this function will find it for me and call Dispose. I love reflection!</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Generating city locations: Time to Burst</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Next candidate to optimize was a different beast: the generation of city locations. This is not easy to do in a C++ plugin because it references a lot of data from the database, e.g. creature race properties (where they like to live), city type information, etc. So, it has to be done in Unity-land. And Unity-lands' performance poster child is the Job system with the Burst compiler.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>So far I had ignored Unity's Job system, but no more. Jobs are a nice(?) framework to write multithreaded code. The parallel jobs especially, really feel like writing shaders, including the gazillion restrictions and boilerplate before/after execution :) More like pixel shaders rather than compute shaders, because probably I still know very little on how to use jobs.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>I dutifully converted the parts where I was looping through all 256,000 world tiles to do calculations, and I ended up with 3 jobs, 2 that can run in parallel with each other, that are themselves parallel, and one that's not parallel. Here are the intensive tasks performed:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Calculate an integral image of all food/common materials per world tile (this allows for very fast evaluation of how much food/materials are contained in a rectangular area). This was converted to C++ plugin.</li>
+<li>Job 1: For each tile, calculate how eligible is each race to live there (depends on biome)</li>
+<li>Job 2: For each tile, for each city level, calculate approximate amount of food/materials available.</li>
+<li>Job 3: Given a particular race and city level, calculate which tile is the best candidate</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>And now the numbers… Originally, the code took about 18 seconds. By converting the code to use jobs, it took 11.8 seconds. By using the burst compiler to run the jobs, it took 863ms. By removing safety checks (not needed really as the indexing patterns are simple), the code takes 571ms. So, <strong>from 18 seconds, down to 571ms</strong>, not bad for a low-ish hanging fruit! There was no micro-optimisation or anything tedious mind you.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Final remarks</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, native containers and jobs using Burst are definitely the way to go. For existing code out there (e.g. delaunay triangulation or distance field calculation) that you wouldn't want to rewrite to jobs, C++ will do the trick very efficiently by passing nativearray's void* pointers. Native containers need to be used with care and be disposed properly.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>What's next?</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Pathfinding at the moment takes 4 seconds in the plugin. Since pathfinding is a such a common performance bottleneck (so, worth job-ifying), and my overworld calculations can be done in parallel (all 752 paths, and all 8 full dijkstra maps), I have high expectations, but it's going to be a bit of work.</p>
+<p><!-- /wp:paragraph --></p>

@@ -1,0 +1,44 @@
+---
+layout: post
+title: 'More widgets: Buttons and TileGrids'
+date: 2017-02-03 17:02:45.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_published: '1'
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '1466802446'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1617456782;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:79;}i:1;a:1:{s:2:"id";i:1619;}i:2;a:1:{s:2:"id";i:543;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '74'
+author:
+permalink: "/2017/02/03/more-widget-work/"
+---
+<p>More widget work this week, implementing the <a href="{{ site.baseurl }}/2017/01/20/widget-specification-part-1/">specification</a> for focus and input handling.</p>
+<p>I now have a working <strong>Button</strong>, which is really a TextBox with special input hanlding: They send events when pressed/released, and can have a custom renderer for each case, so that for example a button can appear pressed when you click on it.</p>
+<p>I also set up a working <strong>ListBox</strong>, which is a special container for buttons, which provides custom renderers for highlighted items and binds the number keys (1,2,3, etc) to the children buttons. This will be used for any dialog with options. I'm tempted to adjust the rendering logic so that each widget has a list of potential renderers (defaulting to a generic one) for any state combination:  in/out-of-focus for all widgets and pressed or not for buttons.</p>
+<p>Finally, I set up a <strong>TileGrid </strong>widget that, as the name suggests, handles tile grids such as dungeons and overworld maps. The TileGrid displays a view window, which can be smaller than the whole grid, and can focus at any point in the grid (inside cells too), and can move smoothly (or not) from a focal point to another. Cells can be highlighted and clicked on, and the widget will send messages for such state changes. Rendering tilegrids is performed in 3 ways:</p>
+<ul>
+<li><strong>Dense tile rendering: </strong>Instanced rendering of visible tiles, tile locations are implicit given the view grid start and size. We can use this for rendering tiles with per-tile individual data. In the below video "Widget test 1", this is how the tiles on the bottom-left are rendered.</li>
+<li><strong>Sparse tile rendering: </strong>Similar to the above, but we need to provide the tiles to be rendered explicitly, as a number of instances and per-instance data. In the below video "Widget test 1", this is how the flashing tiles are rendered.</li>
+<li><strong>Single rectangle: </strong>When the tilemap to be displayed is just a single, continuous texture and there are no per-tile data, there's no reason to use instancing. In this case, we can render just the part of the texture that's visible in the view grid. In both the below videos, this is how the biome map and DCSS tile map are rendered.</li>
+</ul>
+<p><strong>Widget test 1</strong></p>
+<p>Here, I demonstrate the current version of my widget ... zoo, with some animated margin corner tiles, button-pressing (that ugly little red box which goes darker) and tilegrids. For the tilemap display, I'm randomly setting the focal point with a keypress, and the widget refocuses appropriately. There is still some rendering bug with the selection square in the tilemap, where it is occasionally a bit off. Still eludes me, and I'll possibly spend way too much time to fix it.</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/sOtzMCk9gRM" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<p><strong>Widget test 2: Biome Inspector</strong></p>
+<p>This is an attempt to make something useful out of the widgets, very quickly. So this is the result: just 2 widgets, a tilegrid and a textbox, and the application listens for highlighted messages and updates the textbox: very simple and very effective. Below the video is the gui spec script</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/-4YTuR519mE" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<p><img class="alignnone size-full wp-image-538" src="{{ site.baseurl }}/assets/2017/02/widget_biome.webp" alt="widget_biome.png" width="437" height="1023" /></p>

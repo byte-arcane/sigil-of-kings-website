@@ -1,0 +1,131 @@
+---
+layout: post
+title: More messaging and shader parameterisation
+date: 2017-12-02 11:03:33.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619242811;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1635;}i:1;a:1:{s:2:"id";i:1822;}i:2;a:1:{s:2:"id";i:429;}}}}
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '57'
+author:
+permalink: "/2017/12/02/more-messaging-and-shader-parameterisation/"
+---
+<p>Last time I gave a brief description about how messaging (and my dirt simple implementation) can help with decoupling. But of course that was just scratching the surface. So, in this post, a bit more information on how the whole system is put together</p>
+<h3>Messaging changes</h3>
+<p>The messages now can also store an explicit message handler. In terms of the example I used last time, the new message would be as follows:</p>
+{% highlight cpp %}
+class cEntity;
+
+struct cEntityCreated : public cMessage
+{
+    explicit cEntityCreated( const cEntity&amp; zEntity, const cMessageHandler * handler = nullptr)
+    :cMessage(msType,handler),mEntity(zEntity){}
+
+    const cEntity&amp; mEntity;
+
+    static const int msType = 2;
+};
+{% endhighlight %}
+<p>So, a slight change allows cases where we'd like to target a message to a particular handler. This would be useful in the cases where we want to directly affect something from another part in the code that we don't want coupling with, but we don't want to introduce abstraction layers. Example:</p>
+<p>My test rendering app needs to modify a renderable directly, by setting a bunch of tiles. One option is to introduce a new message, TilesChangedInRenderable( tiles, renderable), but then we have a TilesChanged(tiles) message AND a TilesChangedInRenderable(tiles, Renderable). To avoid doing the same thing with classes other than Renderables, and since the Renderable is a MessageHandler anyway, I decided to make the above adjustment where we can always optionally provide an explicit handler; if one is provided, the message is only handled by message propagators (e.g. a System) and the handler in question, otherwise it is handled by everybody who is registered to listen to those types of messages.</p>
+<h3>Shader parameters</h3>
+<p><strong>Disclaimer:</strong> Rendering is always in flux - I'm trying to get something generic, extensible and easily editable working together, and it's no easy feat.</p>
+<p>Summary of rendering so far:</p>
+<ul>
+<li>The currently running application state renders its root widget</li>
+<li>Each widget contains body and margin renderables (2 different)</li>
+<li>Each widget can contain a modal widget, or if it's a container widget, other widgets</li>
+<li>Some widgets add more renderables: e.g. textbox also has a text renderable</li>
+<li>Renderables are pretty much rendering configurations, and store a reference to a renderer and to their widget owner</li>
+<li>Renderers use shaders and contain rendering logic</li>
+<li>A renderer renders a single renderable type, a renderable can be rendered by several renderer types</li>
+</ul>
+<p>Before, the configuration was via explicit parameters in an inheritance chain. While it's explicit, it's a PAIN to add parameters, as it's compile-time. So I ditched that approach, and used a far more generic approach. Now every renderable stores, among other things:</p>
+<ul>
+<li>A list of references to textures</li>
+<li>A list of dynamic textures, along with a message updater for each</li>
+<li>A list of texture buffers, along with a message updater for each</li>
+<li>A reference to a blending configuration</li>
+<li>A list of shader variables, organized as:
+<ul>
+<li>a vector of (name, value) pairs, for every common shader type (int, float, int2, float4, etc)</li>
+<li>a vector of (name, texture_buffer_index)</li>
+<li>a vector of (name, texture_index)</li>
+<li>a vector of (name, dynamic_texture_index)</li>
+</ul>
+</li>
+</ul>
+<p>So far, this is looking flexible and I like it. Of course it's far from optimal, but it is optimal for prototyping, and that's what matters now. For performance, variables could be organized in uniform buffer objects of varying frequency of updates, etc, but that's far down the line.</p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/test_astard-2017-12-02-10-55-20-63.webp"><img class="alignnone size-full wp-image-1653" src="{{ site.baseurl }}/assets/2017/12/test_astard-2017-12-02-10-55-20-63_thumb740.webp" alt="" width="1280" height="672" /></a></p>
+<p>Above there's a screen from the modification of the A* visualizer to operate on graphs -- just minimal changes needed from existing infrastructure:</p>
+<ul>
+<li>There is a new renderer instance of the type GridSparseSelectionRenderer -- it's used for rendering lines.</li>
+<li>There are a few renderables: for the node points, for the start point, for the goal points (of course horribly inefficient, I might as well draw all points at once and assign per-instance colors, but that's not the point here), for the edges and for the edges that are part of the output path.</li>
+</ul>
+{% highlight json %}
+{ "gs_nodes" : { 
+    "@factory" : "RenderableTileGridWidgetSelection",
+    "Renderer" : "GridSparse",
+    "TextureBuffers" : [
+        {
+            "first" : {"format" : "rg16i", "usage" : "DynamicDraw", "Flyweight" : false, "max_elements": 2000}, // let memory be initialized at first update
+            "second" : "TileSelectionChangedToTextureBuffer"
+        }
+    ],
+    "ShaderParams" : {
+        "g_Color" : {"type" : "color", "value" : [0,0,255,100]},
+        "g_Tiles" : {"type" : "texture_buffer", "value" : 0}
+    }
+}},
+{ "gs_edges" : { 
+    "@factory" : "RenderableTileGridWidgetSelection",
+    "Renderer" : "GridSparseLine",
+    "TextureBuffers" : [
+        {
+            "first" : {"format" : "rg16i", "usage" : "DynamicDraw", "element_size" : 2, "Flyweight" : false, "max_elements": 2000}, 
+            "second" : "TileSelectionChangedToTextureBuffer"
+        }
+    ],
+    "ShaderParams" : {
+        "g_Color" : {"type" : "color", "value" : [128,128,128,255]},
+        "g_LineThickness" : {"type" : "float", "value" : 1.0},
+        "g_LinePoints" : {"type" : "texture_buffer", "value" : 0}
+    }
+}},
+{ "gs_edges_path" : { 
+    "@factory" : "RenderableTileGridWidgetSelection",
+    "Renderer" : "GridSparseLine",
+    "TextureBuffers" : [
+        {
+            "first" : {"format" : "rg16i", "usage" : "DynamicDraw", "element_size" : 2, "Flyweight" : false, "max_elements": 2000}, 
+            "second" : "TileSelectionChangedToTextureBuffer"
+        }
+    ],
+    "ShaderParams" : {
+        "g_Color" : {"type" : "color", "value" : [128,255,128,255]},
+        "g_LineThickness" : {"type" : "float", "value" : 2.0},
+        "g_LinePoints" : {"type" : "texture_buffer", "value" : 0}
+    }
+}},
+{ "gs_start" : { 
+    "@inherit" : "gs_flashing",
+    "ShaderParams" : {
+        "g_Color" : {"type" : "color", "value" : [255,0,0,255]}
+    }
+}},
+{ "gs_goals" : { 
+    "@inherit" : "gs_flashing",
+    "ShaderParams" : {
+        "g_Color" : {"type" : "color", "value" : [0,255,0,255]}
+    }
+}}
+{% endhighlight %}

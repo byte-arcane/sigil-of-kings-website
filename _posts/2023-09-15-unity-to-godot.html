@@ -1,0 +1,41 @@
+---
+layout: post
+title: Unity to Godot
+date: 2023-09-15 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/09/unity.png
+meta:
+author:
+permalink: "/2023/09/15/unity-to-godot/"
+---
+
+
+<figure><img src="{{ site.baseurl }}/assets/2023/09/unity.png" alt="sad unity engine face"/><br />
+<figcaption>Unity is in a weird place. Who knows where it's going next.</figcaption>
+</figure>
+
+<p>I originally planned to write a bit about items and enchantments, but that has to be pushed for next time, because of the elephant in the room.</p>
+<p><strong>Unity to Godot</strong></p>
+<p>The Unity debacle has been quite distracting this week. Now there are lots of people that are FAR more affected than me, but what has been communicated clearly is that Unity will not hesitate to change things without warning, pulling the rug under your feet, and optimise for the mobile platform and monetisation thereof. This means that if you&#39;re not in that space, well, tough luck. </p>
+<p>In my case, I&#39;m not currently affected, but if Unity hits rock bottom I certainly am. The question becomes: do I wait to find out? I rely on being able to use Unity and its updates on systems I&#39;m planning to use (like the UI) for several years from now. I&#39;m not going to be done with the game anytime soon, and now there&#39;s a shadow over long-term support. I don&#39;t want the game that I&#39;ve poured sweat over a decade (and plan to pour more) to be randomly shafted because some greedy people make some stupid decisions. It doesn&#39;t make me feel I have control over my solo super-personal project.</p>
+<p>So, what to do? Continue or move to a different engine? A lot of people working on short-term games say they will finish and then move to some other engine. Other people with long-term projects are stuck because they&#39;ve invested too much in Unity. But, what have <em>I</em> invested in Unity? The answer, given the size of the codebase and they years I&#39;ve working on is, surprisingly, &quot;not much&quot;. I&#39;m not using any Unity assets, or their UI (yet), or their pathfinding, or their particle systems, or their inspector (that failed because of my code-heavy approach), or GameObjects, or ScriptableObjects, or Addressables, or a myriad of half-baked features that it provides. I use C#, serialization, shaders, drawing instanced quads using compute shaders and simple editor windows for debug displays. Everything else is pretty much DIY. Not being tied to Unity stuff is actually quite liberating at this point, as it makes the porting effort from impossible/years to a fraction of that.</p>
+<p>So, what&#39;s the alternative? For me, the most realistic option, by a big margin, seems to be Godot. It&#39;s open-source, it seems good enough and stable enough at the moment, and it&#39;s only gaining more traction. Not falling to the proprietary trap again. Same with social media -- ok with Reddit and Twitter while they exist, but no more proprietary ones, only Mastodon. Enough with the bait-and-switch tactics in products you invest in. </p>
+<p>So what now? I&#39;ll be starting an exploratory phase on Godot, to figure out if it ticks the exact boxes that I want. What are those? </p>
+<ul>
+<li>Easy serialization of data structures, for both binary purposes (savegame) and configuration (json)</li>
+<li>Interfacing with a C++ plugin</li>
+<li>Good debugging of native code</li>
+<li>Good debugging of script code</li>
+<li>Easy writing/debugging shaders</li>
+<li>A reasonable solution for game UI</li>
+<li>Easy creation of debug editor windows</li>
+</ul>
+<p>Time will tell.</p>
+

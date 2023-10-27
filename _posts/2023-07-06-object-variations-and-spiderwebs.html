@@ -1,0 +1,48 @@
+---
+layout: post
+title: Object variations and spiderwebs
+date: 2023-07-06 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/07/webs_2.png
+meta:
+author:
+permalink: "/2023/07/06/object-variations-and-spiderwebs/"
+---
+
+<p>Level generation work as usual for this week, it&#39;s slowly getting a bit more ... refined. </p>
+<p><strong>Spawned object variations</strong></p>
+<p>Areas can define &quot;algorithms&quot; to generate content for them, like jugs, statues, carpets, etc. But for example, we have 10 statues, which one to specify or to pick? Another example could be jug color variations: yellow, blue, etc. <strong>Requirement no1</strong>: be able to resolve a generic name like &quot;statue&quot; to instantiate one from a multitude of variations.</p>
+<p>But there&#39;s more. Some variations only make sense in particular environments. E.g. a desert dungeon is yellow-ish and a forest dungeon might be green-ish. So, when I&#39;m asking for a &quot;jug&quot; in a forest dungeon, I should instantiate the green ones rather than the yellow ones. I already have a super-helpful class for &quot;spawn requirements&quot; that allows specification of such things. <strong>Requirement no2</strong>: pick a variation subject to current context and variation spawn requirements.</p>
+<p>So, satisfying both requirements is not that complicated after everything is set up correctly (in JSON), the only annoyance is that I need a separate mapping between &quot;spawn class name&quot; (the &quot;generic&quot;) and explicit names that can be directly generated. On the other hand, this allows to have lots of heterogeneous stuff in this mapping, like objects, decals and more. What is needed is to provide some information for how we want to instantiate an object. E.g. for a jug that would be &quot;InteractiveLevelObject&quot; so my code looks up a delegate stored in a dictionary whose key is &quot;InteractiveLevelObject&quot;, and it will spawn the object. </p>
+<p>Since this is complete, from now on the levels can look a bit busier than usual.</p>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/07/webs_2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/07/variants/webs_2.webp" srcset="{{ site.baseurl }}/assets/2023/07/variants/webs_2.webp 1462w, {{ site.baseurl }}/assets/2023/07/variants/webs_2-960w.webp 960w, {{ site.baseurl }}/assets/2023/07/variants/webs_2-640w.webp 640w, {{ site.baseurl }}/assets/2023/07/variants/webs_2-320w.webp 320w" alt="Procedural spiderwebs!" width="1462" height="806" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Procedural spiderwebs!</figcaption>
+</figure>
+
+<p><strong>Webs and autotiles</strong></p>
+<p>I already had a few sprites for webs (corners or standalone), but now I need to procedurally generate them as part of the dungeon and having them look nice. Option 1 is to use a single sprite for everything, but that does not look as nice. Option 2 is to convert the web sprites to a tilesheet that I can use autotiling to select an appropriate sprite based on context. Thankfully that was not painful since I have a bunch of tools to assist me with such conversions, so I edited a few sprites and made the autotiles. Now the harder part was to allow a generic object to use a tileset instead of an explicit sprite, which was functionality typically reserved for non-entities such as decals, walls or overlap tiles. After some fiddling, all is done and the webs are now dynamic. Web sprites change if the environment around them changes dynamically (neighbouring wall gets added/destroyed or neighbouring webs are added/destroyed). </p>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/07/webs_1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/07/variants/webs_1.webp" srcset="{{ site.baseurl }}/assets/2023/07/variants/webs_1.webp 1206w, {{ site.baseurl }}/assets/2023/07/variants/webs_1-960w.webp 960w, {{ site.baseurl }}/assets/2023/07/variants/webs_1-640w.webp 640w, {{ site.baseurl }}/assets/2023/07/variants/webs_1-320w.webp 320w" alt="More procedural spiderwebs!" width="1206" height="770" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>More procedural spiderwebs!</figcaption>
+</figure>
+
+<p><strong>Misc</strong></p>
+<ul>
+<li>I&#39;ve added a new algorithm option for procedurally populating areas, tweaked for clusters. For example, when you want to have a corner of a room filled with jugs/crates</li>
+<li>Added a breaking animation when you use a tombstone (was actually one line of json - yay for overengineering config files). When you &quot;use&quot; a tombstone, it breaks and you might get treasure or undead. Now, instead of just switching sprites, you can see the tombstone breaking. Groundbreaking stuff.</li>
+<li>Some misc bug fixes as usual</li>
+</ul>
+
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/webs_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Dynamic spiderwebs!</figcaption>
+</figure>

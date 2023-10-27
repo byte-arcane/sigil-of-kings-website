@@ -1,0 +1,168 @@
+---
+layout: post
+title: Autotiles, instancing and object clusters
+date: 2020-12-03 19:22:04.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- art
+- programming
+tags:
+- autotile
+- instancing
+- pixel-art
+- spritesheet
+- unity
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1617122933;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2883;}i:1;a:1:{s:2:"id";i:1766;}i:2;a:1:{s:2:"id";i:3175;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  rank_math_seo_score: '80'
+  rank_math_focus_keyword: instancing
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+  _wpas_done_all: '1'
+  rank_math_primary_category: '5'
+  rank_math_analytic_object_id: '11'
+author:
+permalink: "/2020/12/03/autotiles-instancing-and-object-clusters/"
+---
+<p><!-- wp:image --></p>
+<figur<a href="{{ site.baseurl }}/assets/2020/12/Rht8xPy_thumb740.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2020/12/Rht8xPy_thumb740.webp" alt="New approach: using instancing" width="740" height="441" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2020/12/variants/Rht8xPy_thumb740.webp 740w, {{ site.baseurl }}/assets/2020/12/variants/Rht8xPy_thumb740-320w.webp 320w"/></a><br />
+<figcaption>New approach: using instancing</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:image --></p>
+<figur<a href="{{ site.baseurl }}/assets/2020/12/jVDKv2L_thumb740.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2020/12/jVDKv2L_thumb740.webp" alt="Attempted approach: using autotiling" width="740" height="523" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2020/12/variants/jVDKv2L_thumb740.webp 740w, {{ site.baseurl }}/assets/2020/12/variants/jVDKv2L_thumb740-320w.webp 320w"/></a><br />
+<figcaption>Attempted approach: using autotiling</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:image --></p>
+<figur<a href="{{ site.baseurl }}/assets/2020/12/yemoFUw_thumb740.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2020/12/yemoFUw_thumb740.webp" alt="Original approach: using nothing" width="740" height="593" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2020/12/variants/yemoFUw_thumb740.webp 740w, {{ site.baseurl }}/assets/2020/12/variants/yemoFUw_thumb740-320w.webp 320w"/></a><br />
+<figcaption>Original approach: using nothing</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:heading {"level":3} --></p>
+<h3>The problem</h3>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Some of the blocking tiles in the game are things like a tree, a cactus, etc. Occasionally, I want to use these tiles to represent blocked cells in an outdoors map. But, if I just put one such sprite per cell, the result looks poor (see bottom image above, "original approach"). So I thought, "ok, let's try to create an autotile version of the trees".</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>In the meantime, I've developed some helper tool to assist with creating autotiles (rug/fence/blob) from a selection of input tiles:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":3152,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2020/12/image-1.webp"><img src="{{ site.baseurl }}/assets/2020/12/image-1_thumb740.webp" alt="" class="wp-image-3152" width="740" height="516" loading="lazy"/></a><br />
+<figcaption>Autotile tool: blob</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>... So I hacked a bit of that code away, to automatically place sprites that respect the edge restrictions, so effectively automatically creating the autotile blob from any single sprite. Example output:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":3151,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2020/12/image.webp"><img src="{{ site.baseurl }}/assets/2020/12/image_thumb740.webp" alt="" class="wp-image-3151" width="740" height="576" loading="lazy"/></a><br />
+<figcaption>Autotile tool: blob, automatic placement based on edges</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>While I was super happy initially, I soon realized that it would only work under very specific circumstances (symmetric sprites, placed appropriately at particular spots), and in order to cover all scenarios , I would need to automatically create a lot more sprites. So, after seeing a lot of restrictions, I wanted to go for plan B, and reuse some code that I already have for the overworld. That code uses <a href="{{ site.baseurl }}/2020/06/05/overworld-graphics-redux-vegetation/" class="rank-math-link">Poisson disk sampling to create instances of things to populate the overworld</a>. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":3} --></p>
+<h3>Sprite shader refactoring</h3>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>The problem was that that shader was restricted for the overworld vegetation, so I needed to generalise. I took a hard look of the miscellaneous shaders that I'm using for sprites (anything that uses texture atlases) and I noticed ones for the following:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>GUI</li>
+<li>Static objects</li>
+<li>Moving objects</li>
+<li>Moving object shadows</li>
+<li><a href="https://imgur.com/a/VcbyHBf" class="rank-math-link">Moving objects occluded areas</a> </li>
+<li>Vegetation normal</li>
+<li>Vegetation shadows</li>
+<li>Vegetation decal normal</li>
+<li>[Future] static object decals</li>
+<li>[Future] moving object decals</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, lots of combinations. So I delved in Unity's multi_compile pragma and custom, manual shader variants, and I came up with the following scheme, to have 3 different shader variant axes for sprites:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li><strong>Orientation: </strong>Standing or decal</li>
+<li><strong>Sprite type:</strong> Static, moving or "splat"</li>
+<li><strong>Render type:</strong> Regular, shadow or occluded</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>GUI is still its own thing, but all the rest can be expressed with one value per "axis" above. While Unity nicely allows keywords to configure the multi_compile option, such configuration cannot change blend settings, z settings and core things like that. So, variants based on Render type (regular, shadow, occluded) are all different shader files, that define some defines and include the common shader code. The rest of the variants are just expressed with #ifdef. Here's how the "Regular" render type variant shader looks like:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:enlighter/codeblock --></p>
+<pre class="EnlighterJSRAW" data-enlighter-language="generic" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">Shader "Sprite/TextureAtlasSpriteRegular"
+{
+  Properties
+  {
+    g_TextureAtlasSprites("TextureAtlasSprites", 2DArray) = "white" {}
+    g_TextureAtlasConstants("TextureAtlasConstants", Vector) = (32,32,1,0)
+    g_RealTime("Real time", int) = 0
+    g_RenderingMoveSpeed("Rendering move speed", float) = 1
+  }
+    SubShader
+    {
+      Tags { "Queue" = "AlphaTest" "RenderType" = "Opaque" }
+      LOD 100
+
+      AlphaToMask On
+
+      Pass
+      {
+        CGPROGRAM
+        #pragma vertex vert
+        #pragma fragment frag
+        #pragma target 4.5
+
+        #define VARIANT_REGULAR
+        #pragma multi_compile_local VARIANT_ORIENTATION_DECAL VARIANT_ORIENTATION_STANDING
+        #pragma multi_compile_local VARIANT_SPRITETYPE_STATIC VARIANT_SPRITETYPE_MOVING VARIANT_SPRITETYPE_SPLAT
+
+        #pragma multi_compile_instancing
+        //#pragma instancing_options procedural:setup
+
+        #include "UnityCG.cginc"
+
+        #include "Assets/Shaders/common.cginc"
+        #include "Assets/Shaders/sprite.cginc"
+        #include "Assets/Shaders/noise/random.cginc"
+
+        // We don't need this, as we don't have gameobjects and materials for each
+        UNITY_INSTANCING_BUFFER_START(Props)
+        UNITY_INSTANCING_BUFFER_END(Props)
+
+        
+        #include "Assets/Shaders/Sprite/TextureAtlasSprite_common.cginc"
+
+        ENDCG
+      }
+    }
+}
+</pre>
+<p><!-- /wp:enlighter/codeblock --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, now all the sprite code for all the variants is in a single source file, which is super convenient for editing. This approach now allows easy proper shadows for any object (static or moving) among other things.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":3154,"sizeSlug":"large"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2020/12/image-3.webp"><img src="{{ site.baseurl }}/assets/2020/12/image-3_thumb740.webp" alt="" class="wp-image-3154" width="740" height="528" loading="lazy"/></a><br />
+<figcaption>Benefits of the new system: everything has proper shadows! fountain, chest, character, door.</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>As this was a hell of a tangent, to solve the original problem, I wrote a pseudo-autotile algorithm class called "Splat" where, if I've specified it, instead of autotiling it creates an instance buffer and renders that with the Splat render variant (which includes shadows). This results in the first image shown on the page, where we have nice randomized trees including shadows. And, even though I'm not showing it here, we can use a variety of tree types, which is very, very convenient (with autotiling that would be near impossible). </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><!-- /wp:paragraph --></p>

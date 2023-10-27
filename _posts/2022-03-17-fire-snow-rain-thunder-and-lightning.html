@@ -1,0 +1,47 @@
+---
+layout: post
+title: Fire, snow, rain, thunder and lightning
+date: 2022-03-17 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/03/weather.png
+meta:
+author:
+permalink: "/2022/03/17/fire-snow-rain-thunder-and-lightning/"
+---
+
+<p>More effects work this week, as I thought I&#39;d revisit fire, rain and snow. Snow looked <a href="https://twitter.com/ByteArcane/status/1426516200394166275?s=20&amp;t=4OVAiFTccbBHtCgZNCCllA">ultra bad</a>, rain was ok but the splashes were annoying. <a href="https://twitter.com/ByteArcane/status/1495005251216162819?s=20&amp;t=4OVAiFTccbBHtCgZNCCllA">Fire was not &quot;fluid&quot; enough</a> as it was a 2-frame animation. As again I could use such effects for trailer material, I needed to revisit, and not spend too long on it. </p>
+<p><strong>Fire</strong></p>
+<p>This is now using <a href="https://brullov.itch.io/fire-animation">brullov</a>&#39;s sprites, which I think fits nicely with the style; not perfect, but much better. New fire video below, in the form of a &quot;fire nova&quot; effect, where flames expand radially to all tiles until a specified radius, blocked by anything that blocks visibility. It&#39;s using a new &quot;wave&quot; particle system that sorts tiles that particles are spawned, and spawns particles there delayed according to distance. </p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/JJnCT_EmZPY" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/JJnCT_EmZPY?autoplay=1><img src=https://img.youtube.com/vi/JJnCT_EmZPY/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="New fire sprites, used in a fire nova radial effect"></iframe></div>
+<figcaption>New fire sprites, used in a fire nova radial effect</figcaption>
+</figure>
+
+
+<p><strong>Snow</strong></p>
+<p>I got rid of my old particle system and horrible sprite, and I&#39;ve added something super-simple and tweaked the fall to be slightly different. I think it looks better now: new (below) vs <a href="https://twitter.com/ByteArcane/status/1426516200394166275?s=20&amp;t=4OVAiFTccbBHtCgZNCCllA">old</a>. It&#39;s still super simple and not configurable in terms of heavy snowfall, wind speed etc, but those don&#39;t really matter much, for now.</p>
+<p><strong>Rain and thunder</strong></p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/sonGAFsLIYo" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/sonGAFsLIYo?autoplay=1><img src=https://img.youtube.com/vi/sonGAFsLIYo/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="New snow particle system"></iframe></div>
+<figcaption>New snow particle system</figcaption>
+</figure>
+
+
+<p>Rain was ok, but the splashes were horrible. Can&#39;t find an old video to show you, but new version video is below, and <strong>sound on</strong> please. Rain drops are now vertical and splashes are much better, courtesy of <a href="https://www.youtube.com/watch?v=QP8zj-JQgmI">GreenMask Games</a>. Also, inspired by another dev, I decided to add thunder and lightning. This happens only during rain in warmer climates, and it&#39;s a short flash including a booming sound. The effect of the flash is to heavily increase contrast, as a poor-man&#39;s HDR effect, where because of the bright light (from the strike) and our eyes trying to accomodate to it, the darker areas become pitch black. In practice, it&#39;s like a sigmoid applied to the brightness of the image. </p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/G-bnJ_ABad8" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/G-bnJ_ABad8?autoplay=1><img src=https://img.youtube.com/vi/G-bnJ_ABad8/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Rain, thunder and lightning. Sound ON, thunder at 9 seconds in"></iframe></div>
+<figcaption>Rain, thunder and lightning. Sound ON, thunder at 9 seconds in</figcaption>
+</figure>
+
+<p>That&#39;s it for this week, enjoy your weekend all!</p>
+

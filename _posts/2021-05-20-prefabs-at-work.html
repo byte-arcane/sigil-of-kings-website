@@ -1,0 +1,53 @@
+---
+layout: post
+title: Prefabs at work
+date: 2021-05-20 12:22:55.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:2:{s:32:"37550b67d263a3ce789993dc25046c5f";a:2:{s:7:"expires";i:1619655775;s:7:"payload";a:6:{i:0;a:1:{s:2:"id";i:3404;}i:1;a:1:{s:2:"id";i:2156;}i:2;a:1:{s:2:"id";i:3125;}i:3;a:1:{s:2:"id";i:3175;}i:4;a:1:{s:2:"id";i:3394;}i:5;a:1:{s:2:"id";i:2883;}}}s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619656204;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:3404;}i:1;a:1:{s:2:"id";i:2156;}i:2;a:1:{s:2:"id";i:3125;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  rank_math_seo_score: '56'
+  rank_math_focus_keyword: prefab
+  _wpas_done_all: '1'
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+author:
+permalink: "/2021/05/20/prefabs-at-work/"
+---
+<p>Finally, prefabs are working properly! Here are some examples:</p>
+<img src="https://i.imgur.com/m5ZT4gq.png" alt=""/>
+<img src="https://i.imgur.com/MSdNAfA.png" alt=""/>
+<img src="https://i.imgur.com/BCs3wKu.png" alt=""/>
+<img src="https://i.imgur.com/TVJlOhJ.png" alt=""/>
+<img src="https://i.imgur.com/4XI7Vjw.png" alt=""/>
+<br>
+<p>
+In these examples, the layout is as follows:
+</p>
+<p>
+<ul>
+<li>Generate the outdoors area, depending on the biome</li>
+<li>Generate the indoors area as a dungeon using a set of prefab rooms</li>
+<li>Generate a boss area, which is a prefab zone</li>
+</ul>
+</p>
+<p>
+For the prefab rooms, I made a few quickly, but still they can demonstrate what’s possible. The rooms can use explicit tilesets or the “dungeon default” whatever that is. They support explicit placement of creatures, objects or decals/decoration (e.g. cobwebs or carpet). They might allow additional procedurally placed sparse features (encounters, objects) or not: for example in a pretty packed boss room, we might not want to randomly spawn a bookshelf. Same apply to “zones” (via sharing much of the code) which are larger versions of rooms and they can be instantiated only once in a level, for example 3 zones being “outdoors”, “dungeon” and “boss lair”. Some zone type that I still want to add is “open” zones, for example an outdoors clearing with some ruins, treasures and monsters, that is well integrated with the rest of the map.
+</p>
+<p>
+Prefab rooms can be configured so some are rarer than others, and some can be spawned just once or multiple times in the same level. What’s not implemented yet is context-specific room choices: for example, if we have a “crypt” map of sorts, we want lots of grave-related areas and rooms, but we shouldn’t find those in a wizard’s tower. Next step is to add such info to zones/rooms so that the created maps look more cohesive and can showcase certain styles.
+</p>
+<p>
+Here’s a video showing a dungeon run like the above, only problem is that I forgot the boss room door open and it was empty by the time I got there…
+</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/tT-v9gls0KE" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/tT-v9gls0KE?autoplay=1><img src=https://img.youtube.com/vi/tT-v9gls0KE/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video tT-v9gls0KE"></iframe>
+</div>

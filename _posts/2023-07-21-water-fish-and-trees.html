@@ -1,0 +1,55 @@
+---
+layout: post
+title: Water, fish and trees
+date: 2023-07-20 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/07/deeper_water.png
+meta:
+author:
+permalink: "/2023/07/21/water-fish-and-trees/"
+---
+
+<p>The theme of this week&#39;s work was environment: flora, fauna and display. Different topics worked on:</p>
+<ul>
+<li>I typically spawn multiple trees per tile, and I offset them in random directions. I had realised that I was sometimes pushing them a bit too far that one might get confused that tree is in tile A, whereas it&#39;s really in tile B next to A. So, I added some dynamic control to visually check the range, and make some adjustments to the range so that there&#39;s no such confusion. Now the random range in the Y axis is shorter than the X axis.</li>
+
+<figure>
+	<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/instancing_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+	<figcaption>Controlling tree spawning randomness</figcaption>
+</figure>
+
+<li>Deep water in levels is now displayed slightly darker. Speaking of which, water in levels now stores a type: freshwater or marine, in addition to 3 depth levels (none, shallow, deep). Depth is calculated based on the closest distance to shore, using distance fields.</li>
+
+
+	<figure><a href="{{ site.baseurl }}/assets/2023/07/deeper_water.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/07/variants/deeper_water.webp" srcset="{{ site.baseurl }}/assets/2023/07/variants/deeper_water.webp 1821w, {{ site.baseurl }}/assets/2023/07/variants/deeper_water-960w.webp 960w, {{ site.baseurl }}/assets/2023/07/variants/deeper_water-640w.webp 640w, {{ site.baseurl }}/assets/2023/07/variants/deeper_water-320w.webp 320w" alt="Subtle darker color for deeper water" width="1821" height="889" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Subtle darker color for deeper water</figcaption>
+	</figure>
+
+<li>I&#39;ve added some water-only creatures for testing, a few fish types really, with some sprites I got <a href="https://captainskeleto.itch.io/rocks-pack-pixelart-pixel-art-rocks-asset">here</a>. I hit immediately some hilarious bug where the fish went for a walk in the forest, but that&#39;s fixed now.</li>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/07/fish.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/07/variants/fish.webp" srcset="{{ site.baseurl }}/assets/2023/07/variants/fish.webp 680w, {{ site.baseurl }}/assets/2023/07/variants/fish-320w.webp 320w" alt="Fish!" width="680" height="538" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Fish!</figcaption>
+	</figure>
+
+<li>I&#39;ve changed the underwater transparency a bit, to fade out a bit more the deeper it goes. The system still needs further rework, but not now.</li>
+<figure><a href="{{ site.baseurl }}/assets/2023/07/underwater_alpha.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/07/variants/underwater_alpha.webp" srcset="{{ site.baseurl }}/assets/2023/07/variants/underwater_alpha.webp 1008w, {{ site.baseurl }}/assets/2023/07/variants/underwater_alpha-640w.webp 640w, {{ site.baseurl }}/assets/2023/07/variants/underwater_alpha-320w.webp 320w" alt="Underwater fading alpha in shallow and deep waters" width="1008" height="495" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Underwater fading alpha in shallow and deep waters</figcaption>
+	</figure>
+<li>New version (re-shaded) of the palm tree sprite</li>
+<figure><a href="{{ site.baseurl }}/assets/2023/07/new_palm_trees.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/07/variants/new_palm_trees.webp" srcset="{{ site.baseurl }}/assets/2023/07/variants/new_palm_trees.webp 1242w, {{ site.baseurl }}/assets/2023/07/variants/new_palm_trees-960w.webp 960w, {{ site.baseurl }}/assets/2023/07/variants/new_palm_trees-640w.webp 640w, {{ site.baseurl }}/assets/2023/07/variants/new_palm_trees-320w.webp 320w" alt="Reshaded palm-trees" width="1242" height="883" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Reshaded palm-trees</figcaption>
+	</figure>
+<li>Fixed a bug where trees near water had missing parts</li>
+<li>Fixed another bug where weighted tags were not used properly by the level generator</li>
+</ul>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/07/carnage_lodge.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/07/variants/carnage_lodge.webp" srcset="{{ site.baseurl }}/assets/2023/07/variants/carnage_lodge.webp 1865w, {{ site.baseurl }}/assets/2023/07/variants/carnage_lodge-960w.webp 960w, {{ site.baseurl }}/assets/2023/07/variants/carnage_lodge-640w.webp 640w, {{ site.baseurl }}/assets/2023/07/variants/carnage_lodge-320w.webp 320w" alt="Lodge generated with "abandoned" and "carnage" tags. So, cobwebs and blood" abandoned"="None" and="None" "carnage"="None" tags.="None" so,="None" cobwebs="None" blood"="None" width="1865" height="884" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Lodge generated with "abandoned" and "carnage" tags. So, cobwebs and blood</figcaption>
+	</figure>

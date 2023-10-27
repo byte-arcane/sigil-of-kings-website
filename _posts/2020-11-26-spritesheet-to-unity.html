@@ -1,0 +1,47 @@
+---
+layout: post
+title: Spritesheet to Unity
+date: 2020-11-26 21:38:12.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- art
+- programming
+tags:
+- pixel-art
+- python
+- spritesheet
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619004293;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2114;}i:1;a:1:{s:2:"id";i:309;}i:2;a:1:{s:2:"id";i:1890;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  rank_math_seo_score: '56'
+  rank_math_focus_keyword: spritesheet
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '12'
+author:
+permalink: "/2020/11/26/spritesheet-to-unity/"
+---
+<p><!-- wp:image {"sizeSlug":"large"} --></p>
+<figure class="wp<a href="{{ site.baseurl }}/assets/2020/11/9ShDWsM_thumb740.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2020/11/9ShDWsM_thumb740.webp" alt="Showing image {{ site.baseurl }}/assets/2020/11/9ShDWsM_thumb740.webp" width="740" height="482" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2020/11/variants/9ShDWsM_thumb740.webp 740w, {{ site.baseurl }}/assets/2020/11/variants/9ShDWsM_thumb740-320w.webp 320w"/></a></figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>I've made a few posts already about spritesheets, atlases, etc, as I can't seem to make up my mind. Especially, as my sprite needs change constantly, as I don't really have complete art and I'm trying to get away with a bit of DCSS tiles and a bit of Oryx tiles at the moment. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Originally, I used a 2D texture atlas + a JSON file with the description of what sprites are where. It was a nightmare to edit. Also, in runtime, filtering was difficult, as Unity provides only so much freedom with sampling, as with texture atlases care needs to be taken at the edges to prevent bleeding and do correct filtering. So, difficult to edit, and difficult to render. Booh.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Then I thought "Ok, let's use texture arrays in Unity". So atlas+JSON as source data, then conversion to a texture array in Unity for runtime. Rendering is now easy, without any filtering issues. I do have a limit of a maximum of 2048 sprites per atlas, which is not great, but my 32-bit sprite instance data has now 8 whole bits free as a result, as I need only 11 bits to represent the texture index. On the minus side, editing was still hard.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The last few weeks, I had the sudden realisation that the atlas+JSON format as source data is very, very pointless, as I'm converting to arrays in Unity anyway. So, I went back to the basic form, which is files-and-folders. One file per sprite, some special naming format for animations, folders and subfolders for grouping and ... magic! Now the spritesheet is very, very easily editable. Tiles can be previewed directly in explorer, I can change sprite names at will, add/remove tiles, and do some more stuff (more next few weeks), and it's all very, very easy. When I'm done with editing, I run some Unity script that converts that to an array (still limit of 2048 max per atlas applies), and that's it. I feel like I've been making my life more difficult with the 2D texture atlas format. So, the new atlas format will be the final (barring minor mods), as there's no problem point really. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>With such a simple "loose" format, it's quite easy to write python scripts/tools to process the spritesheets, e.g. rename sprites or mass-rename animations, create distance fields per sprite, do some autotiling work, etc. </p>
+<p><!-- /wp:paragraph --></p>

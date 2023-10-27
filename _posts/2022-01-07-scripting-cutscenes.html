@@ -1,0 +1,46 @@
+---
+layout: post
+title: Scripting cutscenes
+date: 2022-01-07 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+video: assets/video/cinematic_tw.mp4
+meta:
+author:
+permalink: "/2022/01/07/scripting-cutscenes/"
+---
+
+<p>While watching random indie work on Twitter, I was reminded that it would be cool to support cutscenes. Now, cutscenes are not the most important part of gamedev, but it&#39;s something that I definitely envision for the game to have. They are also very presentable, and I&#39;m currently in the mood for them, and I have lots of the underlying supporting code fresh in my head, so ... Why Not? </p>
+<p>What are the basic ingredients of a cutscene? </p>
+<ul>
+<li><strong>Characters talking.</strong> E.g. the player enters a level, and notices that it&#39;s remarkably cold, or that there&#39;s an eerie silence. This can really add to the atmosphere. Or, if a boss is encountered (who is intelligent and can speak), some &quot;discussion&quot; could happen.</li>
+<li><strong>Camera work.</strong> At its most basic form, camera <em>moves</em> to focus on characters who are talking, or objects, or anything else.</li>
+<li><strong>Characters doing things.</strong> For example, moving, attacking, shooting fireballs, etc.</li>
+<li><strong>Environment effects. </strong> Rain starts, some explosion happens somewhere, etc.</li>
+</ul>
+<p>Given the above, how can a cutscene be implemented? Well, I had something very important in place, which is a developer console that can execute commands. Now the trick is to be able to support all commands that could be used in a cutscene. Here are a few that I have implemented:</p>
+<ul>
+<li><strong>cam_move [position]</strong> Moves camera to desired position</li>
+<li><strong>aa [aa_name] [target] [args...]</strong> Executes an active ability (e.g. move, attack etc) for the given target entity (e.g. player, monster) with the given arguments. This was slightly tricky as a simple string needs to be converted to a fully parameterized command, but I had 70% of that done anyway.</li>
+<li><strong>screenshake [duration]</strong> Executes screenshake for the given duration</li>
+<li><strong>text [text] [position]</strong> Creates a text bubble at the given position (e.g. position of player character)</li>
+</ul>
+<p>Now, given these, the only thing extra needed in order to implement cutscenes is to be able to schedule these: execute command, wait a bit, execute another command, wait a bit more, etc. So that&#39;s just another simple class that stores a list of commands and real-time delay between each command. Now, in order to execute the cutscene, we execute a coroutine that goes through each command, executes the command, and yields by waiting for the given amount of delay. And that&#39;s it! To add an extra bit of polish and sensibility, while the commands are executing we need to completely disable input, except a single key (e.g. Escape) that breaks the loop, thus skipping the cutscene. Below is an example video that uses just the above commands, and below that is the cutscene script.</p>
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/cinematic_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Cutscene example</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2022/01/cutscene_script.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/01/variants/cutscene_script.webp" alt="Script that generates above cutscene, given a particular level and creature positions" width="531" height="446" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2022/01/variants/cutscene_script.webp 531w, {{ site.baseurl }}/assets/2022/01/variants/cutscene_script-320w.webp 320w"/></a><br />
+<figcaption>Script that generates above cutscene, given a particular level and creature positions</figcaption>
+</figure>
+
+<p><strong>Misc updates</strong></p>
+<p>I&#39;ve been lazy with blog post updates due to friction in creating blog posts, which is currently done using jekyll and manually creating html files. To reduce friction, I wrote a script which, given a few parameters (date, title, representative video, etc) can create a post template, which reduces the friction. I&#39;d love a simple offline wysiwyg editor for jekyll, but all I&#39;ve seen is some cloud-based need-an-account yada yada solutions, which again increase friction, or jekyll-admin which is not good enough imo.</p>

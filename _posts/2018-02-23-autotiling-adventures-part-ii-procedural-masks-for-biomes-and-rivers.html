@@ -1,0 +1,85 @@
+---
+layout: post
+title: 'Autotiling Adventures Part II: Procedural masks for biomes and rivers'
+date: 2018-02-23 09:50:42.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619525594;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1822;}i:1;a:1:{s:2:"id";i:1890;}i:2;a:1:{s:2:"id";i:1659;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '50'
+author:
+permalink: "/2018/02/23/autotiling-adventures-part-ii-procedural-masks-for-biomes-and-rivers/"
+---
+<p><a href="{{ site.baseurl }}/assets/2018/02/ovwmasked.webp"><img class="aligncenter size-full wp-image-1854" src="{{ site.baseurl }}/assets/2018/02/ovwmasked_thumb740.webp" alt="" width="1152" height="576" /></a></p>
+<h2></h2>
+<h2>Biome masks</h2>
+<p>&nbsp;</p>
+<p><a href="{{ site.baseurl }}/2018/02/09/autotiling-adventures/">In the last article</a>, I described a way to autotile multiple biomes using a minimal set of mask shapes. I used a custom map for testing. This time, I use some shaders to generate the a nice big set of masks. In particular, I can generate for example 32 variations of each of the 4 shapes at 256x256 resolution. As we have 1 shape per RGBA texture component (our masks are grayscale), we need 32 RGBA textures, or a single 32-slice array. Stiching them up, the procedural masks look like this: (rows: variations, columns: shapes)</p>
+<p><a href="{{ site.baseurl }}/assets/2018/02/all_rmasks2.webp"><img class="aligncenter size-full wp-image-1858" src="{{ site.baseurl }}/assets/2018/02/all_rmasks2_thumb740.webp" alt="" width="1024" height="1793" /></a></p>
+<p>&nbsp;</p>
+<p>These masks are generated using Simplex noise, and then they are post-processed to remove floating islands. Here's how:</p>
+<ul>
+<li>We know that each shape contains 1 or 2 white regions and always 1 black region</li>
+<li>Detect all the black regions, sort them by area, and replace all but the largest with white (so we satisfy "always 1 black region" criterion)</li>
+<li>Detect all white regions, sort them by area, and replace all but the largest 1 (or 2) with black (so we satisfy "always 1 or 2 white region" criterion</li>
+</ul>
+<p>Here are the steps visually: left is the original image, middle is with extraneous black areas removed, right is the final, with the extraneous white areas removed:</p>
+<p><img class="size-full wp-image-1862 alignnone" src="{{ site.baseurl }}/assets/2018/02/m0.webp" alt="" width="256" height="256" /> <img class="size-full wp-image-1861 alignnone" src="{{ site.baseurl }}/assets/2018/02/m1.webp" alt="" width="256" height="256" /> <img class="size-full wp-image-1860 alignnone" src="{{ site.baseurl }}/assets/2018/02/m2.webp" alt="" width="256" height="256" /></p>
+<p>&nbsp;</p>
+<p>At this stage, we calculate the distance field for each of the masks. The distance field is 256x256 at this point. The maximum distance in the distance field is the length of the diagonal <em>diag = 256*sqrt(2)</em>; we normalize the values in the distance field from (-diag,diag) to (0,1), to be resolution independent. We now downsample the distance field to 32x32, so that it can still reconstruct the shape nicely. The data is stored in an RGBA8 texture. If each variation is an array slice, we end up with a texture array 32x32xN. To give some perspective, for 64 variations we need 32*32*64*4 bytes = 256K of memory, which is very little. Add a bit of extra for the mipmaps (which are good for filtering when zooming out further), and we're settled with the biome masks.</p>
+<h3>Rendering the biome masks</h3>
+<p>Last time I described a way to render the masked, by rendering a subset of tiles per layer. This is far from optimal (it was approach v1 after all). So, here's a better one:</p>
+<ul>
+<li>We observe that evert tile has to be rendered (duh). That means, we need a dense 2D data structure, with tile data per element. So, tile positions are now implicit.</li>
+<li>We observe that we have up to 4 layers per tile. The info that we need per layer is the layer index (4 bits), the mask index (3 bits) and the transform index (3 bits). That makes 10 bits per layer, so 40 bits in total. So we place the data in a 64-bit data structure ( e.g. RGBA16 or RG32) and we have 22 bits to spare.</li>
+</ul>
+<p>Now we render the visible grid, and we sample this data structure to reconstruct the mask. The pseudocode is roughly as follows:</p>
+<pre class="EnlighterJSRAW" data-enlighter-language="cpp">for each pixel:
+  calculate tile index and offset in tile
+  shift output position by half a tile // for corner offset
+  sample autotile data based on tile index
+  set output color as 0
+  for each valid layer
+    transform tile offset using layer transform
+    sample mask using transformed coordinates and mask index
+    calculate color based on layer
+    blend output color with current color based on mask value</pre>
+<p>&nbsp;</p>
+<h2>River (and road) masks</h2>
+<p>River masks are slightly different to biome masks and have the following characteristics:</p>
+<ul>
+<li>The tiles where we need river masks are few: for my map, it was 1.5% of the total tiles.</li>
+<li>It is not beneficial any more to use corner offsets.</li>
+<li>There is no diagonal river connection.</li>
+<li>All river tiles connect to at least one river tile.</li>
+<li>There is always a source/origin tile for rivers. The origin tile is always connected to one other tile.</li>
+</ul>
+<p>Given the above, we realize that we really need 5 different masks: origin, line, corner, t-junction and cross. Below is a list of examples:</p>
+<p><a href="{{ site.baseurl }}/assets/2018/02/all_rmasks_riverroad.webp"><img class="aligncenter size-full wp-image-1855" src="{{ site.baseurl }}/assets/2018/02/all_rmasks_riverroad_thumb740.webp" alt="" width="1280" height="4096" /></a></p>
+<h2></h2>
+<p>We follow the same process as with the biome masks: we remove extraneous white/black regions, calculate distance fields and downsample to 32x32.</p>
+<p>Here's also a video that demonstrates all the mask shapes, procedurally generated, parameterized by time:</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/ztQj7uArSc4" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/ztQj7uArSc4?autoplay=1><img src=https://img.youtube.com/vi/ztQj7uArSc4/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video ztQj7uArSc4"></iframe>
+</div>
+<p>As you can see, for the river masks there are typically big black holes in the middle, but they are filled out by the process I described earlier.</p>
+<h3>River and road rendering</h3>
+<p>The process is a bit different to the biome mask rendering. Now we have a sparse set of tiles that contain river/road data. The tile data required are 3 bits for the mask index, 3 bits for the transform, and 10 bits for each of the x,y coordinates of the tile (I'm using 512x512 maps for the overworld and I doubt I'd use 2048 or larger). The pseudocode for rendering is similar and a bit simpler compared to the biome mask rendering: for a tile, we unpack the autotile data, we calculate the output position based on the x,y values, and we sample the mask using transformed coordinates.</p>
+<p>The river/road render passes take place immediately after the biome mask pass, as they use a sparse tile renderer (biome masks rendering uses a dense tile renderer) and they don't use corner offsets.</p>
+<h2>Putting it all together</h2>
+<p>&nbsp;</p>
+<p>Here's a video that shows all mask on the map, compared to the single color per pixel:</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/UBaR3SR2poY" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/UBaR3SR2poY?autoplay=1><img src=https://img.youtube.com/vi/UBaR3SR2poY/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video UBaR3SR2poY"></iframe>
+</div>
+<p>As a note, the original single-color-per-pixel has some additional color variation based on the vegetation density, that the new masked version does not have have yet. Also, I think there's an indexing bug for the variations, as I should have 64 different variations per shape but we can see the occasional repetition.</p>
+<p>TODOs for next are coastal water animation utilising the distance field, color variation of the biomes (they still look quite flat) and prop locations per tile for placement of trees, etc.</p>

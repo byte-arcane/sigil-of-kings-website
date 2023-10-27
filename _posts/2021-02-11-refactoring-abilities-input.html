@@ -1,0 +1,69 @@
+---
+layout: post
+title: Refactoring abilities & input
+date: 2021-02-11 14:13:52.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1613990892;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1974;}i:1;a:1:{s:2:"id";i:824;}i:2;a:1:{s:2:"id";i:728;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  rank_math_seo_score: '63'
+  rank_math_focus_keyword: abilities
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+  _wpas_done_all: '1'
+  rank_math_analytic_object_id: '6'
+author:
+permalink: "/2021/02/11/refactoring-abilities-input/"
+---
+<p><!-- wp:embed {"url":"https://www.youtube.com/watch?v=90P42dJx0WI","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/90P42dJx0WI" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/90P42dJx0WI?autoplay=1><img src=https://img.youtube.com/vi/90P42dJx0WI/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Player getting blasted by AI's ice AoE spell, then obliterating them with a multi-fireball. Yes, terrible and over the top, but it's useful for testing :)"></iframe>
+</div>
+<figcaption>Player getting blasted by AI's ice AoE spell, then obliterating them with a multi-fireball. Yes, terrible and over the top, but it's useful for testing :)</figcaption>
+</figure>
+<p><!-- /wp:embed --></p>
+<p><!-- wp:paragraph --></p>
+<p>Mainly refactoring work this week, with the purpose of unifying the handling of abilities by the player or the AI. Concrete outcomes of this refactoring process:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>New WIP ability, usable by both player and AI: fireball.
+<ul>
+<li>We need to select a target position</li>
+<li>It has an area of effect</li>
+<li>It's effect is "fire damage"</li>
+<li>It spawns a particle system, initialised with the positions of affected tiles</li>
+<li>Fireball itself is a projectile, so if it hits an obstacle, it will stop (and explode)</li>
+<li>We can setup the skill to be able to shoot multiple ones, homing ones, or both</li>
+</ul>
+</li>
+<li>AI can use the fireball skill too, by evaluating the "score" of each possible tile, determined by the possibility to hit ourselves (-5 score), allies (-2 score each) and enemies (1 score each). A score greater than 1 means "good enough"</li>
+<li>AI applies a recency-based weight when choosing a skill to execute. So, a no-cooldown skill that was just executed will have 75% weighting which goes back to 100% after several standard actions. This is to avoid repetition of maximally scoring abilities, and make the AI hopefully feel less robotic.</li>
+<li>New WIP ability: magic missile.
+<ul>
+<li>Like fireball, but does damage to a single tile</li>
+<li>Number of projectiles can be greater than one, and for each projectile we can select a different target. Homing missiles still need a clear path to a destination</li>
+</ul>
+</li>
+<li>Reworked item transfer interface a bit, so that when transferring items between player/container or player/ground, we can select a number of items from container, a number of items from the player, and then click a button to make the transaction. So that with a standard action we can move e.g. 2 items to the container and pick 3 items up.</li>
+<li>Cleared up input/keys a bit (still far, far from final though). Now we have the following categories of actions:
+<ul>
+<li>Ability-based: Fireball, melee attack, ranged attack, use item, etc. These typically need to be configured with some gui (which item? which direction? etc). Most of these would not appear in an input configuration file, as we have just too many. Instead, they'll be mapped to…</li>
+<li>Hotkeys: so that I can map any ability-based actions to hotkeys. Whereas the essential actions are limited (move in a direction, primary action, etc), most abilities have to be mapped via hotkeys.</li>
+<li>Actions that do not require a gui, e.g. quicksave, quickload, teleport, look.</li>
+<li>Press-and-hold actions, e.g. highlighting of creatures or objects, minimap view</li>
+</ul>
+</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p><!-- /wp:paragraph --></p>

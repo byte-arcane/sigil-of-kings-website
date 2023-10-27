@@ -1,0 +1,148 @@
+---
+layout: post
+title: Automatic pixel art from photos
+date: 2018-01-19 10:20:21.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _oembed_ded32c3ae3464237c41584f11084c18d: "{{unknown}}"
+  _oembed_3501f4aba5288a7c9505075d29147266: <blockquote class="imgur-embed-pub" lang="en"
+    data-id="iLhajgp"><a href="https://imgur.com/iLhajgp">View post on imgur.com</a></blockquote><script
+    async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>
+  _oembed_time_3501f4aba5288a7c9505075d29147266: '1516277043'
+  _oembed_d55e6f84981732ef8dc0b81c09412262: "{{unknown}}"
+  vidbg_metabox_field_mp4_id: '0'
+  vidbg_metabox_field_webm_id: '0'
+  vidbg_metabox_field_poster_id: '0'
+  vidbg_metabox_field_overlay: 'off'
+  vidbg_metabox_field_overlay_color: "#000"
+  vidbg_metabox_field_overlay_alpha: '30'
+  vidbg_metabox_field_no_loop: 'off'
+  vidbg_metabox_field_unmute: 'off'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619722303;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1869;}i:1;a:1:{s:2:"id";i:1738;}i:2;a:1:{s:2:"id";i:2947;}}}}
+  _oembed_bc43e64c093974c6a26a7abc6da06f25: "{{unknown}}"
+  _wpas_done_all: '1'
+  enclosure: |
+    https://img-9gag-fun.9cache.com/photo/aDWy5N7_460sv.mp4
+    141004
+    video/mp4
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '53'
+author:
+permalink: "/2018/01/19/automatic-pixel-art-from-photos/"
+---
+<p><em>Disclaimer: Properly authored pixel art is awesome. Automated pixel art is fast food: great when you don't have enough money (to hire) or time (to author). And does the trick when you're starving.</em></p>
+<p>I'm not an artist, I love pixel art, and frequently I want something here and now. So, how do I get copious amounts of pixel art without bugging a pixel artist or becoming one myself? Software of course. The style that I'm after is retro 90's look: slightly pixelated and with a limited, painterly color palette. A few examples:</p>
+<p>Old game art, fantastic colours<a href="{{ site.baseurl }}/assets/2018/01/maxresdefault_thumb740.jpg" target="_blank"><img src="{{ site.baseurl }}/assets/2018/01/maxresdefault_thumb740.jpg" width="740" height="416" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2018/01/variants/maxresdefault_thumb740.webp 740w, {{ site.baseurl }}/assets/2018/01/variants/maxresdefault_thumb740-320w.webp 320w" alt="Showing image {{ site.baseurl }}/assets/2018/01/maxresdefault_thumb740.jpg"/></a></p>
+<p>Pixel art, great mood and selection of colours</p>
+<div class="video-container">
+	<iframe src="https://img-9gag-fun.9cache.com/photo/aDWy5N7_460sv.mp4" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<p>&nbsp;</p>
+<p>Great tile design (sprites are sometimes too "cute" for me unfortunately) and great colours. I bought them as I love them! :)</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/oryx_16bit_mockup.webp"><img class="aligncenter size-full wp-image-1768" src="{{ site.baseurl }}/assets/2018/01/oryx_16bit_mockup_thumb740.webp" alt="" width="1056" height="1200" /></a></p>
+<p>So, while I don't hope to automatically generate stuff of quality like the above from photos, I made a tool to convert landscape photos to pixel-art style.  There are two components to the process:</p>
+<ul>
+<li>Palettization (Mapping full colour range to a limited palette)</li>
+<li>Pixelation (Downscaling the image to look a bit retro)</li>
+</ul>
+<p>My approach is quite simple, and is as follows:</p>
+<ul>
+<li>Load the source image</li>
+<li>Select a <a href="https://en.wikipedia.org/wiki/Color_difference">color difference function</a> (I used code from <a href="https://github.com/berendeanicolae/ColorSpace">here</a>)</li>
+<li>Convert image pixels to color space used by the difference function</li>
+<li>Select a palette. I got some from <a href="https://lospec.com/palette-list">here</a>. Additionally, I got all the unique colors in Oryx tileset and made a palette out of them too (the largest palette: about 1000 colors)</li>
+<li>Convert palette pixels to color space used by the difference function</li>
+<li>For each pixel, select the palette entry that minimizes the color difference between itself and the source pixel.</li>
+<li>Downscale the image by a factor. For each block of pixels NxN that corresponds to 1x1 pixel in the downscaled image, fetch the palette color that appears the most times.</li>
+</ul>
+<p>And that's it! So, I tried the above on a few images (found in google, none of them is mine), and I got ... very mixed results. Below I'll show the original image and a few good/bad/quirky results.</p>
+<p><strong>Mountain/River</strong></p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/mountain-river.jpg"><img class="aligncenter size-full wp-image-1771" src="{{ site.baseurl }}/assets/2018/01/mountain-river_thumb740.jpg" alt="" width="1280" height="720" /></a></p>
+<p>Cie94 w/ Oryx, downscaled 2x. Good</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/mountainriver_Cie94_Textiles_oryx_2-1.webp"><img class="aligncenter size-full wp-image-1784" src="{{ site.baseurl }}/assets/2018/01/mountainriver_Cie94_Textiles_oryx_2-1_thumb740.webp" alt="" width="1280" height="720" /></a></p>
+<p>Cie2000 w/ famicube, downscaled 2x. Not good</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/mountainriver_Cie2000_famicube_2.webp"><img class="aligncenter size-full wp-image-1785" src="{{ site.baseurl }}/assets/2018/01/mountainriver_Cie2000_famicube_2_thumb740.webp" alt="" width="1280" height="720" /></a></p>
+<p>Cie94, GraphicArts w/ psygnosia, downscaled 2x. Lo-spec but good!</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/mountainriver_Cie94_GraphicArts_psygnosia_2.webp"><img class="aligncenter size-full wp-image-1787" src="{{ site.baseurl }}/assets/2018/01/mountainriver_Cie94_GraphicArts_psygnosia_2_thumb740.webp" alt="" width="1280" height="720" /></a></p>
+<p><strong>Atlantis</strong></p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/atlantis.jpg"><img class="aligncenter size-full wp-image-1777" src="{{ site.baseurl }}/assets/2018/01/atlantis_thumb740.jpg" alt="" width="1920" height="1080" /></a></p>
+<p>Cie94 GraphicArts w/ Oryx, downscaled 2x, good</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/atlantis_Cie94_GraphicArts_oryx_2.webp"><img class="aligncenter size-full wp-image-1788" src="{{ site.baseurl }}/assets/2018/01/atlantis_Cie94_GraphicArts_oryx_2_thumb740.webp" alt="" width="1920" height="1080" /></a></p>
+<p>Cie94 GraphicArts w/ famicube, downscaled 2x, good. Sharks are a bit of a problem as the sea water bleeds in</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/atlantis_Cie94_GraphicArts_famicube_2.webp"><img class="aligncenter size-full wp-image-1789" src="{{ site.baseurl }}/assets/2018/01/atlantis_Cie94_GraphicArts_famicube_2_thumb740.webp" alt="" width="1920" height="1080" /></a></p>
+<p>Cie1976 w/ Endesga-16, downscaled 2x, bad.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/atlantis_Cie1976_endesga-16_2.webp"><img class="aligncenter size-full wp-image-1790" src="{{ site.baseurl }}/assets/2018/01/atlantis_Cie1976_endesga-16_2_thumb740.webp" alt="" width="1920" height="1080" /></a></p>
+<p>Euclidean distance w/ Oryx, downscaled 2x, bad</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/atlantis_Euclidean_oryx_2.webp"><img class="aligncenter size-full wp-image-1791" src="{{ site.baseurl }}/assets/2018/01/atlantis_Euclidean_oryx_2_thumb740.webp" alt="" width="1920" height="1080" /></a></p>
+<p><strong>River</strong></p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/7002254-mountain-river.jpg"><img class="aligncenter size-full wp-image-1778" src="{{ site.baseurl }}/assets/2018/01/7002254-mountain-river_thumb740.jpg" alt="" width="2560" height="1600" /></a></p>
+<p>Cie2000 w/ oryx, downscaled just 1x, it's way too realistic.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/mountain-river_Cie2000_oryx_1.webp"><img class="aligncenter size-full wp-image-1794" src="{{ site.baseurl }}/assets/2018/01/mountain-river_Cie2000_oryx_1_thumb740.webp" alt="" width="2560" height="1600" /></a></p>
+<p>Cie94 GraphicArts w/ Oryx, downscaled 3x, a bit better, but still a bit realistic</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/mountain-river_Cie94_GraphicArts_oryx_3.webp"><img class="aligncenter size-full wp-image-1792" src="{{ site.baseurl }}/assets/2018/01/mountain-river_Cie94_GraphicArts_oryx_3_thumb740.webp" alt="" width="2560" height="1600" /></a></p>
+<p>Cie2000 GraphicArts w/ Endesga-32, downscaled 3x. Not as realistic, but a bit worse quality.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/mountain-river_Cie2000_endesga-32_3.webp"><img class="aligncenter size-full wp-image-1793" src="{{ site.baseurl }}/assets/2018/01/mountain-river_Cie2000_endesga-32_3_thumb740.webp" alt="" width="2560" height="1600" /></a></p>
+<p><strong>Castle</strong></p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/eilean-donan-visit2.jpg"><img class="aligncenter size-full wp-image-1779" src="{{ site.baseurl }}/assets/2018/01/eilean-donan-visit2_thumb740.jpg" alt="" width="1068" height="450" /></a></p>
+<p>Cie1976 w/ oryx, downscaled 1x. A bit too realistic</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/eilean-donan_Cie1976_oryx_1.webp"><img class="aligncenter size-full wp-image-1795" src="{{ site.baseurl }}/assets/2018/01/eilean-donan_Cie1976_oryx_1_thumb740.webp" alt="" width="1024" height="448" /></a></p>
+<p>Cie1976 w/ famicube, downscaled 1x. A bit too damaged and noisy.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/eilean-donan_Cie1976_famicube_1.webp"><img class="aligncenter size-full wp-image-1796" src="{{ site.baseurl }}/assets/2018/01/eilean-donan_Cie1976_famicube_1_thumb740.webp" alt="" width="1024" height="448" /></a></p>
+<p><strong>Mexico</strong></p>
+<p><img class="aligncenter size-full wp-image-1780" src="{{ site.baseurl }}/assets/2018/01/el-tajin-ruins-the-nichos-pyramid-mexico_thumb.jpg" alt="" width="989" height="686" /></p>
+<p>Cie2000 w/ oryx, downscaled 1x. A bit too realistic. Additional downscale would destroy the geometrical details.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/tajinmexico_Cie2000_oryx_1.webp"><img class="aligncenter size-full wp-image-1797" src="{{ site.baseurl }}/assets/2018/01/tajinmexico_Cie2000_oryx_1_thumb740.webp" alt="" width="984" height="680" /></a></p>
+<p>Cie2000 w/ famicube, not good.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/tajinmexico_Cie2000_famicube_1.webp"><img class="aligncenter size-full wp-image-1798" src="{{ site.baseurl }}/assets/2018/01/tajinmexico_Cie2000_famicube_1_thumb740.webp" alt="" width="984" height="680" /></a></p>
+<p>Cie94 Textiles w/ psygnosia, quite bad.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/tajinmexico_Cie94_Textiles_psygnosia_1.webp"><img class="aligncenter size-full wp-image-1799" src="{{ site.baseurl }}/assets/2018/01/tajinmexico_Cie94_Textiles_psygnosia_1_thumb740.webp" alt="" width="984" height="680" /></a></p>
+<p><strong>Underwater ruins</strong></p>
+<p><strong><a href="{{ site.baseurl }}/assets/2018/01/ruins_lagoon.jpg"><img class="aligncenter size-full wp-image-1781" src="{{ site.baseurl }}/assets/2018/01/ruins_lagoon_thumb740.jpg" alt="" width="1500" height="715" /></a></strong></p>
+<p>Cie2000 w/ oryx, downscaled 2x. This looks great! Good for a change.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/ruins_lagoon_Cie2000_oryx_2.webp"><img class="aligncenter size-full wp-image-1800" src="{{ site.baseurl }}/assets/2018/01/ruins_lagoon_Cie2000_oryx_2_thumb740.webp" alt="" width="1496" height="712" /></a></p>
+<p>Cie2000 w/ famicube, not so great.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/ruins_lagoon_Cie2000_famicube_2.webp"><img class="aligncenter size-full wp-image-1801" src="{{ site.baseurl }}/assets/2018/01/ruins_lagoon_Cie2000_famicube_2_thumb740.webp" alt="" width="1496" height="712" /></a></p>
+<p>Cie2000 w/ psygnosia, not great either. the water is gray and the shark is bluish. Well ... no.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/ruins_lagoon_Cie2000_psygnosia_2.webp"><img class="aligncenter size-full wp-image-1802" src="{{ site.baseurl }}/assets/2018/01/ruins_lagoon_Cie2000_psygnosia_2_thumb740.webp" alt="" width="1496" height="712" /></a></p>
+<p><strong>Sahara</strong></p>
+<p><img class="aligncenter size-full wp-image-1782" src="{{ site.baseurl }}/assets/2018/01/SaharaDesert-58c1a5603df78c353c3d525d.jpg" alt="" width="735" height="490" /></p>
+<p>Cie2000 w/ oryx, doable</p>
+<p><img class="aligncenter size-full wp-image-1803" src="{{ site.baseurl }}/assets/2018/01/SaharaDesert_Cie2000_oryx_1.webp" alt="" width="728" height="488" /></p>
+<p>Cie2000 w/ endesga, quite bad, but at least is good in making the JPG artifacts very very visible.</p>
+<p><img class="aligncenter size-full wp-image-1804" src="{{ site.baseurl }}/assets/2018/01/SaharaDesert_Cie2000_endesga-36_1.webp" alt="" width="728" height="488" /></p>
+<p>Cie2000 w/ psygnosia, not that bad actually! Even if quite lo-spec.</p>
+<p><img class="aligncenter size-full wp-image-1805" src="{{ site.baseurl }}/assets/2018/01/SaharaDesert_Cie2000_psygnosia_1.webp" alt="" width="728" height="488" /></p>
+<p><strong>Yucatan</strong></p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/yucatan.jpg"><img class="aligncenter size-full wp-image-1783" src="{{ site.baseurl }}/assets/2018/01/yucatan_thumb740.jpg" alt="" width="2394" height="1346" /></a></p>
+<p>Cie94 Textiles, w/ aap64, downscaled 3x. A bit too damaged, but I like it</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/yucatan_Cie94_Textiles_aap-64_3.webp"><img class="aligncenter size-full wp-image-1806" src="{{ site.baseurl }}/assets/2018/01/yucatan_Cie94_Textiles_aap-64_3_thumb740.webp" alt="" width="2392" height="1344" /></a></p>
+<p>Cie2000 w/ oryx, downscaled 3x. It's good, but a bit too realistic</p>
+<p><a href="{{ site.baseurl }}/assets/2018/01/yucatan_Cie2000_oryx_3.webp"><img class="aligncenter size-full wp-image-1807" src="{{ site.baseurl }}/assets/2018/01/yucatan_Cie2000_oryx_3_thumb740.webp" alt="" width="2392" height="1344" /></a></p>
+<p>&nbsp;</p>
+<p>So, the experiment was a failure, but I learned a few things from it:</p>
+<ul>
+<li><strong>Most important:</strong> The visual appeal of the results greatly depends on the colours used in the original. A grayish brown image won't magically transform to colourful, just because the target palette is. And a simple color distance doesn't solve the issue. We need a more sophisticated color transfer
+<ul>
+<li><a href="https://fstoppers.com/news/adobe-has-developed-color-transfer-technology-172130">Adobe's deep transfer tech</a></li>
+</ul>
+</li>
+<li>Distinguish between surface texture and geometric silhouettes: surface texture colours need to be somewhat flattened, while silhouettes need to be preserved
+<ul>
+<li>could use a bilateral filter, and edge detection</li>
+</ul>
+</li>
+<li>Consider dithering. Can reduce color error, but do we want that? It certainly helps with the blotches/banding.</li>
+<li>When using a palette with lots of colours, doesn't mean we should strive to use all of them. The color distance metric tries to preserve the original colours, which would be realistic. We don't want that.</li>
+<li>Pick the brains of pixel artists for their approach (Duh)</li>
+<li>Use high quality images, with minimal JPG compression artifacts. (Duh, but I was too lazy for this one)</li>
+<li>Use Photoshop/GIMP/etc. The more sophisticated the algorithm gets, the more tedious it is to write/update a custom tool to do that.</li>
+</ul>

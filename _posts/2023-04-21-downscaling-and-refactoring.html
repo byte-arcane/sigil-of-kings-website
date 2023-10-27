@@ -1,0 +1,49 @@
+---
+layout: post
+title: Downscaling and Refactoring
+date: 2023-04-21 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/04/caid3.png
+meta:
+author:
+permalink: "/2023/04/21/downscaling-and-refactoring/"
+---
+
+<p>Ok so this week went a bit off the rails. I got a bit obsessed with an implementation of a paper on <a href="https://johanneskopf.de/publications/downscaling/">Content Adaptive Image Downscaling</a> which I plan to add on <a href="https://byte-arcane.itch.io/pixel-pal">Pixel Pal</a>. The implementation was successful, even though I still get some problematic edge cases where I need to tweak parameters to make it work. But it&#39;s fast (for the work it&#39;s doing) and I strived to implement it in a very data-parallel way, and it&#39;s very very easy to map it to GPU. With OpenMP I&#39;m getting a simple 3x performance increase (a medium sized image needs about 2 seconds to downscale to e.g. 64x64), but I expect the GPU version to be better. As it&#39;s going to be implemented through Pixel Pal, I&#39;ll use compute shaders, but writing the boilerplate to support them has put me off a bit. Examples below, also including some k-means for good measure. Back to Sigil of Kings!</p>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/04/caid1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/caid1.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/caid1.webp 1009w, {{ site.baseurl }}/assets/2023/04/variants/caid1-640w.webp 640w, {{ site.baseurl }}/assets/2023/04/variants/caid1-320w.webp 320w" alt="Canyon" width="1009" height="1019" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Canyon</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/04/caid2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/caid2.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/caid2.webp 623w, {{ site.baseurl }}/assets/2023/04/variants/caid2-320w.webp 320w" alt="Warforged" width="623" height="1007" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Warforged</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/04/caid3.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/caid3.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/caid3.webp 1024w, {{ site.baseurl }}/assets/2023/04/variants/caid3-640w.webp 640w, {{ site.baseurl }}/assets/2023/04/variants/caid3-320w.webp 320w" alt="Gate in the woods" width="1024" height="1024" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Gate in the woods</figcaption>
+</figure>
+
+<p>More refactoring work it seems. First, the generic sparse element distributions were not working very well, so did some refactoring on that, I&#39;ll spare you the boring details. For the sparse element visualisation, which is an icon on a purple circle, I&#39;ve tweaked it a bit for multi-element features, like a door-and-key, or a trap-and-mechanism. Instead of repeating the same sprite, I generate the same sphere sprite twice, where in both cases I&#39;m showing both sprites, and they have a fat dot indicator (1,2 or more) to specify which element it is. 
+
+<figure><a href="{{ site.baseurl }}/assets/2023/04/editor_icon.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/editor_icon.webp" alt="Editor icon for arrow trap, used when placing the 2nd element of the trap (two dots)" width="192" height="192" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2023/04/variants/editor_icon.webp 192w"/></a><br />
+<figcaption>Editor icon for arrow trap, used when placing the 2nd element of the trap (two dots)</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/04/editor_icon_map.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/editor_icon_map.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/editor_icon_map.webp 1920w, {{ site.baseurl }}/assets/2023/04/variants/editor_icon_map-960w.webp 960w, {{ site.baseurl }}/assets/2023/04/variants/editor_icon_map-640w.webp 640w, {{ site.baseurl }}/assets/2023/04/variants/editor_icon_map-320w.webp 320w" alt="A simple random map with the new editor icons" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>A simple random map with the new editor icons</figcaption>
+</figure>
+
+<p>Back on the refactoring track, I&#39;ve been cleaning up the sparse feature list by removing all too special elements, e.g. beds (we don&#39;t generally have beds in dungeons, we do have traps and treasure and encounters). A quality of life feature is to improve the hover element display to show not only layout data (wall, floor, connection) but any elements placed on top (encounter, door, crate). More data is always better. </p>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/04/tooltip.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/tooltip.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/tooltip.webp 605w, {{ site.baseurl }}/assets/2023/04/variants/tooltip-320w.webp 320w" alt="New tooltips with prefab element information" width="605" height="605" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>New tooltips with prefab element information</figcaption>
+</figure>
+
+<p>The latest thing I&#39;m working on resulting from trying to make a &quot;Lean-to&quot; prefab. I want the default floor of the parent zone (e.g. snow, grass, etc) but a custom wall (e.g. wood). I didn&#39;t have that support, and even if I hacked things together, it would not work on the C# side that I&#39;ll eventually fix. So, I&#39;m on a refactoring track there to support that, and it&#39;s going well. By now, the C# code, in terms of dungeon generation glue, is very, very broken. Soon to be fixed, so I can show better screenshots as well!</p>

@@ -1,0 +1,51 @@
+---
+layout: post
+title: Art direction crossroads
+date: 2023-07-14 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/07/palms2.png
+meta:
+author:
+permalink: "/2023/07/14/art-direction-crossroads/"
+---
+
+<p>Fixes and refactoring this week, same topic (level generation). But I&#39;ll start with a novel turn of things (written in novel-sized length in relation to other posts of mine), and a topic that I don&#39;t ramble on about frequently, which is art.</p>
+<p><strong>Art direction crossroads</strong></p>
+<p>So far I&#39;ve been using Oryx sprites as a baseline, augmented with some DCSS sprites for items, and a few sprites here from itch.io or other sources. It&#39;s a mix already, but the majority, in terms of look-and-feel, is the Oryx fantasy tileset. There are some things I quite like about those sprites, like the colours, clarity and SNES-era feel, but there are also elements that I do not like, such as the fact that they can be too &quot;cute&quot;, they are definitely overused and are core part of some visible titles (I&#39;ve been accused of &quot;stealing art from other games&quot;). Also, the sprite resolution is on the low end for my taste (24x24) whereas I&#39;d be fine between 32 and 64 pixels. </p>
+<p>So, problem #1: existing art has to change. Enter problem #2: <strong>change to what?</strong>, and <strong>how</strong>? Let&#39;s start from the &quot;how&quot;. Hiring an artist, at least at the moment, is a no-go, as it would be financially not viable at all (I need <strong>a lot</strong> of art). But I also want to have precise control for the style, which makes me wary of having other people do it, even semi-voluntarily. So, my solution, as usual, is &quot;DIY&quot;. </p>
+<p>My approach so far has been, &quot;how far can I get with transforming existing imagery to something that I like, automatically&quot;. On this end, I have been looking at various pixelisation methods and I&#39;ve made <a href="https://byte-arcane.itch.io/pixel-pal">PixelPal</a> to assist, and I&#39;m still currently looking to expand/improve it. But this is not enough. I&#39;ve collectively spent way too much time trying to automatically process an image into a final form I like. <a href="https://xkcd.com/1319/">Here&#39;s the ever-relevant XKCD strip on this topic</a></p>
+<p>Another obvious approach is to use AI, which is loved by some, hated by others. Without going into the ethics and legality rabbit hole, my problems with using AI to generate my game art is that 1) it produces inconsistent results unless you find a way to carefully tweak it 2) requires you to develop skills on how to make prompts to get useful stuff. My opinion is that &quot;prompting&quot;, even if it&#39;s an art to wield, is not art, and does not make one an artist and it&#39;s not creative neither it is fulfilling. So, I do not want to spend much time on it. What I do find it very useful for, is inspiration, as it can create a huge variety of images, and the cool thing about it is that you can easily tweak it to generate images/things in particular styles and from particular perspectives. </p>
+<p>So, my latest approach to all this, is to delve into full DIY territory, and develop some art skills. I&#39;ve got a good tablet from a friend and I do enjoy fiddling with the basics, and even though I&#39;m quite inept at the moment, time goes by happily. If I break down the problem of art in shape and shading, I want to focus more on shapes, and shading can either come later, but I could even use AI to assist with that part.</p>
+<p>Alright, back to Sigil of Kings. First hands-on art opportunity came with the need to have palm trees for an oasis. The Oryx tileset does not have palm trees, so I thought I&#39;ll make my own. <a href="{{ site.baseurl }}/assets/2023/07/palms1.png">Here it is, version 1</a>. So, well, the sprite itself is not terrible (I hope) but it doesn&#39;t fit at all with the cacti. And not because of the colours, as I used colours from the Oryx palette. The problem that I immediately noticed was the the <strong>perspective and scale was totally different</strong>. Palm tree needs to be more chunky. So, <a href="{{ site.baseurl }}/assets/2023/07/palms2.png">I made an updated version 2</a>. Now this one is chunkier, but still not as chunky as the cacti (at this stage, I want to replace the cacti, the look like balloons). But here I observed something else: my palm trees looked flat! So <strong>shading is different</strong> as well. Cacti have highlights whereas palm trees do not. So, that&#39;s the next exercise, how to add highlights.</p>
+<p>And at this point, I&#39;ll summarise my problem with Oryx: a lot of its sprites have some particular perspective that makes them look extra chunky and round, and 1) I don&#39;t like that 2) I don&#39;t want to spend time making more sprites looking like that. So, the crossroads:</p>
+<ul>
+<li>Make new art that looks like Oryx and fits with existing sprites. Consistent, and won&#39;t alienate people, but hard for me to make, and I don&#39;t necessarily like it</li>
+<li>Make new art that has different art style and augment and slowly replace Oryx and everything else. That&#39;s better for the long run, but for the foreseeable future, the art that I&#39;m going to have will look incoherent. Now, I don&#39;t care about that as it&#39;s temporary, but there are a few dangers: 1) I might get used to the art mix from seeing it all the time, so I think it&#39;s fine and everybody else thinks it&#39;s crap 2) anything that I share from now on might give the impression that the game&#39;s artistic vision is crap and I&#39;m planning to release something with incoherent art. </li>
+</ul>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2023/07/palms1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/07/variants/palms1.webp" srcset="{{ site.baseurl }}/assets/2023/07/variants/palms1.webp 1220w, {{ site.baseurl }}/assets/2023/07/variants/palms1-960w.webp 960w, {{ site.baseurl }}/assets/2023/07/variants/palms1-640w.webp 640w, {{ site.baseurl }}/assets/2023/07/variants/palms1-320w.webp 320w" alt="Palm trees version 1: too small compared to cacti" width="1220" height="842" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Palm trees version 1: too small compared to cacti</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/07/palms2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/07/variants/palms2.webp" srcset="{{ site.baseurl }}/assets/2023/07/variants/palms2.webp 1099w, {{ site.baseurl }}/assets/2023/07/variants/palms2-960w.webp 960w, {{ site.baseurl }}/assets/2023/07/variants/palms2-640w.webp 640w, {{ site.baseurl }}/assets/2023/07/variants/palms2-320w.webp 320w" alt="Palm trees version 2: still too small compared to cacti, and too flat" width="1099" height="877" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Palm trees version 2: still too small compared to cacti, and too flat</figcaption>
+</figure>
+
+<p><strong>Level generation and other updates</strong></p>
+<ul>
+<li>Oasis was a bit problematic before, for a few reasons. I now allow variability in the prefab size, rather than say it&#39;s going to be a 12x12 or a 16x16 map. Sounds straightforward, but variable-size prefabs can be tricky. Another issue was that the liquid properties of the oasis were overwritten by the biome procedural liquid data, like amount of freshwater etc. I&#39;ve also added palm trees, but they don&#39;t look too good yet. </li>
+<li>Creatures now have an &quot;aquatic type&quot; property, that marks if they&#39;re land, freshwater or marine. That&#39;s useful to know when spawning creatures, to make sure that only marine animals spawn in sea, etc. This needs a bit of extra work unfortunately, due to the information I retain in the map data regarding to liquids, which is just 3 values: &quot;none&quot;, &quot;shallow&quot; and &quot;deep&quot;, and typically I use &quot;deep&quot; for the sea in coastal maps. </li>
+<li>A few more bugfixes and improvements in populating areas/rooms. Now each area/room can specify if it&#39;s allowed to have procedurally placed things or not in a more granular way, as I classify features as &quot;ambience&quot;, &quot;creatures&quot; and &quot;objects&quot;. For example, I can have semi-prefab areas like a prison or an abandoned lodge where I allow &quot;procedural ambience&quot; (blood stains, cobwebs) but not procedural creatures (a bear) or objects (a trap). </li>
+<li>A new procedural &quot;ambience&quot; feature is waterside vegetation, either blocking (e.g. palm trees by an oasis) or &quot;brush&quot; (reeds by the river). These can only appear in non-dungeon, non-room areas.</li>
+<li>Blood spatters and pools, instead of being specified explicitly per race, they are now in a database and they&#39;re referenced by creatures with a name. This is because most of the time, creatures will be spilling regular blood, so the blood database doesn&#39;t need that many entries.</li>
+<li>Zones can specify tags (and associated weights) for when spawning such zones procedurally. E.g. if we decide to spawn an optional lodge in the woods, what are the chances for it to be spawned with the &quot;bloody&quot; tag? or with the &quot;abandoned&quot; tag? Etc. This gives a bit more flavour.</li>
+</ul>
+

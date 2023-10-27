@@ -1,0 +1,54 @@
+---
+layout: post
+title: Cerealization
+date: 2018-09-22 10:37:07.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1616049446;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1890;}i:1;a:1:{s:2:"id";i:1659;}i:2;a:1:{s:2:"id";i:2084;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '41'
+author:
+permalink: "/2018/09/22/cerealization/"
+---
+<p>This is a good point for actually using a first form of save state, as the initialization is now computationally intensive. So far, the following things take place:</p>
+<ul>
+<li>Load configuration files to create/initialize systems</li>
+<li>Load/initialize resources: textures, texture atlases, shaders, renderers, framebuffers, widgets, application states, etc etc</li>
+<li>Create world
+<ul>
+<li>Generate (or use cached) a biome map</li>
+<li>Generate (or use cached) autotiling data</li>
+<li>Generate (or use cached) a resource map</li>
+<li>Generate cities, territory map, factions, mines, relationships, etc</li>
+<li>Generate (or use cached) pathfinding routes</li>
+</ul>
+</li>
+</ul>
+<p>In the above, 'or use cached' implies an adhoc piece of code that looks for a cache file with the results of the process and uses that, or runs the calculations and dumps the results in the end. It exists only in certain parts, when the outputs are very contained, e.g. a 2D array of data.</p>
+<p>At this point, I need to serialize the entire "Create world" process, but now the generated results are not simple anymore:</p>
+<ul>
+<li>Some new resources</li>
+<li>Completely new state of several systems</li>
+<li>State of existing resources (initialized now, not initialized before)</li>
+</ul>
+<p>I've already prepared for that, and I'm using the library <a href="https://uscilab.github.io/cereal/">cereal</a> for serialization. Currently the process is mostly complete, so the whole "Create world" process takes very little time, as it just serializes data from a 6MB file.</p>
+<p>Currently I need to "standardize" serialization of GPU resources (textures, buffer objects), which is a bit trickier but doable. The way it's getting implemented is as follows:</p>
+<ul>
+<li>JSON configuration initializes a config structure, specific to the GPU object, e.g. cTextureConfig has ( dims, target, format, iformat, dtype, miplevels, data, etc)</li>
+<li>The config structure is used to initialize the object</li>
+<li>A member function can update the config structure from the current state of the GPU resource (this is mainly for textures/buffers that have been updated)</li>
+<li><strong>cereal out: </strong>update the config structure from current state, then serialize out the config structure</li>
+<li><strong>cereal in: </strong>load from disk to the config structure, then call Init()<strong><br />
+</strong></li>
+<li><strong>json in: </strong>load from the json file to the config structure, then call Init()</li>
+</ul>
+<p>I can also implement GPU resource cloning using this config update mechanism</p>

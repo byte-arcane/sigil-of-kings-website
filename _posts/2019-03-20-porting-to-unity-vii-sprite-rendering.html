@@ -1,0 +1,69 @@
+---
+layout: post
+title: 'Porting to Unity VII: Sprite rendering'
+date: 2019-03-20 12:57:37.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1617061078;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:3175;}i:1;a:1:{s:2:"id";i:3150;}i:2;a:1:{s:2:"id";i:3125;}}}}
+  _publicize_twitter_user: "@aotdev1"
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '26'
+author:
+permalink: "/2019/03/20/porting-to-unity-vii-sprite-rendering/"
+---
+<p><!-- wp:paragraph --></p>
+<p>It's fun to run character simulations and generate results, it's even more fun when you can actually see the characters. These past two weeks I've been writing the sprite rendering system, that doesn't utilize gameobjects/monobehaviours, or unity spritesheets/texture atlases etc, it's all homemade. So, how is it done? </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":3} --></p>
+<h3>Instancing</h3>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>For sprite rendering, there's no alternative, plain and simple. We have a very simple geometry (a quad), and we want to render N instances of it, each with its own parameters. The main parameters, for sprites, are:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Rect location in texture atlas</li>
+<li>Number of animation frames (stored sequentially in atlas)</li>
+<li>Current location in the world</li>
+<li>Previous location in the world (<strong>moving sprites only</strong>)</li>
+<li>Time at previous location in the world  <br />(<strong>moving sprites only</strong>) </li>
+<li>Movement speed <strong>(moving sprites only)</strong></li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>From the above one can see that for moving sprites we need more data, actually it turns out to be twice as much. We can also reason that the list with the moving sprites needs to be updated far more often, due to the changing positions. Therefore, it makes sense to have two separated entity sprite lists, the <strong>static</strong> and the <strong>dynamic</strong>, each of which contains <strong>instance data </strong>that will be rendered with Unity's DrawMeshInstancedIndirect function.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":3} --></p>
+<h3>Entity sprite list maintenance</h3>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Entity enters map: add its <strong>default/idle </strong>animation to the static list</li>
+<li>Entity exits map: remove animation from static and dynamic lists</li>
+<li>Entity teleports: remove animation from dynamic list,  <br />add it' <strong>default/idle </strong>animation to the static list  </li>
+<li>Entity moves to adjacent location: remove animation from static list, add its <strong>moving </strong>animation to the dynamic list</li>
+<li>Every several frames, we go through the dynamic list and check if an animation has finished. If it has, we remove it from the list and add the entity's <strong>default/idle </strong>animation to the static list</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>For the above, when we add an animation, we also set the instance data to a CPU buffer. When we render, the CPU buffer contents are copied to a GPU ComputeBuffer (if anything has changed), which is sampled in the shader</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Here's an example where every second, we schedule a movement to 10,000 entities. Runs pretty well except the last bullet point above, which I've disabled for this video.  The video also shows an additional GUI sprite rendering layer with highlighted tiles (yellow squares) and the hovered tile is shown via a greenish sprite.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:core-embed/youtube {"url":"https://youtu.be/PsVabs5h8Xg","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed-youtube wp-block-embed is-type-video is-provider-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/PsVabs5h8Xg" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/PsVabs5h8Xg?autoplay=1><img src=https://img.youtube.com/vi/PsVabs5h8Xg/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video PsVabs5h8Xg"></iframe>
+</div>
+</figure>
+<p><!-- /wp:core-embed/youtube --></p>

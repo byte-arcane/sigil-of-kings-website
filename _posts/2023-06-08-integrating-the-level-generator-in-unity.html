@@ -1,0 +1,56 @@
+---
+layout: post
+title: Integrating the Level Generator in Unity
+date: 2023-06-08 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/06/ruins_fog.png
+meta:
+author:
+permalink: "/2023/06/08/integrating-the-level-generator-in-unity/"
+---
+
+
+<figure><a href="{{ site.baseurl }}/assets/2023/06/maze.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/06/variants/maze.webp" srcset="{{ site.baseurl }}/assets/2023/06/variants/maze.webp 718w, {{ site.baseurl }}/assets/2023/06/variants/maze-320w.webp 320w" alt="A maze in the forest" width="718" height="849" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>A maze in the forest</figcaption>
+</figure>
+
+<p>It&#39;s been a while since the last post, as there was some serious under-the-hood refactoring work to connect the C# game side and the C++ level generator.</p>
+<p>Updates lately have been varying in nature, as I&#39;m plugging whatever holes have been left open by the new updates in level generation. And there can be holes at three fronts: C++ level generation, C# game, json configuration, so it has been a bit wild (==draining). Here&#39;s a short list of things that I needed to take care of:</p>
+<ul>
+<li><p>Sometimes doors appeared outside caverns, in &quot;zone connections&quot; (single points connecting an area to another one). Solution: have fixed logic on the C# side on if we should spawn a door from a zone connection: if any of the adjacent areas is door-supporting (e.g. a dungeon), spawn a door, otherwise don&#39;t.</p>
+</li>
+<li><p>Overlap tiles that allow smooth transitions between e.g. square dungeon floor and noisy biome floor have been fixed, as some other changes had made this feature stop working</p>
+</li>
+<li><p>Adding a wilderness &quot;padding&quot; area for first levels of adventure locations has now become a dynamic (runtime) option. I&#39;d like to specify some multi-level dungeon configurations in JSON, but I&#39;d like to be able to run them with or without wilderness. So now we can say in runtime if we want to spawn a dungeon and start directly in the dungeon or outside in the wilderness. It&#39;s going to be typically wilderness, but I can foresee various missions where that will not be the case.</p>
+</li>
+<li><p>Support for different-order stairs. Some multi-level dungeons should go upwards. Now that&#39;s an option in the specification, and the effect is that we proceed to further levels by taking stairs that go up. Prime example: wizard&#39;s tower or lighthouse.</p>
+</li>
+<li><p>Fixed a bug introduced by recent changes where I wasn&#39;t able to get correct stairs sprites</p>
+</li>
+<li><p>Changed the way of expressing floors, blocked tiles, liquids and doors. Made them a bit more heterogeneous than they were before. This change caused a few of the issues above</p>
+</li>
+<li><p>Better support for escape missions. We can specify easily e.g. a multi-level dungeon where we start at a particular level (or last level)    and particular zone (e.g. some prison area in last level) and we need to make our way to the exit.</p>
+</li>
+<li><p>Step towards robustness in config file changes and savegames. So far, I could do the following: play game, save game, change the .json files, load the game, BUG! Because of the way I&#39;m referencing configuration entries via indices rather than names. I&#39;ve not made the code more robust really, but when I&#39;m saving the game now I&#39;m also dumping the entire configuration, and when I load that game I compare the current configuration and the saved configuration and I can detect if I&#39;m going to get issues or not and where. It&#39;s not much, but better than silent bugs.</p>
+</li>
+<li><p>A bug got introduced where some floor from one area would be next to blocked tiles of another area. A bad example is dungeon floor corridor ending at a tree which is at the border between dungeon and wilderness. Bad. Fixed now.</p>
+</li>
+<li><p>I have a structure which contains &quot;spawn information&quot; for things, and contains things like tags, biome, zone architecture (e.g. spawn spiders if we have &quot;abandoned&quot; tag, spawn trees if we have a &quot;biome&quot; zone architecture, etc). I&#39;ve added &quot;difficulty&quot; to that class, as it&#39;s useful for spawning monsters, leveled items, etc.</p>
+</li>
+<li><p>I had a bug where the walls of rooms in a dungeon were using different tileset compared to non-room blocked tiles. Bad. Fixed.</p>
+</li>
+<li><p>I&#39;ve tested destruction in settlements. Now if we specify a &quot;ruined&quot; tag in a settlement zone, we get destroyed buildings. Now what&#39;s the catch? Rooms were always classified as indoors and past me thought I should stop fog /rain from entering/dropping in such rooms in settlements. But now, if a room is ruined, we actually want things to creep in. So I&#39;ve added such a detection and hopefully it wasn&#39;t much of a headache. Yay! But sheesh, things one has to work on with graphics. </p>
+</li>
+</ul>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/06/ruins_fog.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/06/variants/ruins_fog.webp" srcset="{{ site.baseurl }}/assets/2023/06/variants/ruins_fog.webp 1159w, {{ site.baseurl }}/assets/2023/06/variants/ruins_fog-960w.webp 960w, {{ site.baseurl }}/assets/2023/06/variants/ruins_fog-640w.webp 640w, {{ site.baseurl }}/assets/2023/06/variants/ruins_fog-320w.webp 320w" alt="Ruins in the forest. Notice the fog going over the ruins. If they weren't ruins, the fog wouldn't go over. " width="1159" height="698" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Ruins in the forest. Notice the fog going over the ruins. If they weren't ruins, the fog wouldn't go over. </figcaption>
+</figure>
+

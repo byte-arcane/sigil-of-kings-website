@@ -1,0 +1,47 @@
+---
+layout: post
+title: Prefabs, tools and bugs
+date: 2021-06-02 12:22:55.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2021/06/prefabber_reading_room.webp
+meta:
+author:
+permalink: "/2021/06/02/prefabs-tools-and-bugs/"
+---
+
+
+<h3><strong>Prefabs and map generation</strong></h3>
+<p>I've added a few more prefabs using the Prefabber tool, shown below. As a new feature, I've added support for creature classification, so that instead of specifying explicit creatures, you could specify a classification and the runtime will pick a creature randomly that fits that classification. Also, because the screen real-estate is limited and I'm using abbreviations for things, I've added some tooltips as well. I've added support for a few more objects, e.g. chair, table (with scroll) and jugs. These object may 1) block visibility or not 2) block movement or not, 3) execute some effect when interacted with, or not. For example none of the previously mentioned objects block visibility, but bookshelves do.</p>
+
+<figure><a href="{{ site.baseurl }}/assets/2021/06/prefabber_reading_room.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2021/06/prefabber_reading_room.webp" alt="Reading room. Interact with a table to get that scroll!" width="888" height="475" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2021/06/variants/prefabber_reading_room.webp 888w, {{ site.baseurl }}/assets/2021/06/variants/prefabber_reading_room-640w.webp 640w, {{ site.baseurl }}/assets/2021/06/variants/prefabber_reading_room-320w.webp 320w"/></a><br />
+<figcaption>Reading room. Interact with a table to get that scroll!</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2021/06/prefabber_grave_corridor.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2021/06/prefabber_grave_corridor.webp" alt="Grave corridor, generated in undead-infested dungeons and crypts" width="1184" height="832" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2021/06/variants/prefabber_grave_corridor.webp 1184w, {{ site.baseurl }}/assets/2021/06/variants/prefabber_grave_corridor-960w.webp 960w, {{ site.baseurl }}/assets/2021/06/variants/prefabber_grave_corridor-640w.webp 640w, {{ site.baseurl }}/assets/2021/06/variants/prefabber_grave_corridor-320w.webp 320w"/></a><br />
+<figcaption>Grave corridor, generated in undead-infested dungeons and crypts</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2021/06/prefabber_beast_room.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2021/06/prefabber_beast_room.webp" alt="Beast room, used for testing the classification-based generation" width="888" height="474" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2021/06/variants/prefabber_beast_room.webp 888w, {{ site.baseurl }}/assets/2021/06/variants/prefabber_beast_room-640w.webp 640w, {{ site.baseurl }}/assets/2021/06/variants/prefabber_beast_room-320w.webp 320w"/></a><br />
+<figcaption>Beast room, used for testing the classification-based generation</figcaption>
+</figure>
+
+<p>While the prefab generator tool works great, I need to *smoothly* integrate the prefabs with the map generation. And here is where the fun (re)starts! I've expressed issues in the past about the difficulty in configuring the generator due to its input complexity. My crappy design of the configuration generation on the C# side didn't help, so I knew that was a ticking bomb. So, after lots of hours of focused work, I did an initial restructure of the C# side and it now looks far more promising. All the ugly complex bespoke configuration is data-driven through JSON so that in C# I pick a configuration and instantiate it using the current contained biome, the challenge rating of the level and only a few other parameters. There's still some work to be done until the dust settles, more details to come.</p>
+<h3><strong>TrimCropper</strong></h3>
+<p>Most of my videos are straight from the Unity editor, so they include some extra stuff that shouldn't be there really, like menus etc. So, occasionally, I'd really like to be able to crop the video a bit, and also trim it slightly as needed. I was looking (ok, not too hard) for some free and <strong>simple</strong> video editing software but alas, it seems there were none to be found? I gave OpenShot a try, but didn't like it. Handbrake doesn't make it easy either. So, I obviously wrote my own tool using tkInter/python, imageio-ffmpeg and the actual ffmpeg binaries. The tool does only what's necessary: preview of video frames, custom cropping region, start/end frames for trimming, and export to mp4 via ffmpeg. That's it! Here's the test video by the way:</p>
+
+<p><!-- wp:embed {"url":"https://i.imgur.com/qUO14nN.mp4","type":"rich","providerNameSlug":"embed-handler","responsive":true,"className":""} --></p>
+<figure>
+<div class="video-container"><iframe src="{{ site.baseurl }}/assets/video/ovwzoomout_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Zooming out in the overworld, from hero to world (512x512 grid cells)</figcaption>
+</figure>
+<p><!-- /wp:embed --></p>
+
+<h3><strong>Bug squashing</strong></h3>
+<p>Some unfortunate but necessary bug squashing. First was some Unity instability. I upgraded to 2020.3.9 and the RecorderWindow plugin, even if not actively recording, started crashing Unity. Other fun stuff when upgrading is corruption of some data, in which case the Library folder has to be blasted and rebuilt, which takes a while. But the corruption is cunning: it looks like some legit code is breaking, and I'm on a wild goose chase before I angrily blast /Library to oblivion. Also fixed some other visual bugs, where some particle systems or decals would show even if they should not be visible, e.g. some damage effect shown in the explored-but-not-currently-visible area.</p>

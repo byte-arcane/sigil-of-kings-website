@@ -1,0 +1,243 @@
+---
+layout: post
+title: 'Level Generation II: Sparsely distributed entities: entries, exits, treasure,
+  etc.'
+date: 2019-09-14 17:51:11.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1616805900;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2257;}i:1;a:1:{s:2:"id";i:2266;}i:2;a:1:{s:2:"id";i:2883;}}}}
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '22'
+author:
+permalink: "/2019/09/14/level-generation-ii-sparsely-distributed-entities-entries-exits-treasure-etc/"
+---
+<p><!-- wp:image {"id":2228} --></p>
+<figure class="wp-block-image"><a href="{{ site.baseurl }}/assets/2019/08/final3_map0_tiles_sparse.webp"><img src="{{ site.baseurl }}/assets/2019/08/final3_map0_tiles_sparse_thumb740.webp" alt="" class="wp-image-2228" width="740" height="370" loading="lazy"/></a><br />
+<figcaption>A generated map with sparse elements: entries, exits, fountains, chests, keys, pressure plates and locked doors.</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>So far, we've <a href="{{ site.baseurl }}/2019/08/15/level-generation-i-layout/">generated the layout</a>, which is a 2D array of bitmasks, where each tile stores a variety of useful information, e.g. if it's floor or not, if it has liquid, if it's a door, etc. This information is stored <strong>densely</strong>, as we always need to have such information about every tile.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>In the next stage, we need to place things that appear <strong>sparsely</strong> on the level:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Level transitions (map border to exit wilderness, stairs)</li>
+<li>Interactive objects: treasure chests, fountains, etc.</li>
+<li>Puzzles and traps: this is a generalized group of a number of locations that have a relationship with each other, such as:
+<ul>
+<li>Locked door and key (1 tile + 1 tile)</li>
+<li>Locked door and one or more pressure plates (1 tile + N tiles)</li>
+<li>Pressure plate and dart trap (1 tile + 1 tile)</li>
+<li>Pit trap (1 tile)</li>
+<li>Secret bridge activated by pressure plate (1 tile + N tiles)</li>
+</ul>
+</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>We run this sparse generator  <strong>independently  per generator area</strong>, so that when placing things, we know that the locations underneath are part of a common theme; for example complex dungeon-specific traps would only be placed in a "dungeon" generator area, rather than a cavernous area or a forest. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p> In order to place a generic "thing" on a map tile, we pick from a list of candidates, that all fulfill certain criteria. The code does exactly this: Each sparse element specifies a number of criteria, and then we process the map, gather candidates that fulfill those criteria and pick a random one. We repeat the process as many times as needed, re-calculating the criteria each time, as for example we might not want to place 2 fountains next to each other, so after every fountain is placed, we need to regenerate the candidate tiles. This process is repeated for everything below. Some always-on criteria are:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Tile must be floor/non-obstacle</li>
+<li>Must match current generator id</li>
+<li>No other sparse element on the tile, unless it allows overlapping</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Part 1: In and Out</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>The first and most essential elements to place are the entries and exits to the level, as nothing should block any path. For outdoors maps, which are typically the outermost, encompassing generator (<a href="{{ site.baseurl }}/assets/2019/08/final3_map0_zoneid.webp">color-coded red here for example</a>), we use all the floor tiles on the border that are not in liquid. Example of this is in the first image  of this post, at the borders. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Depending on the map specification, we place zero or more exits (stairs up or down, gateways, anything) at particular generators. For the example that I'm using, I set "generate 3 exits in the innermost generator area" (color-coded blue)</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Level entry/exit criteria:</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>On map border (for entries only)</li>
+<li>Not in a tile with any type of liquid</li>
+<li>Not on a door tile</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>After we generate the entries and exits, we calculate all paths from all entries to all exits (using dijkstra maps). We mark tiles on those paths and make the combined "hot path", so we won't accidentally create unsolvable levels (e.g. locking a door that lies in a path and placing the key behind it)</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Part 2: Single-tile elements: Locks, keys, chests, fountains, etc</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Each of these has their own criteria. Keeping things simple, here's how it stands now:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Fountain criteria</strong>:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Not next to a wall (looking at 8-neighbourhood)</li>
+<li>Not in any liquid</li>
+<li>Not within a distance of 15 (euclidean) to another fountain</li>
+<li>Not blocking passage (e.g. would not be placed in a single-tile-wide corridor)</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Chest criteria:</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Next to a wall (looking at 4-neighbourhood )</li>
+<li> Not in any liquid </li>
+<li> Not blocking passage (e.g. would not be placed in a single-tile-wide corridor) </li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Lockable door criteria:</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Door tile that is an edge to the dungeon graph that leads to a leaf node (effectively, provides access to a single room) and is not part of the "hot path" (so we won't lock a room with stairs)</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Key criteria</strong>: </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Not in any liquid</li>
+<li>Not on a door tile</li>
+<li>Not in the room that is locked</li>
+<li>Not in the room next to the locked room ("Here's the key, and here's the door, congrats")</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Pressure plate criteria:</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>All "key criteria"</li>
+<li>Within a distance of 15 (euclidean) to the associated mechanism (e.g. locked door) </li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>The results of the above can be seen in the top image. The blue-laced doors are the locked doors with keys, and the green door is the door linked to the pressure plates (the grey-looking things).</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>We are not generating entities here, but just linking requests "generate some locked doors and keys for me according to these criteria" to results (a list of locations), as it's up to later systems to materialize the entities.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Auto-explore and combining Dijkstra maps</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>The obvious thing to do after generating a map is to test it. And, what's a better test than auto-explore? So, after adding quickly the recursive shadowcasting algorithm for fov, we create a very basic autoexplore bot:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The bot originally used the logic from <a href="http://www.roguebasin.com/index.php?title=The_Incredible_Power_of_Dijkstra_Maps">here</a>, where we mark all invisible tiles as goals. I did not like that for a few reasons:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Goals are invisible, so we can't modify the weights with any intelligent and fair reasoning, as we don't know what the tile is. For example, if I want to prioritize unexplored tiles of a different generator fairly, I can't do that as I don't know the generator id of the unknown goal tile.</li>
+<li>For a large map, the number of goals starts as ludicrously high, which costs a lot of performance (and can cost memory as well). Gathering all the invisible tiles and setting them as goals in the dijkstra map could require tens of thousands of tiles. </li>
+<li>We can't necessarily go to the invisible tiles, so intuitively it does not make perfect sense</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Alternative algorithm: </strong> Goals are visible floor tiles that are next to invisible tiles. This guarantees that the set of goals is never too large (unless the map is very, very weird) and is perfectly intuitive as you want to set as a goal a tile that you can go to and it's next to area that you haven't explored yet. Here's some C# code that conditionally adds a tile into a list of goals for the dijkstra map:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:enlighter/codeblock {"language":"csharp"} --></p>
+{% highlight csharp %}
+if (visibilityMap[tile] != 0 && !autoExploreFullyVisibleTiles[tile])
+{
+    if(layout[tile].IsFloor == 1u)
+    {
+        bool hasNbUnknown = false;
+        foreach (var nb2 in math.Shape.Nb8)
+        {
+            var pnb = nb2 + tile;
+            if (visibilityMap.InBounds(pnb) && visibilityMap[pnb] == 0)
+            {
+                autoExploreActiveBorder.Add(tile);
+                hasNbUnknown = true;
+                break;
+            }
+        }
+        if (!hasNbUnknown)
+            autoExploreFullyVisibleTiles.Set(tile, true);
+    }
+}
+{% endhighlight %}
+<p><!-- /wp:enlighter/codeblock --></p>
+<p><!-- wp:paragraph --></p>
+<p>This is run every time we move, and the dijkstra map is re-calculated if any change happens in the list of goals (autoExploreActiveBorder). So far so good, we have a working auto-explore.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Prioritizing areas</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Say we want to find the temple of doom, deep within the caves of misery, in the woods of dismay. If we start at the woods and we find the entrance to the caves, and time is ticking, we don't really want to explore the woods anymore. So, how do we do that without a hack? Easy, by modifying goal weights! Our starting generator is say 0, and our goal is "the further the better", so higher generator ids are better. We can set custom goal weights for the dijkstra map, so our goal tiles in the previous area get varying weights: higher generators get a priority boost. This priority boost is applied to all goals of all dijkstra maps, so for example chests in more important areas are more important than chests in less important areas. Now, as you can imagine, the bot prefers to go deeper, where it will find the exit from this level, which is deep into the temple of doom. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Multiple dijkstra maps</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Dijkstra maps are like tapas, they are great for sharing. We can make a dijkstra map for the level exits that can be used by any adventurer that comes to the level and tries to find the exit. This is part of the reason that we might needs several dijkstra maps, for example one for the auto-explore, one for the treasures (a sentry entity might want to collect treasure but patrol instead of explore), etc.  So question becomes: how to combine the maps? After a lot of experimentation and failures to combine the maps by summing or multiplying them, I ended up with the following solution:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:enlighter/codeblock {"language":"python"} --></p>
+{% highlight python %}
+def combined_dijkstra( currentLocation, dijkstra_maps):
+    bestCost = infinity
+    bestLocation = currentLocation
+    for dijkstra_map,desire_strength in dijkstra_maps:
+        (new_location, cost_to_new_location) = get_lowest_cost_neighbour(dijkstra_map, currentLocation)
+        cost_to_new_location = cost_to_new_location / desire_strength
+        if cost_to_new_location < bestCost && new_location != currentLocation:
+            bestLocation = new_location;
+            bestCost = cost_to_new_location;
+    return best_location
+{% endhighlight %}
+<p><!-- /wp:enlighter/codeblock --></p>
+<p><!-- wp:paragraph --></p>
+<p>So effectively we sample all maps independently for the best candidate, and choose the lowest scoring one, after weighing them based on a "desire" factor (e.g. autoexplore is more important than treasure collecting)</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>This works like a charm, and causes no oscillations. So now we have a bot that can collect treasure while exploring, with the ultimate goal to find the stairs. For this, we have 3 dijkstra maps and their corresponding desires:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>E<strong>xplore</strong>. All visible tiles next to invisible ones. Weight: 1.0</li>
+<li><strong>Treasure. </strong>All known tiles containing treasure. Weight: 100.0</li>
+<li><strong>Stairs</strong>. All known exits from the level. Weight: 1000.0</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>Demo time! Here's a video that shows the bot playing the same level, starting from different entry points:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:core-embed/youtube {"url":"https://youtu.be/-Q4GfgQCDIM","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-4-3 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed-youtube wp-block-embed is-type-video is-provider-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/-Q4GfgQCDIM" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/-Q4GfgQCDIM?autoplay=1><img src=https://img.youtube.com/vi/-Q4GfgQCDIM/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video -Q4GfgQCDIM"></iframe>
+</div>
+</figure>
+<p><!-- /wp:core-embed/youtube --></p>
+<p><!-- wp:paragraph --></p>
+<p>You might notice the greediness of the bot, as it knows it looks for cavern and temple, but it sees some juicy chests outside, goes and picks them up, and heads back in :)</p>
+<p><!-- /wp:paragraph --></p>

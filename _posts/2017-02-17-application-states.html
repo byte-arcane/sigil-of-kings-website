@@ -1,0 +1,80 @@
+---
+layout: post
+title: Application States
+date: 2017-02-17 20:24:57.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '1973142888'
+  _rest_api_published: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"37550b67d263a3ce789993dc25046c5f";a:2:{s:7:"expires";i:1603346445;s:7:"payload";a:6:{i:0;a:1:{s:2:"id";i:1929;}i:1;a:1:{s:2:"id";i:728;}i:2;a:1:{s:2:"id";i:79;}i:3;a:1:{s:2:"id";i:1913;}i:4;a:1:{s:2:"id";i:1619;}i:5;a:1:{s:2:"id";i:1916;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '72'
+author:
+permalink: "/2017/02/17/application-states/"
+---
+<h2>Definition</h2>
+<p>Application states are simply the states an application can be in. A rough definition would be: a state is the set of data and logic that is responsible for <strong>handling input</strong>, and <strong>displaying output</strong> at any given time. State examples are:</p>
+<ul>
+<li>Main menu</li>
+<li>Options</li>
+<li>Credits</li>
+<li>Overworld</li>
+<li>Dungeon</li>
+<li>Selecting a single target tile</li>
+<li>Selecting a single target entity ( several entities can lie on a tile, e.g. items on the floor, a creature and a trap)</li>
+</ul>
+<p><strong>Note:</strong> Another name would be "game stack", "game states" and so on. Of course these can all have several other meanings depending on who you talk to, but that's irrelevant)</p>
+<h2>Desirable traits</h2>
+<ul>
+<li>Active state stack
+<ul>
+<li>Top of the stack is running, others are paused</li>
+</ul>
+</li>
+<li>State hierarchy
+<ul>
+<li>A state can be a state machine. For example, a state of "select 5 targets" can be a state machine which 5 transitions of type select_target</li>
+</ul>
+</li>
+<li>Arbitrary data exchange between states
+<ul>
+<li>States have a <em>blackboard</em> of sorts ( a flat collection of map&lt; string , type&gt;, one per type ) that can store data used to communicate to parent/child states</li>
+</ul>
+</li>
+<li>Configurable via JSON
+<ul>
+<li>Should be able to define states and state machines, complete with transfers</li>
+</ul>
+</li>
+</ul>
+<h2>System design</h2>
+<p>There are two main actors in this system: the <strong>Application State Manager</strong> and the <strong>Application State. </strong>The public interface related to transitions should be very simple.</p>
+<p>The <strong>manager</strong> is responsible for creating states, providing the current active state and execute one of the three transition operations:</p>
+<ul>
+<li><strong>Push(state, next_state, transfer_request) : </strong>Pauses the state, pushes next_state to the stack and starts next_state. When next_state <strong>finishes</strong> successfully, it will use the transfer_request to transfer data to state.</li>
+<li><strong>Finish(state, success) : </strong>Stops the state, marking the state execution as successful or not</li>
+<li><strong>SwitchTo( state, next_state) : </strong>A convenience function for finishing a state successfully and starting another state</li>
+</ul>
+<p><strong>States</strong> own a root widget and a blackboard. States can do their custom input handling and rendering in addition to the widgets (done before/after or completely ignoring the widget-related functionality)</p>
+<h2>Example</h2>
+<p>I used the above concepts to create a simple example, which is demonstrated in the below video.  We have 5 states:</p>
+<ul>
+<li><strong>Menu:</strong> Start the application at this state. It has it's own gui with two buttons: Play and Quit. Play button leads to "Loading" state. Quit quits the application</li>
+<li><strong>Loading: </strong>This state shows a gui with a timer - after 1 second the state is switched to "Game"</li>
+<li><strong>Game: </strong>This state has again its own gui, and shows a map with a playable lich character, which can be moved with the arrow keys. 'L' key changes the state to "TargetSingleTile", while 'T' key changes state to "TargetMultiTile"</li>
+<li><strong>TargetSingleTile: </strong>This state does not have its own gui - it uses whatever gui was there before. It adds a selection of highlighted tiles, centered at the character. When the user clicks on a tile that is within the selection, the state completes successfully and transfers the selected tile to the parent. At the tile, a skeleton appears.</li>
+<li><strong>TargetMultiTile: </strong>This state doesn't have its own gui either. It is a state machine, and calls TargetSingleTile successively. When the state machine is finished, the locations of all selected tiles are sent to the parent state (Game). At those tiles, wraiths appear</li>
+</ul>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/zWW-uNXREdQ" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/zWW-uNXREdQ?autoplay=1><img src=https://img.youtube.com/vi/zWW-uNXREdQ/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video zWW-uNXREdQ"></iframe>
+</div>
+<p>The system is still a bit rough around the edges, and it looks like it can be converted to a generic state machine (which I could reuse perhaps for some basic AI), but it's ok for now.</p>
+<p>&nbsp;</p>

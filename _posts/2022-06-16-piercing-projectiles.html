@@ -1,0 +1,35 @@
+---
+layout: post
+title: Piercing projectiles
+date: 2022-06-16 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/06/piercing_projectiles.png
+meta:
+author:
+permalink: "/2022/06/16/piercing-projectiles/"
+---
+
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/piercing_arrow_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Piercing arrow, skewering enemies</figcaption>
+</figure>
+
+<p>More refactoring on the ability system (it&#39;s taking a while). Among other changes, I&#39;m fleshing out a more robust version of a data structure that contains information on which tiles are valid for selection when we&#39;re trying to activate a skill. E.g. a melee attack has neighbour tiles, a ranged attack has more tiles to select. Now this is all nice and simple, but the corner cases come to bite:</p>
+<ul>
+<li>Sometimes we want to target a wall, or a liquid. </li>
+<li>Sometimes we can target the floor or an entity occupying the floor. </li>
+<li>Sometimes only particular entities can be targetted, and no floor. </li>
+<li>Sometimes occlusion matters, sometimes it doesn&#39;t. Same with field of vision (currently, or having seen a tile before). </li>
+<li>Another requirement is if we can reach the tile by land, air or water. Now this is used of course for projectiles. </li>
+</ul>
+<p>Part of the tile selection process is the visual representation of which tiles can be selected, which are highlighted. If a projectile attack would be blocked by creatures, normally there&#39;s no purpose in highlighting (and thus making available) tiles that are behind the creature, but if the projectile attack is piercing, we should. Also Some more complexity arises if the projectiles are homing or not. </p>
+<p>Another smaller thing that I implemented was behaviour of objects when they&#39;re being attacked. For now, I just created a few categories handled via an enumeration, and they amount to &quot;do nothing&quot;, &quot;self-destruct&quot; and &quot;trigger effect&quot;. A fountain would set &quot;do nothing&quot;, as nothing happens when we swing at it. A web would call &quot;self-destruct&quot; so it would break. A jug would set &quot;trigger effect&quot; so that it will break and its contents will fall to the floor. Nice and simple, before I overthink damage/hitpoints for objects.</p>
+

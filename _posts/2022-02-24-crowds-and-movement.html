@@ -1,0 +1,33 @@
+---
+layout: post
+title: Crowds and movement
+date: 2022-02-24 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/02/2022/02/crowd.webp
+meta:
+author:
+permalink: "/2022/02/24/crowds-and-movement/"
+---
+
+<figure>
+<div class="video-container"><iframe src="{{ site.baseurl }}/assets/video/sync_async_crowd_bas.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Toggle between synchronised and non-synchronised sprite animation</figcaption>
+</figure>
+
+<p>Several bits of work this past week, relating to the new composable sprites, and overall animation. </p>
+<p><strong>Human cosmetic presets</strong></p>
+<p>While the possible combinations of generated humans could be huge (head shapes, colours, hair types, etc etc), the generation needs to be constrained so that we have cohesive groups. This is in contrast to the player character and adventurer NPCs that will come later, as they can be completely freeform and customisable. So for now, when humans are generated in a location, their skin colour is determined by the biome temperature of that location (for lack of sunlight measurements). Their hair colour can&#39;t be much brighter than the skin, and I&#39;m picking mouth/eyes colour based on the contrast that it will have with the skin (from a small set of presets, not yellow eyes for example). Mouth colour has to be different than beard colour, and females would have a different set of mouth colours to men, towards more red/purple colours (yes, ludicrous, but is the best descriptor for 24x24 pixel sprites!). </p>
+<p><strong>Roles and equipment</strong> </p>
+<p>Next logical thing is to test the above by easily creating groups. So I made some console command to create a troupe of 25 people, with varying heads but all &quot;naked&quot;. Ok cool, but boring. Next was to develop &quot;roles&quot; for major AI races (e.g. commoner, warrior, thief, guard ) which would be associated with some skill progression (WIP) and starting equipment. So, for each of the generated people I can pick a random role and the result is a healthy mix of all roles, and a lot of visual variety.</p>
+<p><strong>Animation: synchronised or not</strong></p>
+<p>After generating a large group of people, crammed at a 5x5 grid, it&#39;s easy to notice the animation that is synchronised. Oryx sprites have this simplistic 2-frame bobbing animation. This could be jarring or not, I wasn&#39;t sure so <a href="https://twitter.com/ByteArcane/status/1494339852526964738?s=20&amp;t=VdLnvfX1gjaxu9L1sbcB6Q">I sent a question on Twitter</a>, showing the bobbing versus a randomised version. Apparently the overwhelming majority seems to not like the synchronised version, but a few do, so now I&#39;ve implemented both, they can be selected with an option, and it defaults to not-in-sync.</p>
+<p><strong>Next steps</strong></p>
+<p>Thinking always how to salvage things for a trailer, a bunch of people in settlements in different biomes sounds fine, so working on the settlement generator. This means some work on settlement &quot;rooms&quot; to represent houses, and work on making the settlement well-integrated with the biome.</p>
+

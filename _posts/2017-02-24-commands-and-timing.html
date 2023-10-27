@@ -1,0 +1,43 @@
+---
+layout: post
+title: Commands and timing
+date: 2017-02-24 14:20:55.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_client_id: "-1"
+  _rest_api_published: '1'
+  _publicize_job_id: '2209675631'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618357873;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2050;}i:1;a:1:{s:2:"id";i:1635;}i:2;a:1:{s:2:"id";i:1168;}}}}
+  rank_math_internal_links_processed: '1'
+  _last_editor_used_jetpack: block-editor
+  rank_math_analytic_object_id: '71'
+author:
+permalink: "/2017/02/24/commands-and-timing/"
+---
+<p>Not much to show this week due to I3D/GDC trip planning, along with trying to approach the problem of commands, and related issues.</p>
+<p>As a header, I'm using variant of <strong>ECS</strong>, where the <strong>Systems</strong> don't really do mass processing as usual, but are rather <strong>logic hubs</strong>, emitting/receiving events, and storing unique data. I also want the player and non-player characters and creatures to use the same underlying machinery for performing actions, using abilities, etc. The difference would be that the player needs to choose an available action and set the parameters via a <strong>UI </strong>(e.g choose ranged attack, select a tile)<strong>, </strong>whereas the non-player entities would need to run some AI code that figures out what to do and how it should set the parameters. So, the common resulting part, which is the parameterized action, is the command.</p>
+<p>An <strong>entity</strong> <strong>command  </strong>is the most basic bit of logic that does something, operating on an entity. A player can build a command via UI, while all other entities build them using AI. An entity command <strong>holds no state</strong> - it reads/writes state from/to the entity - therefore one of each is stored in the registry and are retrieved and used as <a href="https://en.wikipedia.org/wiki/Flyweight_pattern">flyweights</a>. Such commands just return a bool that indicates if the command actually did something.</p>
+<p>A <strong>timed entity command </strong>is a composition of a reference to an entity command plus some <strong>timing information</strong>. Now this bit is important, as I believe it will give some flexibility and increase the potential for strategy in the game. An entity command can be in 3 stages:</p>
+<ul>
+<li>Inactive</li>
+<li>Pre-Execution</li>
+<li>Recovering</li>
+</ul>
+<p>When the command is started, the stage switched from inactive to Pre-Execution and we wait for some time. The execution happens <strong>instantly</strong> after the pre-execution time has expired, and the entity immediately switches to the Recovering stage, regardless if the execution succeeded or failed. Also, while in the pre-execution stage, the command can be <strong>interrupted.  </strong>This requires the following additional information:</p>
+<ul>
+<li>Pre-Execution duration</li>
+<li>Recovery duration</li>
+<li>Interrupt recovery duration</li>
+<li>Interrupt difficulty class (DC)</li>
+<li>Interrupt strength</li>
+</ul>
+<p>So, if an entity can execute a command that, if applied to another entity, can interrupt it if it's in the pre-execution stage. To check for successful interruption, the strength should exceed the difficulty class.</p>
+<p>Some commands should be instant. In that case, all durations are set to zero.</p>
+<p>That's it for now - next time I'm going to describe how such timed commands fit together with a finite state machine (for simple AI) and a game turn manager.</p>

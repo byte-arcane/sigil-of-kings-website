@@ -1,0 +1,98 @@
+---
+layout: post
+title: Overworld map generation
+date: 2017-12-14 10:47:58.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2017/12/teaser.webp
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619729939;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1945;}i:1;a:1:{s:2:"id";i:1241;}i:2;a:1:{s:2:"id";i:1890;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '56'
+author:
+permalink: "/2017/12/14/overworld-map-generation/"
+---
+<p><a href="{{ site.baseurl }}/assets/2017/12/teaser.webp"><img class="aligncenter size-full wp-image-1698" src="{{ site.baseurl }}/assets/2017/12/teaser_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<p>My goal is to generate an overworld map, where each tile would cover an area of about a hundred square km (On normal terrain, a regular unit would need a day to cross a regular tile). The overworld needs to contain islands, continents and biomes. The output of this process is a 2D "image", with data per pixel (32 bits, like an RGBA PNG file) that completely describe how is the environment of a tile like. I'm going for <em>plausible </em>rather than realistic: I want to be able to create maps that are <em>fun</em> to play. Below, I'm going to go through the various steps of the process that I use.  All but the landmass labeling and river generation passes are generated using the GPU, as the calculations are typically parallel. The whole process takes about 60 milliseconds for 512x512 maps, so we can tinker all sorts of parameters and see the results in real-time.</p>
+<h3>Continent mask</h3>
+<p>The first step is the creation of the seed continents. These are not necessarily the final continents, but they help construct the base for the big landmasses. The continents start off as a small set of scaled and rotated ellipses. Everything about these ellipses is randomized: number, scale, rotation, eccentricity.</p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/p0_a-1.webp"><img class="aligncenter wp-image-1689 size-full" src="{{ site.baseurl }}/assets/2017/12/p0_a-1_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<p>The next step is to distort the boundary of the ellipse using Simplex noise. Effectively, we're warping the point we're on before testing whether it's inside or outside one of the ellipses. There are two parameters for this: warp frequency (how much can the warp differ between 2 adjacent pixels) and warp magnitude (how far the warped point can get from the original). Some examples of increasing frequency:</p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/p0_b-1.webp"><img class="aligncenter wp-image-1690 size-full" src="{{ site.baseurl }}/assets/2017/12/p0_b-1_thumb740.webp" alt="" width="1100" height="1100" /></a><br />
+<a href="{{ site.baseurl }}/assets/2017/12/p0_c-1.webp"><img class="aligncenter wp-image-1691 size-full" src="{{ site.baseurl }}/assets/2017/12/p0_c-1_thumb740.webp" alt="" width="1100" height="1100" /></a><br />
+<a href="{{ site.baseurl }}/assets/2017/12/p0_d.webp"><img class="aligncenter wp-image-1692 size-full" src="{{ site.baseurl }}/assets/2017/12/p0_d_thumb740.webp" alt="" width="1100" height="1100" /></a><br />
+<a href="{{ site.baseurl }}/assets/2017/12/p0_e.webp"><img class="aligncenter wp-image-1693 size-full" src="{{ site.baseurl }}/assets/2017/12/p0_e_thumb740.webp" alt="" width="1100" height="1100" /></a><br />
+<a href="{{ site.baseurl }}/assets/2017/12/p0_f.webp"><img class="aligncenter wp-image-1694 size-full" src="{{ site.baseurl }}/assets/2017/12/p0_f_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<p>For the rest of the post, let's choose the one before last. At the end of this stage, we have a map that stores if we're inside or outside big continent-like landmasses</p>
+<h3>Continent mask distance field</h3>
+<p>This step calculates a limited distance field around the coastline of the continents: this will be useful for the actual heightmap generation. We calculate distances from the coastline (d = 0) up to a number of pixels away from it (e.g. d = 32) and we map the values 0-1 to this clamped distance range.</p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/continent_difi-1.webp"><img class="aligncenter wp-image-1683 size-full" src="{{ site.baseurl }}/assets/2017/12/continent_difi-1_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<h3>Heightmap</h3>
+<p>This step calculates an 8-bit heightmap with values [-1,1], positive numbers representing land. We don't care about it looking too realistic, as the heightmap will only be used implicitly<em>, </em>as an input to other parts of the generator.</p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/heights-1.webp"><img class="aligncenter wp-image-1684 size-full" src="{{ site.baseurl }}/assets/2017/12/heights-1_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<h3>Landmass mask</h3>
+<p>This step creates the final landmasses. We're just using the heightmap to generate this, comparing the height values against 0.</p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/landmass_mask-1.webp"><img class="aligncenter wp-image-1688 size-full" src="{{ site.baseurl }}/assets/2017/12/landmass_mask-1_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<h3>Landmass distance field</h3>
+<p>This step does the exact same process as the continent mask distance field, but on the landmass mask.</p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/landmass_difi-1.webp"><img class="aligncenter wp-image-1686 size-full" src="{{ site.baseurl }}/assets/2017/12/landmass_difi-1_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<h3>Landmass labeling</h3>
+<p>This step does a floodfill over the heightmap, detects landmasses, classifies them in terms of size (rocks, islets, islands and continents) given user-defined area thresholds. There can be a maximum of 63 continents given the current bit budget, but of course that's flexible. The continents are also uniquely labeled at this step (this means that all the tiles that belong in continent 2, store the value 2 somewhere -- see below, Biome data section). Additionally, bodies of water that are completely enclosed by landmasses are marked as part of the landmass, so that they can correctly be identified as lakes later on.</p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/landmass_labels-1.webp"><img class="aligncenter wp-image-1687 size-full" src="{{ site.baseurl }}/assets/2017/12/landmass_labels-1_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<h3>Rivers</h3>
+<p>This step generates the rivers in the overworld. Effectively, give some parameters such as minimum river proximity to each other and river min/max length, we generate rivers. The way this is done is by sampling random points on the map and testing if they can be appropriate starting locations (e.g. on or by a mountain). If a point satisfies the conditions, then a path is attempted to be generated, with branching; the path follows a downward path in terms of heights till it reaches a lake, the sea, reaches maximum length, or can't go further due to any reason. Below two examples with different density:</p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/rivers_dense.webp"><img class="aligncenter size-full wp-image-1695" src="{{ site.baseurl }}/assets/2017/12/rivers_dense_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/rivers_medium.webp"><img class="aligncenter size-full wp-image-1696" src="{{ site.baseurl }}/assets/2017/12/rivers_medium_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<h3>Humidity</h3>
+<p>This step generates the humidity for each tile. It takes into account outline, heights and freshwater. The basic map is calculated with Simplex noise, but it is also adjusted based on if a tile is water or land: areas in and near water are more humid. It is also affected by the the freshwater mask, which gets heavily blurred and added as extra humidity; this guarantees that there almost never are rivers in the desert, or swamps without a body of water nearby.</p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/humidity-1.webp"><img class="aligncenter size-full wp-image-1685" src="{{ site.baseurl }}/assets/2017/12/humidity-1_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<h3>Temperature</h3>
+<p>This step generates the temperature for each tile. It takes into account outline, heights and freshwater as well. The basic map is calculated with Simplex noise, but it is also adjusted based on if a tile is water or land: when on land, we sample from a heavily blurred heightmap and reduce the temperature based on that regional average height. This reduces temperatures in regions where there are a lot of high mountains. Additionally, the regional existence of water reduces temperatures a bit.</p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/temperature.webp"><img class="aligncenter size-full wp-image-1699" src="{{ site.baseurl }}/assets/2017/12/temperature_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<h3>Biome data</h3>
+<p>At this point, we're almost done! This step samples all maps and packs them into a 32-bit output map. These 32 bits encode the biome detail in a coarse way.</p>
+<p>Here's the breakdown:</p>
+<ul>
+<li>Temperature: 3 bits</li>
+<li>Humidity: 3 bits</li>
+<li>Elevation: 2 bits //  Height or depth, dep. on water type</li>
+<li>Water type:  2 bits // none, river, lake, sea</li>
+<li>IsCoast: 1 bit</li>
+<li>Vegetation density: 3 bits</li>
+<li>Wildlife density: 3 bits</li>
+<li>Continent ID: 6 bits</li>
+<li>Landmass size: 2 bits</li>
+<li><strong>Biome type:</strong> 4 bits // one of the 16 predefined biomes</li>
+<li>Padding: 3 bits</li>
+</ul>
+<p>For many of the above (temperature, humidity, elevation), we quantize the (typically 8-bit) data that we already have to the bits above. The biome type is calculated from the rest of the values (temperature, humidity, etc), and is one of the following:</p>
+<p>Sea Coast, Shallow Water, Sea, Deep Sea, Abyssal Sea, Tundra, Alpine, Desert, Boreal Forest, Temperate Rainforest, Tropical Rainforest, Temperate Deciduous Forest, Tropical Seasonal Forest, Temperate Grassland, Savannah, Wetland</p>
+<p>Some of the values are calculated in this step:</p>
+<ul>
+<li>WaterType: Calculate based on if it's a river tile, landmass ID and height.</li>
+<li>IsCoast: Calculate based on if we're on land, and sample all neighbours for any sea tile</li>
+<li>Vegetation density: More Simplex noise, adjusted by humidity, temperature and height</li>
+<li>Wildlife density: More Simplex noise, adjusted by humidity, temperature, height, freshwater and vegetation</li>
+</ul>
+<p>Here's a visualization of the vegetation density:</p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/veg_density.webp"><img class="aligncenter size-full wp-image-1700" src="{{ site.baseurl }}/assets/2017/12/veg_density_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<p>... and the wildlife density:</p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/wild_density.webp"><img class="aligncenter size-full wp-image-1701" src="{{ site.baseurl }}/assets/2017/12/wild_density_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<p>Depending on the biome type we can distribute flora, fauna, resources, civilisations, etc.</p>
+<p>Here's a video of the GUI tool in action!</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/3oqbh3nWKrM" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<p>Other examples here:</p>
+<p><a href="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-14-13-00-28-81.webp"><img class="aligncenter size-full wp-image-1706" src="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-14-13-00-28-81_thumb740.webp" alt="" width="1100" height="1100" /></a> <a href="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-14-13-00-53-32.webp"><img class="aligncenter size-full wp-image-1707" src="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-14-13-00-53-32_thumb740.webp" alt="" width="1100" height="1100" /></a> <a href="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-14-13-01-03-49.webp"><img class="aligncenter size-full wp-image-1708" src="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-14-13-01-03-49_thumb740.webp" alt="" width="1100" height="1100" /></a> <a href="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-14-13-01-53-56.webp"><img class="aligncenter size-full wp-image-1709" src="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-14-13-01-53-56_thumb740.webp" alt="" width="1100" height="1100" /></a> <a href="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-14-13-02-30-96.webp"><img class="aligncenter size-full wp-image-1710" src="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-14-13-02-30-96_thumb740.webp" alt="" width="1100" height="1100" /></a> <a href="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-14-13-02-36-86.webp"><img class="aligncenter size-full wp-image-1711" src="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-14-13-02-36-86_thumb740.webp" alt="" width="1100" height="1100" /></a> <a href="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-14-13-03-07-59.webp"><img class="aligncenter size-full wp-image-1712" src="{{ site.baseurl }}/assets/2017/12/overworld_gen-2017-12-14-13-03-07-59_thumb740.webp" alt="" width="1100" height="1100" /></a></p>
+<h3>Closing notes</h3>
+<p>The format might get adjusted in the future, in order to use those padding bits to encode some extra information, for example freshwater direction in river tiles (2 bits). There is also a dynamic magic map which specifies, in areas of high magic, special happenings such as rifts, summons, portals, etc. Additionally, there's tile resource generation which will be covered next time.</p>

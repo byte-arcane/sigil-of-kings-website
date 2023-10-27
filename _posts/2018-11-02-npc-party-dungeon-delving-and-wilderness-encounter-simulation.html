@@ -1,0 +1,123 @@
+---
+layout: post
+title: NPC Party Dungeon Delving and Wilderness Encounter Simulation
+date: 2018-11-02 01:50:14.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  _wpas_skip_21361648: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618033941;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2005;}i:1;a:1:{s:2:"id";i:2042;}i:2;a:1:{s:2:"id";i:2050;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '36'
+author:
+permalink: "/2018/11/02/npc-party-dungeon-delving-and-wilderness-encounter-simulation/"
+---
+<p>As a reasonable follow-up to single <a href="{{ site.baseurl }}/2018/10/26/single-npc-dungeon-delving-simulation/">NPC dungeon delving simulation</a>, now we test parties of adventurers.</p>
+<h3>Strength in Unity, Complementary</h3>
+<p>Parties are stronger than individual NPC, but without being overpowered. The increase in power is not linear: 5 heroes working together are not 5x more effective than a single hero, but general survival rate is greatly improved. So, here are a few similarities/differences between a single NPC and a party, with regards to mechanics in the coarse simulation layer that I'm currently developing:</p>
+<ul>
+<li>Healing is applied to all members equally</li>
+<li>Damage is reduced based on the number (N) of party members by: $latex \frac{N-1}{2N}$
+<ul>
+<li>N=1: 0%, N=2: 25%, N=3: 33%, etc.</li>
+</ul>
+</li>
+<li>XP are divided among party members</li>
+<li>For skill checks: use the <strong>max value among members</strong></li>
+<li>For skill category checks: for each member calculate the average of the category's skills, and use the <strong>max among members</strong></li>
+</ul>
+<p>With these in mind, it's clear that it's beneficial to have parties with complementary skills.</p>
+<h3>Single-Delve Tests Revisited</h3>
+<p>Here are a few examples that show survival rate in a few party size configurations (1,2,6) when we put a party (of any level) against a dungeon of a similar level.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/11/advlocres_crmod0_enc9_retreat4_party1.webp"><img class="aligncenter size-full wp-image-2032" src="{{ site.baseurl }}/assets/2018/11/advlocres_crmod0_enc9_retreat4_party1_thumb740.webp" alt="" width="1830" height="981" /></a></p>
+<p><a href="{{ site.baseurl }}/assets/2018/11/advlocres_crmod0_enc9_retreat4_party2.webp"><img class="aligncenter size-full wp-image-2034" src="{{ site.baseurl }}/assets/2018/11/advlocres_crmod0_enc9_retreat4_party2_thumb740.webp" alt="" width="1830" height="981" /></a></p>
+<p><a href="{{ site.baseurl }}/assets/2018/11/advlocres_crmod0_enc9_retreat4_party6.webp"><img class="aligncenter size-full wp-image-2033" src="{{ site.baseurl }}/assets/2018/11/advlocres_crmod0_enc9_retreat4_party6_thumb740.webp" alt="" width="1830" height="981" /></a></p>
+<h3>Lifetime-Delve Tests Revisited</h3>
+<p>Here are a few examples that show survival rate when we put a lvl 1 party against a series of dungeons of a similar level to the party (dungeons progressively get stronger as party levels up). CR mod is difference of character level to dungeon level, so a crmod of -5 means a level 25 party will tackle a level 20 dungeon.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/11/imgadvlocreslvl_crmod0_enc9_retreat4.webp"><img class="aligncenter size-full wp-image-2035" src="{{ site.baseurl }}/assets/2018/11/imgadvlocreslvl_crmod0_enc9_retreat4_thumb740.webp" alt="" width="1840" height="981" /></a></p>
+<p><a href="{{ site.baseurl }}/assets/2018/11/imgadvlocreslvl_crmod-5_enc9_retreat4-1.webp"><img class="aligncenter size-full wp-image-2036" src="{{ site.baseurl }}/assets/2018/11/imgadvlocreslvl_crmod-5_enc9_retreat4-1_thumb740.webp" alt="" width="1840" height="981" /></a></p>
+<p>&nbsp;</p>
+<h3>Wilderness Encounters</h3>
+<p>Adventurers start their adventures typically at cities. They travel, and travel, following well-established routes as much as possible and crossing through other cities, until finally they enter full-on wilderness to get to a dungeon to clear. So, with some quick and not-too-inaccurate math we can figure out that if $latex X$ is the total distance to the dungeon and $latex Y$ is the average city-to-city distance, then the distance off roads will be $latex \text{min}(Y/2,X)$. The split to off-road and on-route is important, as threat on route is significantly smaller.</p>
+<p>The tests assume a +-20% in challenge rating compare to the character level, and they utilize <a href="{{ site.baseurl }}/2018/10/26/single-npc-dungeon-delving-simulation/">the dungeon delving simulation code from the previous post</a>, but with 1-3 encounters only.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/11/wildernesssurvival_retreat4_party1-1.webp"><img class="aligncenter size-full wp-image-2037" src="{{ site.baseurl }}/assets/2018/11/wildernesssurvival_retreat4_party1-1_thumb740.webp" alt="" width="1830" height="981" /></a></p>
+<p><a href="{{ site.baseurl }}/assets/2018/11/wildernesssurvival_retreat4_party2.webp"><img class="aligncenter size-full wp-image-2039" src="{{ site.baseurl }}/assets/2018/11/wildernesssurvival_retreat4_party2_thumb740.webp" alt="" width="1830" height="981" /></a></p>
+<p><a href="{{ site.baseurl }}/assets/2018/11/wildernesssurvival_retreat4_party6.webp"><img class="aligncenter size-full wp-image-2038" src="{{ site.baseurl }}/assets/2018/11/wildernesssurvival_retreat4_party6_thumb740.webp" alt="" width="1830" height="981" /></a></p>
+<p>These examples show the benefits of being in a party, and they also demonstrate that survival chances drop with larger distances (but the drop decays sharply), and they also drop with higher character levels, as more dangerous encounters get spawned.</p>
+<h3>Side-effect plot viewer</h3>
+<p>The generated graphs use several parameter sets, e.g. party size, retreat threshold, etc. It becomes difficult to navigate through the graphs when you want to flip between two arbitrary parameter values. So, instead of researching it further, I wrote a dead simple script that allows "interactive" graph rendering in the cheatiest way: it parses special parameter-encoding filenames, e.g. "wildernesssurvival_retreat2_party5.png", and listens to keypresses. When e.g. 'r' is pressed, I load the file 'wildernesssurvival_retreat3_party5.png', while now if 'p' is pressed, I load 'wildernesssurvival_retreat3_party6.png'. This is actually a lifesaver! And works with all graphs. Here's the code in all its glory:</p>
+<p>&nbsp;</p>
+<pre class="EnlighterJSRAW" data-enlighter-language="python">import glob
+import sys
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+
+def run(img_format, params):
+
+    param_ranges = [] # for each param, a list of values
+    param_cur_indices = []
+    ax = None
+    fig = None
+
+    def press(event):
+        sys.stdout.flush()
+        for k in range(len(params)):
+            if event.key.lower() == params[k]:
+                off = 1 if event.key == params[k] else len(param_ranges[k])-1
+                param_cur_indices[k] = (param_cur_indices[k]+off) % len(param_ranges[k])
+                param_cur_values = [ param_ranges[i][param_cur_indices[i]] for i in range(len(params))]
+                img=mpimg.imread( img_format.format(*param_cur_values))
+                ax.imshow(img)
+                fig.canvas.draw()
+
+    all_files = glob.glob(img_format.replace("{}","*"))
+    img_format_const_parts = img_format.split('{}')
+    for i in range(len(params)):
+        """
+            To extract number for i-th param, locate the end of the string before and the start of the string after
+        """
+        values = []
+        for j in range(len(all_files)):
+            fname = all_files[j].replace('\\','/')
+            idx_start = fname.find(img_format_const_parts[i]) + len(img_format_const_parts[i])
+            idx_end = fname.find(img_format_const_parts[i+1])
+            values.append( int(fname[idx_start:idx_end]))
+        values = sorted(list(set(values)))
+        param_ranges.append(values)
+        
+    param_cur_indices = [0] * len(params)
+    param_cur_values = [ param_ranges[i][param_cur_indices[i]] for i in range(len(params))]
+
+    plt.close('all')
+    plt.ioff()
+    img=mpimg.imread( img_format.format(*param_cur_values))
+
+    fig, ax = plt.subplots()
+    plt.axis('off')
+    fig.canvas.mpl_connect('key_press_event', press)
+    ax.imshow(img)
+    plt.show(block=True)
+
+
+if __name__ == '__main__':
+    #img_format = 'C:/Users/Babis/Documents/repos/aot/build/apps/aot_v0/imgadvlocreslvl_crmod{}_enc{}_retreat{}.png'
+    #params = ['c','e','r']
+
+    #img_format = 'C:/Users/Babis/Documents/repos/aot/build/apps/aot_v0/advlocres_crmod{}_enc{}_retreat{}_party{}.png'
+    #params = ['c','e','r','p']
+
+    img_format = 'C:/Users/Babis/Documents/repos/aot/build/apps/aot_v0/wildernesssurvival_retreat{}_party{}.png'
+    params = ['r','p']
+    run(img_format, params)</pre>
+<p>&nbsp;</p>

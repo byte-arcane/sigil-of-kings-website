@@ -1,0 +1,85 @@
+---
+layout: post
+title: A little bit about locking
+date: 2019-11-22 09:17:27.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618381092;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2220;}i:1;a:1:{s:2:"id";i:2257;}i:2;a:1:{s:2:"id";i:793;}}}}
+  _publicize_twitter_user: "@aotdev1"
+  _wp_old_date: '2019-11-21'
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '19'
+author:
+permalink: "/2019/11/22/a-little-bit-about-locking/"
+---
+<p><!-- wp:paragraph --></p>
+<p>Let locking be the means to prevent <strong>use</strong> of some sort of device</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Things that can be locked:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Door (use = open)</li>
+<li>Chest (use = open)</li>
+<li>Magic portal (use = enter)</li>
+<li>Fountain (use = drink)</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>Types of unlock conditions</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Have XYZ key in inventory <strong>[active]</strong> <strong>[E]</strong></li>
+<li>Actor being of a specific race, or having XYZ traits <strong>[E]</strong></li>
+<li>Have all fragments of the key in inventory <strong>[active]</strong> <strong>[E]</strong></li>
+<li>Time being midnight <strong>[W]</strong></li>
+<li>A pressure plate being pressed  <strong>[W]</strong> </li>
+<li>A lever having being pulled  <strong>[W]</strong> </li>
+<li>A creature being dead  <strong>[W]</strong> </li>
+<li>Any combination of the above, etc </li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Entity and world conditions</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The unlock conditions are grouped as <strong>[E]</strong>ntity conditions, where the entity that tries to unlock should evaluate those to true, and <strong>[W]</strong>orld conditions, where when the state of the world changes with respect to the given conditions, the lock might activate/deactivate. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>An actor can't explicitly lock or unlock a door with world conditions, as they need to change the state of the world in order to get these doors locked/unlocked (e.g. leave an item on a pressure plate, etc)</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Active and passive entity conditions</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>[Active]</strong> entity conditions are ones that sort of require the user to do something, if we play out the scenario. Obviously no door opens because a key is in our pocket, but if it is in our pocket and we handle the door, and the door is locked, we can <strong>imagine</strong> us getting active and using that key in the lock. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Passive entity conditions don't need the actor to do something explicit. The actor handles the door, but the check happens in the background. The main difference gameplay-wise is that if there's a lock with a passive condition, after unlocking, the actor can't lock it again, as it is beyond the actor's actions.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Back-door</strong></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Locks can specify an unlock direction, so that if we somehow ended up in a locked room without the key (e.g. stepped on a teleporter trap), we can open it from the inside. Doing this bypasses all conditions, entity or world conditions. If we do have world conditions, the next time any of the condition changes (to any value), the lock will get enabled/disabled appropriately</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Here's a video that shows a scenario of a lock with world-state conditions only: 3 pressure plates that need to be pressed, but we can also unlock from inside</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:core-embed/youtube {"url":"https://youtu.be/95abRSewLFI","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed-youtube wp-block-embed is-type-video is-provider-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/95abRSewLFI" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/95abRSewLFI?autoplay=1><img src=https://img.youtube.com/vi/95abRSewLFI/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video 95abRSewLFI"></iframe>
+</div>
+</figure>
+<p><!-- /wp:core-embed/youtube --></p>

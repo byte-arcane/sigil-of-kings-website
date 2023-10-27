@@ -1,0 +1,44 @@
+---
+layout: post
+title: Minions, leaders and morale
+date: 2021-07-08 00:22:55.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+video: assets/video/summon_goblins_run_tw.mp4
+meta:
+author:
+permalink: "2021/07/08/minions-leaders-and-morale/"
+---
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/summon_goblins_run_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>A goblin commander summons goblins. When their leader dies, they flee for a while. By the time they're back, summoning time is over </figcaption>
+</figure>
+
+<p>Last week I was trying out some basic summoning-minions functionality, so this week I've been trying to flesh it out a bit more. The more I was fleshing it out, the more little things appeared here and there, needing attention. So in the end, I spent quite a bit of time trying to tie loose ends. Here is an example of things that popped up during this little development side-quest:</p>
+<ul>
+<li><strong>Concept of &quot;morale&quot;</strong>. A typical behavior with minions and a leader is that, when the leader dies, the minions scuttle away. So, this requires the concept of morale, where when it&#39;s high, everything is good, whereas when it is low, creature choose to flee from adversaries instead of taking other actions. So, creatures now have morale, which is a number between 0 and 1. 0 means full-on cowardice, 1 means high spirits. Certain actions (TBD) can cause a drop in morale. Morale lower than 0.5 causes morale failure, and AI creatures flee. For the player I haven&#39;t figured it out yet, maybe loss of control and force-flee. Now here&#39;s the configurable part. Creatures have a recovery rate. So if after a &quot;fear&quot; spell the morale drops to zero, how long will it take the creatures to get back to high morale? And here&#39;s the other fun bit: creatures also have a morale range, that can exceed 0 and 1. A particularly brave creature could have morale between 0 and 2. So it will take a lot more to truly strike fear into such a creature. Whereas a particularly wimpy creature could have a morale between -1 and 1, so that, if it reaches rock-bottom morale, it will take even longer to get back to 0.5. </li>
+<li><strong>Morale adjustment effect</strong>. To implement actions/spells/etc that adjust morale, we need to write a morale adjustment effect class. </li>
+<li><strong>Minion behavior configuration</strong>. Different creatures have different behaviors when they&#39;re minions. Wimpy creatures might get scared when the leader dies. Brave creatures might get angry when the leader dies. Angry? What does that mean?</li>
+<li><strong>Add &quot;enraged&quot; status effect</strong>. Added an effect that gives 20% more damage and 20% less attack rating (chance to hit). Placeholder.</li>
+<li><strong>Morale failure on leader death</strong>. Ok, now I have 2 different minion behaviors: one for enraged, one for getting scared. So, how to implement this behavior? I need to store correspondence between minions and leader. Instead of saving that with the entities, because the minion-leader relationship is a rarer occurence than independent creatures, I chose to store these relationships in the creature system, bidirectionally (leader -&gt; minions and each minion to leader). So, now, when a leader dies, we can access all minions and trigger some &quot;on leader death&quot; behavior. For coward minions, this behavior is setting morale to 0. For some other minions, this behavior is setting the status effect &quot;enraged&quot; for a few rounds. </li>
+<li><strong>No-morale creatures</strong>. Not all creatures are susceptible to morale effects. I had to add an &quot;Emotionless&quot; intrinsic property for creatures, so that they don&#39;t have morale, and morale effects don&#39;t apply to them.</li>
+<li><strong>Minion proximity to leader</strong>. Some minions might want to be closer to the leader, others don&#39;t mind that much. Again, that&#39;s a candidate value in the per-minion configuration. I devised some simple formula which works alright, that based on distance to the leader (in terms of steps) and desire to be nearby (between 0 and 1), return the chance of taking a step towards the leader. This formula is simply clamp(0.8+desire-0.2*max(10 - steps,0)). </li>
+<li><strong>Console commands for kill/teleport</strong>. To test the behaviors, I had to implement 2 console commands: &quot;kill&quot; and &quot;teleport&quot;, parameterised on the entity (by name, hovered or player). So we can be at a safe distance, hover over the leader, type &quot;teleport&quot; and then watch as the minions chase their telepathically-linked leader (minions always know where their leader is)</li>
+<li><strong>Fleeing behavior bug-fixing</strong>. While testing the fleeing behavior, I fixed a couple of bugs I found there</li>
+<li><strong>Creature swapping behavior</strong>. I have already implemented creature swapping behavior which works fine. It works with a cooldown, so creatures can&#39;t keep swapping on repeat. Now I realised that if a leader is trapped in a small room at the end of a corridor and there&#39;s a number of followers on the trail blocking everything, the leader can never leave because the followers will try to approach the leader. So, I&#39;ve adjusted the creature swapping code so that leaders can <strong>always</strong> swap with minions (ignoring cooldown), and minions can <strong>never</strong> swap with a leader. Problem solved!</li>
+<li><strong>Summoned creature duration</strong>. If a dire wolf summons some creatures and the creatures live indefinitely, the numbers will grow very quickly. So I&#39;ve added optional limited duration to summoned creatures. This works great, now they disappear after a while, as I just destroy the entity. </li>
+<li><strong>Summoned entity equipment after they&#39;re banished</strong>. I added some new creatures with equipment: a goblin commander that can summon goblins, that are equipped with swords. Now, when the goblins were unsummoned, their swords dropped as loot. Oops! I do not like that, as it sounds abusable. So, I had to go back and refactor code and add more listeners, to differentiate between an entity being killed (very gamey, drop loot if it has) and an entity object being destroyed (very programmey: release resources, send messages etc). </li>
+</ul>
+<p>So, a seemingly little thing like adding minion/leader relationship can point to lots of areas that need to be implemented to support such behavior. Going through all that I found a few areas for refactor, so onto that...</p>
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/summon_wolves_enrage_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>A dire wolf summons wolves. When their leader dies, they get enraged. Oops. </figcaption>
+</figure>

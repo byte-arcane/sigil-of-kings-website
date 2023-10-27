@@ -1,0 +1,112 @@
+---
+layout: post
+title: 'Autotiling Adventures Part III: Detail biome textures and animated coastal
+  waves'
+date: 2018-03-08 17:07:25.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _oembed_b6548ee61c70fe1193cbf01004ae6862: "{{unknown}}"
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618993966;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1822;}i:1;a:1:{s:2:"id";i:1853;}i:2;a:1:{s:2:"id";i:3107;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '49'
+author:
+permalink: "/2018/03/08/autotiling-adventures-part-iii-detail-biome-textures/"
+---
+<p>Previously I generated <a href="{{ site.baseurl }}/2018/02/23/autotiling-adventures-part-ii-procedural-masks-for-biomes-and-rivers/">procedural masks for biome and rivers,</a> but using constant color for each biome (river too). So, I ended up with nice outlines, but still the result was looking flat. So, I thought I'd add some procedural variation to the color using Simplex noise. Needless to say, the result was underwhelming. So, after quite a bit of hunting, I rediscovered a website that I had stumbled upon years ago:  <a href="https://www.spriters-resource.com/">The Spriters Resource</a>! What got me really excited back then (even though I eventually forgot) is that I found there tile art for, among other games, <a href="https://en.wikipedia.org/wiki/Heroes_of_Might_and_Magic_III">Heroes of Might and Mag<a href="{{ site.baseurl }}/assets/2018/03/281245-bdmzafobvu_thumb740.jpg" target="_blank"><img src="{{ site.baseurl }}/assets/2018/03/281245-bdmzafobvu_thumb740.jpg" alt=" Heroes of Might and Magic III" width="740" height="555" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2018/03/variants/281245-bdmzafobvu_thumb740.webp 740w, {{ site.baseurl }}/assets/2018/03/variants/281245-bdmzafobvu_thumb740-320w.webp 320w"/></a><figcaption> Heroes of Might and Magic III</figcaption></p>
+<p>And, surely enough, found <a href="https://www.spriters-resource.com/pc_computer/heroes3/sheet/43587/">the section for the world tiles</a>! (the bg folder in the zip file). Of course, these are commercial assets so I can only use them for testing things out, but they are <em>perfect</em> for that, as I wanted to go for that art style anyway.</p>
+<p>So, each terrain type has a bunch of 32x32 images that represent the terrain in its entirety, or transition tiles. I was too lazy to search online if there's any rhyme or reason to the naming of those files, so I did the natural thing: run some batched image processing using ImageMagick to identify the tileable images.</p>
+<p><strong>Step 1: Find out the seamless tiles in all directions</strong></p>
+<p>To find out which images tile with themselves, I ran a tiling scipt. A python call for imagemagick commandline looks like this:</p>
+{% highlight python %}
+"magick montage {}-geometry +0+0 {}".format( (file_in + " ") * numrepeats * numrepeats, file_out)
+{% endhighlight %}
+<p>where file_in is the input 32x32 file, file_out is the output tiled file, and numrepeats is the number of tile repeats in each axis.</p>
+<p>Results look like this:</p>
+<p><figure><img class="imgmax" src="{{ site.baseurl }}/assets/2018/03/watrtl25.webp" alt="" width="256" height="256" /><figcaption> Good tile</figcaption></figure></p>
+<p><figure><img class="imgmax" src="{{ site.baseurl }}/assets/2018/03/tgrd013.webp" alt="" width="256" height="256" /><figcaption> Bad tile (it's a transition tile)</figcaption></figure></p>
+<p>So, great, now I have a list of tiles that are seamless with themselves. But, would they be seamless with other tiles?</p>
+<p><strong>Step 2: Add labels to tiles</strong></p>
+<p>Files are of the form "watrtl14.png", "tgrd023.png", etc. So, a prefix for the terrain type, and a number of the id. So, next step is to create images with a label in the middle of the image displaying the tile id:</p>
+{% highlight python %}
+"magick convert {} -gravity center -annotate +0+0 {} {}".format(file, label, file_out)
+{% endhighlight %}
+<p>Result is like this:</p>
+<p><img class="imgc" src="{{ site.baseurl }}/assets/2018/03/tsab003.webp" alt="" width="32" height="32" /></p>
+<p>&nbsp;</p>
+<p><strong>Step 3: Montage of different, labeled tiles</strong></p>
+<p>So now here comes the fun part. As we have a version of all the images labeled, I run a montage again as in step 1, but with the following changes:</p>
+<ul>
+<li>Use the labeled images as the base tiles</li>
+<li>If we have 20 images for a terrain, I sample from this set randomly to populate a 12x12 tile grid. This will show what doesn't match with what else! Here's an example</li>
+</ul>
+<p><figure><img class="imgmax" src="{{ site.baseurl }}/assets/2018/03/tsub.webp" alt="" width="384" height="384" /><figcaption> All tiles match well with each other!</figcaption></figure></p>
+<p>&nbsp;</p>
+<p>
+<figure>
+<img class="imgmax" src="{{ site.baseurl }}/assets/2018/03/tgrb.webp" alt="" width="384" height="384" /> 
+<figcaption>There are some tile IDs that are darker compared to their neighbours. Reading the labels, I can quickly identify them: 17,22,23,24,25</figcaption>
+</figure></p>
+<p><strong>Step 4: Assemble the texture array</strong></p>
+<p>Now I select which image set will be used for which biome, e.g. the water images are used for the water biomes (4 of them), by creating variants that are slightly processed in terms of histogram/levels. For each biome, I select a random subset of 16 images. As I have 16 biomes, I end up with 256 image.</p>
+<p>So, after a bit of work, the resulting texture looks like this:</p>
+<p><img class="imgmax" src="{{ site.baseurl }}/assets/2018/03/biome_detail_textures2.webp" alt="" width="512" height="512" /></p>
+<p>Well, in reality I'm using a source image of 32x8192 which gets interpreted as a texture array of 256 slices, so that I don't have to write manual code for correct mipmapping in the texture atlas. From a quick performance test, there didn't seem to be much difference.</p>
+<p>So that's all for how we create the detail texture atlas! Now onto applying it. There's not much to write about how to apply it, as I'm just sampling the texture instead of using  a constant color. So, here's a before/after comparison:</p>
+<p><a href="{{ site.baseurl }}/assets/2018/03/original.webp"><img class="imgmax" src="{{ site.baseurl }}/assets/2018/03/original_thumb740.webp" alt="" width="1023" height="1025" /></a></p>
+<p><a href="{{ site.baseurl }}/assets/2018/03/nodetail.webp"><img class="imgmax" src="{{ site.baseurl }}/assets/2018/03/nodetail_thumb740.webp" alt="" width="1023" height="1025" /></a></p>
+<p><a href="{{ site.baseurl }}/assets/2018/03/detail.webp"><img class="imgmax" src="{{ site.baseurl }}/assets/2018/03/detail_thumb740.webp" alt="" width="1023" height="1025" /></a></p>
+<p><a href="{{ site.baseurl }}/assets/2018/03/detail_coast.webp"><img class="imgmax" src="{{ site.baseurl }}/assets/2018/03/detail_coast_thumb740.webp" alt="" width="1023" height="1025" /></a></p>
+<p>For the observant readers: there's some slight artifact at the tile borders in the above images (and the video below) - this was some incorrect fract() operator on the UV coordinates, this has now been fixed. Here's the associated video in all its animated glory:</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/iGB0-cGFz-w" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/iGB0-cGFz-w?autoplay=1><img src=https://img.youtube.com/vi/iGB0-cGFz-w/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video iGB0-cGFz-w"></iframe>
+</div>
+<p>The video shows before-and-after the detail textures, the coastal animation, scrolling and zooming in/out on the map.  For zoom in/out, I'm using texture filtering like this:</p>
+<ul>
+<li>min filter: linear mipmap linear (to prevent noise at zoomed out level)</li>
+<li>mag filter: nearest (I still want it to look pixely when you zoom in)</li>
+<li>wrap mode: repeat ( it's a texture array, so the filtering is taken care of automatically)</li>
+</ul>
+<p>Nevertheless, I found <a href="http://www.dfworkshop.net/improved-terrain-tiling/">some other resource</a> for future reference for manual filtering/mipmapping if at some point I have to use a regular atlas rather than a texture array.</p>
+<p><strong>Coastal waves animation</strong></p>
+<p>So that's a nice-looking gimmick, but I'm going to write a bit about how it was implemented anyway.</p>
+<p>Remember, instead of storing bitmasks for the biome transitions, we're storing distance fields to the boundary. When rendering, I process the layers one by one, and I'm blending the biome colours. It helps that the seacoast is biome type 0 and the water biomes are types 1,2,3 or 4. So, if there's coast, it will <strong>always </strong>be the biome type in layer index 0. And if there's water, it will be right after. So, I need the following conditions to be true:</p>
+<ul>
+<li>current layer is a water layer</li>
+<li>first layer is coast</li>
+<li>pixel distance field value from boundary of current layer is negative (pixel is within the mask, ie. our "current" biome)</li>
+</ul>
+<p>We need to have recorded the distance field value of the biome in layer index 1, regardless of the layer we're on. This ensures that this is the distance of the first water layer to the coast, which is what we need (the "to the coast" is the crucial bit, as the distance field records values against the previous layer, and we don't want abyssal sea distance to deep sea, if coast, deep sea and abyssal sea are layers on the same tile)</p>
+<p>So, now that we have these, we need to compute the waves. For the waves, I'll let code do the talking, as it is noise, domain warping, and the usual:</p>
+{% highlight cpp %}
+float t = g_TotalTime*3;
+t += 4.1*( snoise2(var_actual_pos*1)*0.5 + 0.5);
+float cmpDist = 0.45 + 0.02*(sin(t)*0.5 + 0.5);
+cmpDist = 0.41;
+if ( layer1dist > cmpDist)
+{
+    vec3 coastal_water_color = vec3(0.7,0.95,1.0);
+    
+    // Put crests at certain distances
+    float distFromBoundary = layer1dist;
+    float phase = -0.5*t + 2.0*( snoise2(var_actual_pos*10)*0.5 + 0.5) ;
+    float dmin = cmpDist;
+    float dmax = 0.5;
+    float dn = (clamp(distFromBoundary,dmin,dmax) - dmin) / (dmax-dmin);
+    float mixFactor = pow( sin(phase + dn*11.0)*0.5 + 0.5, 4.0); // sharpen the result with pow. adjust the phase with time    
+    mixFactor *= smoothstep( -0.4, 0.4, snoise3( vec3(var_actual_pos*2.0 + vec2(1000),t*0.05)));
+    
+    mixFactor *= dn; // smoothly fade out the wave at the boundary distance
+    curcolor.xyz = mix( curcolor.xyz, coastal_water_color.xyz, mixFactor);
+}
+{% endhighlight %}
+<p>On note about the cmpDist variable. 0.5 is exactly at the boundary ( I encode a signed distance field in [0,1]), and a value slightly away from the coast would be around 0.45.</p>
+<p>Next time I'll try my luck with prop placement, and I'll see if I can extract any sample props from that HoMM resource again for test use. But I might actually stop soon with the art, as I think now it should be good enough.</p>

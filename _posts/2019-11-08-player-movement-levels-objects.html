@@ -1,0 +1,106 @@
+---
+layout: post
+title: Player movement, levels, objects
+date: 2019-11-08 10:35:53.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619235960;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2114;}i:1;a:1:{s:2:"id";i:1949;}i:2;a:1:{s:2:"id";i:1945;}}}}
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '20'
+author:
+permalink: "/2019/11/08/player-movement-levels-objects/"
+---
+<p><!-- wp:paragraph --></p>
+<p>Given the field of vision implementation from last time, I decided it was time to test it and make the game a bit interactive, by allowing the user control of a character. This has been <strong>really</strong> important, as it has forced me to focus on making level transitions, ensuring movement cost maps and visibility maps work ok, ensuring that save/load works correctly, and a myriad of small little things. Below are a few videos and a list of things done since the last blog post:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:core-embed/youtube {"url":"https://www.youtube.com/watch?v=AlqCzoffPp8","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed-youtube wp-block-embed is-type-video is-provider-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/AlqCzoffPp8" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<figcaption>Animated and fuzzy fog of war</figcaption>
+</figure>
+<p><!-- /wp:core-embed/youtube --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Better fog of war this time, implemented as a simple pixel shader. It's simple, it's  fast, looks better and does the job for now. The video also shows <a href="https://youtu.be/AlqCzoffPp8?t=20">from about here</a>  that now sprites flip horizontally when moving towards the other  direction, while when moving vertically they preserve whatever direction  they were facing. This costs 1 bit in the 128-bit data per moving  sprite, not a big loss or cost :)</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Added functionality for level movement costs (slightly different than  overworld moving costs), consisting of background (walls/floor/liquids)  and static objects.</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>A* and all other path calculators take into account that diagonal  movement is only allowed when the related cardinal directions are  passable.</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Creatures have light sensitivity, and overworld and dungeons have light levels, that affect line of sight radius.</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>I wanted to refactor a bit of the territory system regarding  propagation of influence by replacing the data per tile from class  (reference type) to struct (value type), so that led to an exciting  journey of more changes, fixes, bug discoveries and further bug fixes,  and now it seems to be back on track, better, with less code and fewer  bugs.</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Field of vision optimisation that, when the player/sensor moves to an  adjacent tile, we only clear the visible data from the surrounding  circle with Los+1 radius, instead of clearing the entire map. This of  course is not uncommon, but it also had to be done, as now the related  performance cost went from 50ms to 0.2ms when the player moves in the  overworld, because the refreshed tiles went from 512x512 to 20x20.</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>So far I wanted to have entity "configurations"  which are objects that store the exact information to generate an  entity, but decided against that due to the cases when entities have to  reference other entities during the generation before the entities are  created. So now, for example, when procedurally generating a lock and  key, I have to create both entities, configure them, put the reference  of the door needing the particular key entity to be unlocked, and then  call the magic function "EntityBeginPlay" which makes the entity visible  to the game, listeners, other entities etc.</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Level objects (fountains, chests, etc) can now affect movement and visibility. Can now push level objects and update movement/visibility maps appropriately. Also, added doors, and can open and close them at will, blocking movement/visibility. Also, as a fun sanity check, when pushing a fountain in an open door, door can't close.    </li>
+<li>Explored map disintegrates a bit when revisiting a level. Should later do it based on last visit time. Static objects disappear in explored areas when revisiting a map</li>
+<li>Save/Load works from overworld and levels</li>
+<li>Sparse 2D multimaps to store level objects and creatures</li>
+<li>Ctrl+click moves character towards highlighted path, right click cancels path (this is for fast debugging, should later change with the introduction of turn system)</li>
+<li>Slightly more  flexible sprite rendering, with a list of animations and indices per animation type. So I have a "default", "moving", "death" etc animation types, and I can have for example "door closed" "door open" "door locked" as different animations per type.</li>
+<li>Simplex noise precomputed inverse distribution function and cumulative distribution function. I wanted mainly the IDF, for cavern generation, as I wanted a scalar variable "density" to control how open or claustrophobic a cavern map is. I wanted density to vary in a linear way. My caverns are generated using thresholded Simplex noise. <strong>But the Simplex noise distribution is not uniform</strong> therefore the threshold value does not exhibit linear behaviour.  Therefore IDF can be pre-calculated and used instead as density, as we feed it a probability value (that can be linear) and we get as output the threshold value to use. So, I did a test with this new variation, and for 10% density to 90% density the <strong>final</strong> map (after connectivity, etc) looks as follows:
+</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:image {"id":2262,"align":"center","width":617,"height":617} --></p>
+<div class="wp-block-image">
+<figure><img class="imgmax" src="{{ site.baseurl }}/assets/2019/11/cavern_density.webp" alt="" class="wp-image-2262" width="617" height="617" /><br />
+<figcaption>White is open space. The maps get progressively more constrained in a linear way. The last map is very constrained, therefore a lot of parts have been discarded post-connectivity</figcaption>
+</figure>
+</div>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>Here's a video showcasing:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Level transitions and overworld-level transitions</li>
+<li>Fast-path traversal</li>
+<li>Pushing objects</li>
+<li>Opening-closing doors</li>
+<li>Degradation of explored map after leaving level </li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:core-embed/youtube {"url":"https://youtu.be/j48ZRYJ0Ll8","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed-youtube wp-block-embed is-type-video is-provider-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/j48ZRYJ0Ll8" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/j48ZRYJ0Ll8?autoplay=1><img src=https://img.youtube.com/vi/j48ZRYJ0Ll8/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video j48ZRYJ0Ll8"></iframe>
+</div>
+</figure>
+<p><!-- /wp:core-embed/youtube --></p>

@@ -1,0 +1,44 @@
+---
+layout: post
+title: Dungeon generation parameterization
+date: 2021-06-09 00:22:55.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2021/06/lighthouse_map.webp
+meta:
+author:
+permalink: "2021/06/09/dungeon-generation-parameterization/"
+---
+
+<figure><a href="{{ site.baseurl }}/assets/2021/06/lighthouse_map.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2021/06/lighthouse_map.webp" alt="Lighthouse map" width="995" height="859" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2021/06/variants/lighthouse_map.webp 995w, {{ site.baseurl }}/assets/2021/06/variants/lighthouse_map-640w.webp 640w, {{ site.baseurl }}/assets/2021/06/variants/lighthouse_map-320w.webp 320w"/></a><br />
+<figcaption>Lighthouse map</figcaption>
+</figure>
+
+<p>It seems that the main difficulty that I was having in terms of configuring the dungeon generator, is now gone. The dungeon parameterization process was torn apart, rewritten, debugged (somewhat) and is now quite satisfactory! The key difference to before is that I now pre-generate dungeon <em>templates</em> that include all <strong>constant</strong> parameters in JSON, and can be instantiated with some dynamic parameters. Example of a static parameter is dungeon architecture (cavernous, dungeon, outdoors) and an example of a dynamic parameter is biome, which would depend on the biome that the dungeon is spawned in. I'm also allowing overrides for the first level (entry level), for the boss level (if there is one) and for secret/side levels (if there are any). So for example, just using JSON, we can specify the first level to be a jungle ("biome" architecture) that leads to some ruins (TBD) that the player descends to level 2, which can be a traditional dungeon, and the last level could be a big cavern. Secret/side level could be a standard dungeon that leads to a pre-made vault zone. In the below video is an example map like that: the outer level is coastal + large circle-shaped dungeon (entry level + outdoors zone), followed by a dungeon level (default-middle level(s)), followed by a narrow cavernous level (final)</p>
+<p>More and more things get converted to presets and re-used: the collection of rooms for use within a dungeon are now preset based, so that we can have different dungeon generator presets that produce markedly different dungeons based on the prefab rooms. Sparse feature distribution (e.g. encounters, treasure, secret doors, traps) are also preset-based, so that we can predefine distributions more suitable for trap-heavy levels, or other distributions more suitable for the wilderness.</p>
+
+<figure>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/MoONSv0Oe_Y " allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/MoONSv0Oe_Y ?autoplay=1><img src=https://img.youtube.com/vi/MoONSv0Oe_Y /hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Testing a lighthouse map, using different layouts depending on the level"></iframe>
+</div>
+<figcaption>Testing a lighthouse map, using different layouts depending on the level</figcaption>
+</figure>
+
+<h3><strong>Other useful tidbits:</strong></h3>
+<ul>
+<li>If a creature is standing on stairs and the player tries to enter that level, the creature will be displaced to a neighbouring tile</li>
+<li>Coastal dungeons are spawned at the correct side, based on where we are on the overworld. Example video below.</li>
+</ul>
+
+<p><!-- wp:embed {"url":"https://i.imgur.com/qUO14nN.mp4","type":"rich","providerNameSlug":"embed-handler","responsive":true,"className":""} --></p>
+<figure>
+<div class="video-container"><iframe src="{{ site.baseurl }}/assets/video/seaside2_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Coastal dungeons generated with the sea at the correct side</figcaption>
+</figure>
+<p><!-- /wp:embed --></p>

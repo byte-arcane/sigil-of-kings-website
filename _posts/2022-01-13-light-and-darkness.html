@@ -1,0 +1,42 @@
+---
+layout: post
+title: Light and Darkness
+date: 2022-01-13 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+video: assets/video/lamp_tw.mp4
+meta:
+author:
+permalink: "/2022/01/13/light-and-darkness/"
+---
+
+<p>A kitchen sink of updates this week, including visuals, gameplay, &quot;UI&quot; and some refactoring.</p>
+<p><strong>Light and darkness</strong>. While I&#39;m currently supporting dynamic lighting and light sources, the only light sources that I had so far were torches/braziers (on walls or floor), so no light spell or other item effects. Obviously this needed fixing, as I&#39;ve put a bit of work on the lighting system, so it can&#39;t be a one-trick-pony. What I&#39;ve done now is:</p>
+<ul>
+<li>Added support for a &quot;touch of light&quot; spell. With this placeholder spell, any item or creature within melee distance of the caster can be temporarily be converted into a light source (caster included). Light does not penetrate walls (so it&#39;s not euclidean distance to source)</li>
+<li>Added support for a &quot;touch of darkness&quot; spell. This is very similar, but the target becomes a beacon of darkness, reducing light at a maximum at the target, and the effect gradually reduces using euclidean distance (so, it does penetrate walls)</li>
+</ul>
+
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/lamp_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Using a lamp, then throwing it in the dark dungeon entrance. Surprise! </figcaption>
+</figure>
+
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/touch_of_light_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Casting a light spell on the skeleton, converting our bony friend to a beacon of light, to illuminate the dark dungeon while he's chasing us</figcaption>
+</figure>
+
+<p>At the moment, what I dislike is that the unexplored fog of war and maximum darkness look exactly the same, and while that&#39;s acceptable in ASCII due to inherent constraints, here it&#39;s just my creativity (and my shader&#39;s complexity) that are currently limiting me from a better solution.</p>
+<p><strong>Level messages</strong>. When the player enters a level for the first time, they make a comment (for flavour), like &quot;this place reeks of death and decay&quot;, which appears like a text bubble. I have a bunch of these messages, and each is associated with certain requirements (level type, climate, level tags), so only a relevant message will get selected.</p>
+<p><strong>Adventure location status icons</strong>. I wanted to generalize the mini-UI that is shown when hovering over creatures, that shows health, awareness state, disposition to player etc. I want something similar for non-creatures as well, for example adventure locations in the overworld, which could show the danger level (easy, normal, hard), if we&#39;ve ever visited the location, and if there&#39;s some active quest in there, so I added support for that by refactoring a bit. Next support would be a similar UI for level objects (e.g. graves, fountains, bookshelves), but because the code is now generalized, the hardest part is to just find some nice icons and decide what info I want to show.</p>
+<p><strong>Dungeon feature placement database refactor</strong>. This was some semi-major internal refactor work, that thankfully resulted in easier-to-use dungeon feature specification. So now instead of creating presets for each dungeon type of which features they support and with what distribution (which is very tedious), I instead have the features specify requirements, for when they should spawn. The requirements can also specify some weighting adjustments based on tags, so we can apply tags to boost or reduce the chances of a feature appearing. This works now and resulted in overall code reduction, but I have to explore some more edge cases to ensure it&#39;s flexible enough as-is.</p>
+<p>Also, very minor fix, torches don&#39;t spawn next to each other, as the specification for this feature type now includes &quot;don&#39;t place a feature on a tile that&#39;s adjacent to another such feature&quot;</p>

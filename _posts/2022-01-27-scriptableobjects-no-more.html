@@ -1,0 +1,27 @@
+---
+layout: post
+title: ScriptableObjects no more
+date: 2022-01-27 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+video: assets/video/composable_ingame_tw.mp4
+meta:
+author:
+permalink: "/2022/01/27/scriptableobjects-no-more/"
+---
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/composable_ingame_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Equipping sword and shield. </figcaption>
+</figure>
+
+<p>So while last week I was going gung ho to implement the composable sprite system in-game, I hit a brick wall. For sprite rendering I was using some texture atlas objects which were the only ScriptableObject class left in the codebase; it was left because it was a convenient way to keep the texture data (Texture2DArray assets) and some configuration data (animation names and indices in the array) together. Also, because the animation names could be a long string array, having everything pre-loaded as a ScriptableObject was also performant (not paying runtime costs for loading/parsing these configurations). So, all my sprite rendering code used a sprite definition which contained the animation/sprite &quot;name&quot; and some reference to the texture atlas.</p>
+<p>But, with these composable sprites, I wanted to be able to have a dynamic texture array, that I can write to when I create a novel layer configuration (some particular body with some particular helmet and a particular weapon etc). Oops, you can&#39;t do that with ScriptableObjects. The inspector hates that (&quot;texture mismatch&quot;) and who knows the behaviour in a build. So, yet again, refactoring time: instead of scriptable objects, texture atlases are now part of the rest configuration database system (regular JSON files), and instead of storing textures, I used a custom struct which, depending on the atlas name, it will either fetch an existing texture array from a loaded asset database, or it will create one (given specifications in the JSON file), store it in some runtime resources class (where I store other non-serializable assets, like compute buffers, dynamic textures and arrays, etc) and then keep fetching it from there in the future.</p>
+<p>Loading time increased a bit, because the JSON files (which include thousands of sprite/animation names) are bigger: whereas the entire JSON database was about 500KB before, it became greater than 900KB, but after minifying the JSON file and removing some unutilised sprite/animation names it went down to 730KB, and I think I&#39;ll leave it as-is for now. Maybe later I can optionally load bson and convert a few of the bigger json ones to that format. </p>
+<p>So in the end everything worked, but the composable sprite implementation is still buggy. More on that front next week!</p>

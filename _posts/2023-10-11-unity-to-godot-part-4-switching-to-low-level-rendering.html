@@ -1,0 +1,46 @@
+---
+layout: post
+title: "Unity to Godot Part 4: Switching to low-level rendering"
+date: 2023-10-11 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/10/instances.png
+meta:
+author:
+permalink: "/2023/10/11/unity-to-godot-part-4-switching-to-low-level-rendering/"
+---
+
+<p><strong>GPU Instancing</strong></p>
+<p>Now that the overworld generation is ported, before I go onwards to porting resource generation etc, I had a sudden realisation. I have more weird rendering requirements, one of them being GPU instancing. If you are not familiar, it&#39;s a technique where you can display lots and lots of entities very cheaply by reusing some properties, e.g. the mesh or the texture atlas, and having some other properties unique (per-instance data) e.g. sprite index, transform, etc. </p>
+<p>So, does Godot support instancing? <a href="https://docs.godotengine.org/en/stable/classes/class_multimesh.html">Yes, using MultiMesh</a> ... but multimesh is tightly coupled with Godot&#39;s rendering infrastructure, which is possibly tied to nodes being the units of rendering. Oh-oh. I&#39;ve been trying to using MultiMeshInstance2D, but I&#39;ve been very unsuccessful. It looks like the class is in some sort of <a href="https://github.com/godotengine/godot-docs/issues/5967">messy state as of now</a>. Also, the fact that Transforms are explicitly set from C# is not promising either, as I package things up in GPU buffers. <a href="https://www.youtube.com/watch?v=mscJW51dotE">There is a useful video</a> that shows how you can use it, but it involves a lot of manual editor steps, which I&#39;m not a fan of, at all. </p>
+<p>Alright, now here&#39;s a crazy idea. Why not go down to the metal? The RenderingDevice, that I familiarised myself with, is quite low level and supports easily things like instancing. What&#39;s more important, it allows for fully custom rendering, which I like the sound of. Now, I can already hear you: &quot;Why reinvent the wheel?&quot;, &quot;Sounds very complicated&quot;, &quot;Sounds like a rabbit hole&quot; and so on. But, truth is, my rendering needs are very simple. So, excluding UI which can be rendered traditionally, what are my rendering requirements?</p>
+<ul>
+<li>Render a quad with a shader (overworld background, level background layers, post-process effects)</li>
+<li>Render many instances of a quad with a shader (sprites, particles, ... everything else)</li>
+</ul>
+<p>Yep, that&#39;s it. Doesn&#39;t look that complicated now, right? So, what&#39;s needed from the RenderingDevice? creating/using framebuffer/texture/render pipeline/shader/framebuffer format/vertex format/push constants etc. All the gory details.</p>
+<p>After a while, and <a href="https://github.com/godotengine/godot/pull/81333">crashing into some bugs on the way</a>, and <a href="https://github.com/godotengine/godot-proposals/issues/6964">hitting limitations</a>, I got a proof of concept: using the low-level rendering engine to do some low-level work (instanced rendering) and render to a framebuffer whose results are shown on a sprite! I can&#39;t begin to express how exciting this is. The cost is 0.8ms to copy from the framebuffer to the Sprite2D texture. Fine.</p>
+<p>Now for the final test: create and bind a texture array and use that to render sprite instances. After half an hour, success! This changes <em>everything</em>. Proof of concept is complete. The non-UI game visuals will be rendered with the low-level rendering engine. I&#39;m going to write a wrapper around the Vulkan code, so that it exposes exactly what I need (which is not <em>that</em> much).</p>
+<p><strong>A low-level custom render pipeline</strong></p>
+<p>This might seem like a rabbit hole, but my gut feeling says otherwise. The intent here is to use the low-level Vulkan wrappers to do most of the game rendering (including camera handling), and use the regular Godot functionality to render the GUI. The low-level wrappers are more complete and allow far greater freedom in rendering, but they are far more verbose. My rendering requirements are non-standard but limited in variety, so the verbosity can be handled non-painfully. </p>
+<p>One fresh casualty of the custom render pipeline is the use of Godot&#39;s Camera2D node. Since the game graphics will be rendered on a sprite that fills the screen, this means that the Camera should follow suit and be defined at this low-level. Thankfully, it&#39;s not that hard to make a 2D camera, especially with helpers like the GLM library that can easily set up orthographic projection and view matrices easily. </p>
+<p>Work has been progressing on this front, slightly slower due to some holidays, but so far what&#39;s achieved:</p>
+<ul>
+<li>Rendering a full-screen quad with the &quot;game&quot;&#39;s content (there&#39;s no content, just random sprite splatting for now)</li>
+<li>Rendering instanced sprites</li>
+<li>2D camera, supporting pan/zoom/screenshake, working at this low level</li>
+<li>Tests using multisampled rendertargets (I&#39;ve got some pixel swimming issues)</li>
+<li>Utility code to build/cache texture arrays including mipmap generation: the texture arrays will be used as the sprite atlases</li>
+</ul>
+<p>Closing with a video of a custom camera panning/zooming/shaking over 10 million sprite instances at 60fps. Not bad!</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/dTih1lzXEac" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/dTih1lzXEac?autoplay=1><img src=https://img.youtube.com/vi/dTih1lzXEac/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="10 million sprites"/></div>
+<figcaption>10 million sprites</figcaption>
+</figure>

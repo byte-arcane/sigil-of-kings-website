@@ -1,0 +1,80 @@
+---
+layout: post
+title: 'Porting to Unity IX: Overworld Props'
+date: 2019-04-10 09:51:43.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- art
+- programming
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618853957;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1890;}i:1;a:1:{s:2:"id";i:3150;}i:2;a:1:{s:2:"id";i:1853;}}}}
+  _publicize_twitter_user: "@aotdev1"
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '24'
+author:
+permalink: "/2019/04/10/porting-to-unity-ix-overworld-props/"
+---
+<p><!-- wp:image {"id":2128} --></p>
+<figure class="wp-block-image"><a href="{{ site.baseurl }}/assets/2019/04/image.webp"><img src="{{ site.baseurl }}/assets/2019/04/image_thumb740.webp" alt="" class="wp-image-2128" width="740" height="462" loading="lazy"/></a></figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>This wraps up the overworld map graphics for now, as it did <a href="{{ site.baseurl }}/2018/04/05/autotiling-adventures-part-iv-mountains-trees-and-props/">in the last series</a>. Again I'm temporarily using HoMM 3 assets for demonstration purposes, but the concepts are generally applicable. The prop texture atlas contains subtextures that are multiples of 32, so I'll call that a prop tile. E.g. some mountain ranges occupy 6x4 prop tiles, while a single tree stump would occupy 1x1 prop tile. The parts that have been changed since last time are steps 3 &amp; 4: placement and rendering.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":3} --></p>
+<h3>Procedural placement</h3>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Placement is done as a series of steps: </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Place high mountains</li>
+<li>Fill high mountains</li>
+<li>Place mountains</li>
+<li>Place vegetation</li>
+<li>Place misc props</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>Placed props may overlap if this is supported (see composition group in above linked post). All of the steps follow a similar pattern:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Generate a step-specific set of candidate tiles to place the props</li>
+<li>Select a step-specific subset of props to be placed</li>
+<li>Run the placement process, checking composition groups, neighbour tiles, compatible biomes, etc</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>When we've placed everything, we do:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Sort from top-to-bottom of the map so that props in the foreground occlude props in the background (tiles further up/back). </li>
+<li>Remove props that are completely covered by other props</li>
+<li>Generate a 2D texture array that stores placement info (for each tile, which corresponding prop tile from the atlas we should be rendering)</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>Here are the results of the placement algorithm:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:core-embed/youtube {"url":"https://www.youtube.com/watch?v=-9K-o_DJ0hg","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed-youtube wp-block-embed is-type-video is-provider-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/-9K-o_DJ0hg" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/-9K-o_DJ0hg?autoplay=1><img src=https://img.youtube.com/vi/-9K-o_DJ0hg/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video -9K-o_DJ0hg"></iframe>
+</div>
+</figure>
+<p><!-- /wp:core-embed/youtube --></p>
+<p><!-- wp:paragraph --></p>
+<p>And here's a super-resolution image of the map</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:html --></p>
+<iframe allowfullscreen="true" src="https://www.easyzoom.com/embed/381927925ac04d988f163fa8fa4c7b3a" width="780" height="440"></iframe>
+<p><!-- /wp:html --></p>

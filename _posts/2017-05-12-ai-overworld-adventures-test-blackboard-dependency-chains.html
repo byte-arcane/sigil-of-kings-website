@@ -1,0 +1,76 @@
+---
+layout: post
+title: 'AI: Overworld Adventures Test - Blackboard Dependency Chains'
+date: 2017-05-12 09:26:07.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_published: '1'
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '4965603828'
+  _oembed_095d1ed63e11b59ccf10b47ebd821600: "{{unknown}}"
+  _oembed_85e67ea5020aa845b5fedae1591c88ce: "{{unknown}}"
+  _oembed_4cd5b8f5d6685b91e68e95bc219a9c9e: <iframe width="630" height="354" src="https://www.youtube.com/embed/SD9AZkYGNss?feature=oembed"
+    frameborder="0" allowfullscreen></iframe>
+  _oembed_time_4cd5b8f5d6685b91e68e95bc219a9c9e: '1506329330'
+  _jetpack_related_posts_cache: a:2:{s:32:"8f60f009f0e5c5814e1aa8fae4aecdeb";a:2:{s:7:"expires";i:1615676220;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1284;}i:1;a:1:{s:2:"id";i:1241;}i:2;a:1:{s:2:"id";i:964;}}}s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1615676258;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1284;}i:1;a:1:{s:2:"id";i:1241;}i:2;a:1:{s:2:"id";i:964;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '64'
+author:
+permalink: "/2017/05/12/ai-overworld-adventures-test-blackboard-dependency-chains/"
+---
+<p>As I said last time, I modified the test to include a basic hunger clock: Heroes start with 100 rations, rations can be bought at the rate of 10/coin and they are consumed at the rate of 1/tile (diagonals cost 1.41). I added the appropriate bits in the behavior tree, added some utility-specific stuff and voila, the heroes actually survive for a while using utility AI + behavior trees!</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/SD9AZkYGNss" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/SD9AZkYGNss?autoplay=1><img src=https://img.youtube.com/vi/SD9AZkYGNss/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video SD9AZkYGNss"></iframe>
+</div>
+<p>... but the heroes keep starving! That is a sign of an AI bug, such as a badly programmed curve/input. But I'm not completely to blame (obviously): Using the normalized inputs for the utility AI, it is quite awkward to combine them. For example:</p>
+<ul>
+<li><strong>MyRations input: </strong>Min/Max I care about: [0, 30]</li>
+<li><strong>MyDistanceToClosestCity input: </strong>Min/Max I care about: [0, 15]</li>
+</ul>
+<p>Now if I want to figure the ratio: rations/city_distance, <strong>all I have at this point are these normalized values. </strong>The ratio of the normalized values is <strong>useless</strong>, unless I de-normalize it using the parameters, but that's just redundant. So what now?</p>
+<p>One answer (that I'm pursuing) is to do the following:</p>
+<ul>
+<li>Keep in the blackboard both normalized (for utility AI) and unnormalized values (for general use)</li>
+<li>Have generic calculators for blackboard variables</li>
+<li><strong>Have dependency graphs for blackboard variables</strong>
+<ul>
+<li>e.g. MyRationsNormalized depends on MyRations</li>
+<li>e.g. MyRationsOverCityDistance depends on MyRations and MyDistanceToClosestCity</li>
+</ul>
+</li>
+</ul>
+<p>Now when utility AI requests MyRationsOverCityDistance, then we'll try to grab MyRations and MyDistanceToClosestCity from the blackboard. If they are not there, then they will be calculated -- if during those calculations they need any more variables, the chain goes on. The dependency graph comes into play because the blackboard variables have a dirty flag: we don't want to calculate a variable every time we want to access its value. Now when we update a variable, using the dependency graph, we mark all the dependents dirty, and that's it!</p>
+<h2>Decisions and Instancing</h2>
+<p>Utility AI can be used to select for example:</p>
+<ul>
+<li>Go shopping?</li>
+<li>Go dungeoneering?</li>
+<li>Go heal?</li>
+<li>Go for groceries?</li>
+</ul>
+<p>but it can also be used for:</p>
+<ul>
+<li>Go to dungeon_0?</li>
+<li>Go to dungeon_1?</li>
+<li>...</li>
+<li>Go to dungeon_N?</li>
+</ul>
+<p>So, the above is fairly dynamic in terms of the dungeons to compare. So it seems reasonable to abstract:</p>
+<p>
+{% highlight cpp %}
+for( auto& d : dungeons)
+{
+	blackboard.set("current_dungeon", d);
+	scores.push_back( choice.eval() );
+}
+auto iChoice = select_best_score( scores );
+{% endhighlight %}
+</p>
+<p>In the above, the considerations will always use the "current_dungeon" property to evaluate the inputs that will pass through the response curves. This is the point where this functionality plays well with the dependency graph! Every time the current_dungeon property is changed, the whole blackboard variable subgraph that depends on that variable needs to be marked as dirty.</p>

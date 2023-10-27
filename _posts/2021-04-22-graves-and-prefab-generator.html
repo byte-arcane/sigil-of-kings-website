@@ -1,0 +1,52 @@
+---
+layout: post
+title: Graves and prefab generator
+date: 2021-04-22 15:33:27.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- journal
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619720648;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:3394;}i:1;a:1:{s:2:"id";i:3125;}i:2;a:1:{s:2:"id";i:3407;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  rank_math_primary_category: '25'
+  rank_math_seo_score: '62'
+  rank_math_focus_keyword: prefab
+  _wpas_done_all: '1'
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+author:
+permalink: "/2021/04/22/graves-and-prefab-generator/"
+---
+<p><!-- wp:embed {"url":"https://youtu.be/UWRzd3QeRxE","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/UWRzd3QeRxE" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<figcaption>New interactive level object: grave. Interact with it and get treasure, monsters, or both!</figcaption>
+</figure>
+<p><!-- /wp:embed --></p>
+<p><!-- wp:paragraph --></p>
+<p>Another week, another step towards prefab dungeon areas. So, 2 main points:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Expanding on last week and flexing the underlying systems, I've added a new interactive level object, the grave, where if you interact with it, you might get a treasure (automatically transferred to the inventory), and you might also get an undead enemy spawned next to you</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>For creating prefabs, I thought I'd use the Tiled tool to begin with. So, I made a template, loaded some sprites, but the main issue was that the sprite-based nature of the tool made it complicated to integrate any other entities that carry some sort of meaning/functionality, such as the grave or the bookshelf from last week. So that effort went to the bin after a few hours. So, I went back to my default go-to solution for quick-and-dirty GUI: tkinter for python. So, I made a simple tool to be able to create prefabs with 5 layers: floor, blocked, decals, liquid and objects. For objects, since I control the code, I can automatically look up any level object entity configurations (that typically declare sprites) and use those, as seen in the screenshot. What's also possible is to make up some placeholder entity configurations/sprites with special meaning, e.g. "use whatever could be reasonably generated here based on default dungeon configuration". But it's a bit theoretical at the moment, as I'm now structuring the export data and preparing them for use with the game and DLL plugin.</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:image --></p>
+<figur<a href="{{ site.baseurl }}/assets/2021/04/1aOG3de_thumb740.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2021/04/1aOG3de_thumb740.webp" alt="Prefab generator GUI, courtesy of tkinter" width="740" height="340" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2021/04/variants/1aOG3de_thumb740.webp 740w, {{ site.baseurl }}/assets/2021/04/variants/1aOG3de_thumb740-320w.webp 320w"/></a><br />
+<figcaption>Prefab generator GUI, courtesy of tkinter</figcaption>
+</figure>
+<p><!-- /wp:image --></p>

@@ -1,0 +1,39 @@
+---
+layout: post
+title: Level liquids
+date: 2022-03-10 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/03/level_liquids.png
+meta:
+author:
+permalink: "/2022/03/10/level-liquids/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/l-L5CmNrT4Q" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/l-L5CmNrT4Q?autoplay=1><img src=https://img.youtube.com/vi/l-L5CmNrT4Q/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="New liquid style in level"></iframe></div>
+<figcaption>New liquid style in level</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/MoONSv0Oe_Y" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/MoONSv0Oe_Y?autoplay=1><img src=https://img.youtube.com/vi/MoONSv0Oe_Y/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Old water style in level"></iframe></div>
+<figcaption>Old water style in level</figcaption>
+</figure>
+
+<p>One of the visually sore points of my level graphics were the water tiles: they were static, visibly repeating, and the transitions were a bit like dithering. It was very different to the overworld water, which uses a variety of transition masks, and some complex shaders for the water surface instead of repeating tiles. </p>
+<p>My goal for this week was to improve the water and make it look more like the overworld water quality. This of course resulted in copying over the shader and making several adjustments as the overworld water looks like ocean and the level water should look different. </p>
+<p>Another natural extension was to be able to parameterize this &quot;level liquid&quot; shader to be able to render things other than water. At the moment I&#39;ve added support for lava, blood and poison, although the latter two are &quot;reskins&quot; of the basic water preset. </p>
+<p>When entities move in a liquid, they still get partially covered (amount depends on liquid depth) and the covered part is distorted. This reuses the previous code, which involves the use of stencil buffer and re-rendering only the underwater sprite regions. </p>
+<p>Lava is bright, so when everything else is dark, it should really be emitting some light. That was another bit of refactoring done, and now that works as well. So, being stealthy around lava might not be as effective anymore.</p>
+<p>What&#39;s not done (but is not a priority yet), is to add effects while traversing such tiles, e.g. poison should make you poisoned, lava should burn you etc.</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/BtHqzT8zMnc" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/BtHqzT8zMnc?autoplay=1><img src=https://img.youtube.com/vi/BtHqzT8zMnc/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Lava tiles glow in the dark"></iframe></div>
+<figcaption>Lava tiles glow in the dark</figcaption>
+</figure>

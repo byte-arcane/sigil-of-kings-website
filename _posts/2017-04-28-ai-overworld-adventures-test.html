@@ -1,0 +1,33 @@
+---
+layout: post
+title: 'AI: Overworld Adventures Test'
+date: 2017-04-28 14:38:51.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_published: '1'
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '4491369191'
+  _oembed_acffc48871d16c3ff9c4bdb2589715d7: <iframe width="630" height="354" src="https://www.youtube.com/embed/dc-0_dLrIac?feature=oembed"
+    frameborder="0" allowfullscreen></iframe>
+  _oembed_time_acffc48871d16c3ff9c4bdb2589715d7: '1506329331'
+  _jetpack_related_posts_cache: a:1:{s:32:"37550b67d263a3ce789993dc25046c5f";a:2:{s:7:"expires";i:1618888573;s:7:"payload";a:6:{i:0;a:1:{s:2:"id";i:1168;}i:1;a:1:{s:2:"id";i:1284;}i:2;a:1:{s:2:"id";i:2005;}i:3;a:1:{s:2:"id";i:1368;}i:4;a:1:{s:2:"id";i:2050;}i:5;a:1:{s:2:"id";i:1974;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '66'
+author:
+permalink: "/2017/04/28/ai-overworld-adventures-test/"
+---
+<p>This week I've prepared the "Overworld Adventures" testbed, which will be use to test out behavior trees + utility AI.</p>
+<p>Here's a video:</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/dc-0_dLrIac" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/dc-0_dLrIac?autoplay=1><img src=https://img.youtube.com/vi/dc-0_dLrIac/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video dc-0_dLrIac"></iframe>
+</div>
+<p>The map is a pre-alpha visualisation of the overworld map (no tiles yet for environment, sorry). There is the hero sprite (centered), the dungeon tiles (stairs) and the cities (shop tile). The hero wanders in dungeons, tries to kill monsters to get coins, and then goes to the cities to spend coins to heal and buy equipment (which increases health and power). The battle is "hero attacks, if enemy not dead, enemy attacks" , where attacks do Nd6 damage, where N=power. When the hero dies,  another is respawned. Heroes start with (power=5, health=50, coins=0) and dungeons contain one of four monster variants: (power=1/5/10/50, health=10/100/1000/10000, coins=power). I spawn 1000 dungeons and 100 cities, and new dungeons are spawned every several turns.</p>
+<p>As explained above, the hero party is pretty dumb, so they get killed after a few dungeon runs, as they'll encounter and try to tackle a difficult dungeon. The behavior tree is all specified and I'm currently about to add the utility AI logic.</p>
+<p>Depending on how much time that takes, next step is even more exciting: a hunger clock! Cities will sell rations, coins can be spent on rations, walking the land costs rations, and decision need to be ... rational, as when heroes run out of rations they die. I'll implement some sort of score bookkeeping to see how the AI performs (aka how long it lasts before dying). Extra bits are proper pathfinding and visibility, as the hero currently knows all.</p>

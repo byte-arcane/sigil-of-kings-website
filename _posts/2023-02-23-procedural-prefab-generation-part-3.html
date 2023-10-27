@@ -1,0 +1,51 @@
+---
+layout: post
+title: Procedural Prefab Generation part 3
+date: 2023-02-23 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/02/coastal_dungeon.png
+meta:
+author:
+permalink: "/2023/02/23/procedural-prefab-generation-part-3/"
+---
+
+<p>A lot of refactoring work this week, all related to the native plugin dungeon generation. All the zone generators currently implemented are supported with GUI controls: dungeon, cavern, coastal and prefab. This allows for very quick evaluation of different generators under different configurations. Also integrated an inspection mode in which when hovering over a tile, we get full info on the underlying data (is it floor, read only, connection, liquid depth, etc), which is of course pretty simple to add but very useful for debugging.</p>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/02/coastal_dungeon.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/02/variants/coastal_dungeon.webp" srcset="{{ site.baseurl }}/assets/2023/02/variants/coastal_dungeon.webp 1517w, {{ site.baseurl }}/assets/2023/02/variants/coastal_dungeon-960w.webp 960w, {{ site.baseurl }}/assets/2023/02/variants/coastal_dungeon-640w.webp 640w, {{ site.baseurl }}/assets/2023/02/variants/coastal_dungeon-320w.webp 320w" alt="Zone embedding example: Dungeon (zone3) in a cavern (zone2) just off the coast (zone1)" width="1517" height="1038" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Zone embedding example: Dungeon (zone3) in a cavern (zone2) just off the coast (zone1)</figcaption>
+</figure>
+
+<p>The next stage was to allow GUI manipulation of embedded zones: be able to modify via GUI zone embeddings, so that for example I can dynamically add a zone inside another zone, and that inner zone could support another zone and so on. This works but I still don&#39;t like the current specification of the zones, as it&#39;s by name reference: I have a flat array of zone specifications, the first is the outer zone and any inner zones are specified by name (name of zones 1...N). This weak referencing approach is not ideal, as it expects existing zone presets rather than on-the-fly specification, and both approaches have their merits.</p>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/02/coastal_dungeon.gif" target="_blank"><img src="{{ site.baseurl }}/assets/2023/02/coastal_dungeon.gif" alt="All passes in order to create the previous figure's map, in order" width="896" height="996" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2023/02/variants/coastal_dungeon.webp 896w, {{ site.baseurl }}/assets/2023/02/variants/coastal_dungeon-640w.webp 640w, {{ site.baseurl }}/assets/2023/02/variants/coastal_dungeon-320w.webp 320w"/></a><br />
+<figcaption>All passes in order to create the previous figure's map, in order</figcaption>
+</figure>
+
+<p>Next part was some &quot;infotainment&quot; stuff. Whereas I did use previously image export to get images of all different stages, the image sizes and displayed maps would be at the zone level, so inner zones would result in small images, and outer zones would result in bigger images that would contain the inner zones. So, I added some code to optionally maintain the same frame of reference across all exported images, and maintain some caches here and there, so that the resulting captured stage-by-stage images can be viewed in order, at the same scale, showcasing how exactly the dungeon is being built.</p>
+
+<p>The other boring but important part of this week&#39;s work was refactoring of some JSON code (using nlohmann json) as previously was just importing json (to save myself writing some export code) but now I&#39;ve changed it all to both import/export. That of course was the easy part. The slightly harder part was to fix up the framework for loading/saving class hierarchies to json, writing for example json like:</p>
+{% highlight json %}
+{
+	"$type" : "FooDerived",
+	"someBaseVar" : "asd",
+	"someOtherBaseVar" : 32,
+	"someDerivedVar" : 33.2,
+	...
+}
+{% endhighlight %}
+<p>So, this can be serialised in a std::shared_ptr&lt;FooBase&gt; but will contain a FooDerived pointer, and the derived class will be initialized with the derived variables and the base class with the base variables. Nlohmann json is a very nice library, but the compile errors when you get things wrong can be annoying, or sometimes the template magic falls apart if you declare things in the wrong order and it compiles just fine but the ADL stuff fails, and so on. But now it works, so, phew.</p>
+
+<p>So, while the native version gets improved, because of changes here and there it&#39;s now absolute certainty that the C# counterpart glue code will fail, but that&#39;s a headache for later to fix. Now that the JSON and Dear ImGui stuff is done, back to the main problems of:</p>
+<ul>
+<li>Easy-to-specify complex zones with prefab subzones etc (possibly a problem for C# land, that makes the magic json fed to the generator)</li>
+<li>Integration of procedural prefabs seamlessly with other prefabs</li>
+<li>Integrate feature placement and prefab placement in the GUI supported pipeline</li>
+</ul>
+

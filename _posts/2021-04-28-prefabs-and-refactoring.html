@@ -1,0 +1,46 @@
+---
+layout: post
+title: Prefabs and refactoring
+date: 2021-04-28 12:22:55.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:2:{s:32:"37550b67d263a3ce789993dc25046c5f";a:2:{s:7:"expires";i:1619655775;s:7:"payload";a:6:{i:0;a:1:{s:2:"id";i:3404;}i:1;a:1:{s:2:"id";i:2156;}i:2;a:1:{s:2:"id";i:3125;}i:3;a:1:{s:2:"id";i:3175;}i:4;a:1:{s:2:"id";i:3394;}i:5;a:1:{s:2:"id";i:2883;}}}s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619656204;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:3404;}i:1;a:1:{s:2:"id";i:2156;}i:2;a:1:{s:2:"id";i:3125;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  rank_math_seo_score: '56'
+  rank_math_focus_keyword: prefab
+  _wpas_done_all: '1'
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+author:
+permalink: "/2021/04/28/prefabs-and-refactoring/"
+---
+<p><!-- wp:image {"id":3408,"sizeSlug":"large","linkDestination":"none"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2021/04/image-1024x427.webp"><img src="{{ site.baseurl }}/assets/2021/04/image-1024x427_thumb740.webp" alt="" class="wp-image-3408" width="740" height="308" loading="lazy"/></a><br />
+<figcaption>Prefab in game: the liquid room</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:image {"id":3409,"sizeSlug":"large","linkDestination":"none"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2021/04/image-1-1024x490.webp"><img src="{{ site.baseurl }}/assets/2021/04/image-1-1024x490_thumb740.webp" alt="" class="wp-image-3409" width="740" height="354" loading="lazy"/></a><br />
+<figcaption>Prefab in editor: specify 4 connections (only 2 managed to be created)</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, the prefab loading work ended up being slower than projected, for a few reasons, one of them is IRL work and things, but the other important factor is just Bad Code that needs to be refactored:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>I was trying to serialize 2D arrays of layout info in a variety of ways at the same time, and it backfired. 2D Arrays are stored by the game in some optimized form, but I can't easily create that from from python (where the prefab editor is implemented in). So, eventually I had to create different classes and map from one to the other</li>
+<li>The super-flexible json level specification is a double-edge sword, as it's difficult to generate the json from the C# game state, especially if we start including prefabs etc. This is one of the reasons why I'm showing the same dungeons over and over; I'm choosing between a select few configurations . So now I'm slowly fixing that aspect, but I'll possibly need some long uninterrupted hours to do that, which might be hard to come by.</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>Nevertheless, I did a few steps towards that direction, so it's possible to put the prefab as a zone in a dungeon easily, but the dungeon configuration is a bit hard-coded. What's missing is also the ability to use the prefab as a room type in a rooms-and-corridors generator. I suspect that part will be ready next week, barring any surprise IRL work.</p>
+<p><!-- /wp:paragraph --></p>

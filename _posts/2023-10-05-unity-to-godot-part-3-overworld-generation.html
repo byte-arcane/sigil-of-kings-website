@@ -1,0 +1,77 @@
+---
+layout: post
+title: "Unity to Godot Part 3: Overworld Generation"
+date: 2023-10-05 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/10/ovwport.png
+meta:
+author:
+permalink: "/2023/10/05/unity-to-godot-part-3-overworld-generation/"
+---
+
+<p>And the log continues for this week...</p>
+<p><strong>Input, continued</strong></p>
+<p>The refactoring axe has been sharp and merciless. The old input code has been a victim, and about 50 classes have been reduced to 2, and 10 files into 2. It still can&#39;t be tested, but appending it to the to-test list (gets longer by the minute!). The purpose? Everything is now contained and the abstractions are much simpler and to-the-point. There&#39;s a list of debugging actions that might trigger during unhandled input, there&#39;s a list of &quot;proper&quot; actions that can do pretty much anything, and all of them are associated with particular &quot;input states&quot; like world, level, tile selection, menus, etc. The hierarchy tree got significantly flattened. The input handling happens in the player GUI system, after we establish that 1) user input is allowed 2) player entity is alive 3) we expect player input. There&#39;s possibly some things that need fixing here (e.g. we should listen to input if player is dead -- it&#39;s just going to be limited to fewer things), but that&#39;s for later to avoid theorycrafting solutions.</p>
+<p><strong>Partial texture updates</strong></p>
+<p>I did a bit of proof of concept for being able to create a texture array and being able to selectively update individual slices in there and ... all good. Phew. Which means, the sprite composing code needs to be <em>slightly</em> refactored to remove the use of unity textures and NativeExtras.SubArray.</p>
+<p><strong>Profiler Marker, Screenshot capture</strong></p>
+<p>These low-hanging fruits had escaped somehow, they&#39;ve been easily refactored to something non-Unity.</p>
+<p><strong>Refactor/porting: beginning of the end</strong></p>
+<p>Alright, now to port/refactor the hard stuff. The good thing about this next refactor is that, at the end of it, things should start working again, one by one. So, what&#39;s left, conceptually?</p>
+<ul>
+<li>Camera/texture functionality used for render-to-texture (RTT)</li>
+<li>GameObject creation/handling throughout code</li>
+<li>Arbitrary rendering throughout code</li>
+<li>Allocating/updating GPU buffers</li>
+<li>Shaders!</li>
+</ul>
+<p>There are a few &quot;scenes&quot; that need to be fixed, and each scene utilises several/all of the above. In order of ascending complexity/spaghettisation:</p>
+<ul>
+<li>Autotile mask creation tool</li>
+<li>Mountain sprite creation tool</li>
+<li>Overworld creation scene/tool</li>
+<li>Game</li>
+</ul>
+<p><strong>Autotile mask creation tool</strong></p>
+<p>Here, we run a shader on a quad lots of times with slightly different parameters and we save the resulting square image on file. Simple! </p>
+<p>... But, in practice, lots of hours of work and hair pulling, not so simple. My problem was &quot;how to reload shaders while running the application&quot;. Easy, right? It should be, and it is, but lack of documentation got me. Long story short, <strong>to properly reload shaders, you should use the ResourceLoader.Load with the cache flag set to ignore</strong> (that&#39;s the only that works). I had it on replace and I tried every combination under the sun on every other aspect, e.g. making resources local to scenes, manually emitting changed signals, etc. </p>
+<p>Ok, problem number two. There&#39;s some nice functionality where you set a viewport to update once, where it automatically sets itself to disabled afterwards. That&#39;s fantastic, and better than what Unity provided. Problem is, <a href="https://github.com/godotengine/godot/issues/33351">it&#39;s buggy and doesn&#39;t work</a>. Oh well. </p>
+<p>Problem number three. Trying a workaround to tha above, and getting the viewport texture to an image. But no, I can&#39;t get the viewport texture to an image because &quot;Viewport is not set&quot;. But I just set it in the initialisation. Turns out, <a href="https://github.com/godotengine/godot/issues/66247">it&#39;s a bug too</a>. Damn this is not going well. 1 hour later, I realise I was doing something wrong, which had the exact same side-effects. Oh well. Rollercoast of emotions here. </p>
+<p>Port of tool is complete, and can generate autotile mask variations. I&#39;m not going to go ahead and dig prehistoric code to see how to validate these now, all I care is RTT is working as expected, and I&#39;ll see visual results soon. Onwards to next tool.</p>
+<p><strong>Mountain sprite generation tool</strong></p>
+<p>This tool port started with a hitch again (it&#39;s a pattern you see), as my go-do DeepCopy method for some reason failed with a mysterious &quot;Unable to find assembly&quot; error. As far as I understand, there&#39;s only one assembly for the godot code so I don&#39;t know why this happened. In the spirit of &quot;I don&#39;t want to deal with this right now&quot;, I did some basic research and found a library that does deep copies. NuGet FTW. I plugged that in, worked immediately, awesome. </p>
+<p>Problem number two: while I quickly got results out, the results were ... broken. There&#39;s something going on with either the noise function or some other math, and the mountains look ugly with flat plateaus and little variation. After a bit of digging, I realised the the Dotnetnoise library by default was using some weird settings, instead of a simple simplex that I was expecting. Kinda fixed that (documentation is not great) so I&#39;m getting something that looks more like the actual mountains. </p>
+<p><strong>Overworld generation tool</strong></p>
+<p>This one is going to be tough to port, because:</p>
+<ul>
+<li>I&#39;m using plenty of render targets, and not just typical RGB8/RGBA8 ones</li>
+<li>There&#39;s a clear chain of rendering, where one pass is input to another pass, which is input to another pass, etc. I need explicit control of that.</li>
+<li>Some passes are CPU-only, so I have to grab the texture data, work on it, and generate some new texture data, while everything else is going on</li>
+</ul>
+<p>How to deal with those issues?</p>
+<ul>
+<li>Apparently, <a href="https://github.com/godotengine/godot-proposals/issues/2935">Godot does not yet support 16/32 bits-per-channel viewports</a>. Apparently &quot;it&#39;s coming in 4.x&quot;. Oh well, need to get the creative juice flowing. Won&#39;t be that hard, but needs a bit of work. I&#39;m either using RGBA32 buffers (ok), or R32F (not ok), but the latter can be written to the same memory space with a bit of bit fiddling. </li>
+<li>Utilise  RenderingServer frame_post_draw and frame_pre_draw </li>
+</ul>
+<p>.... But there is an alternative: Compute shaders. This can actually allow us to run on-the-spot rendering, and the lack of R32F rendertarget won&#39;t even be an issue. Diving in! A couple hours later, a few things to report:</p>
+<ul>
+<li>I&#39;m definitely going to achieve what I need with compute shaders</li>
+<li>Code becomes quite low level, not a problem, but it&#39;s a bit more verbose</li>
+<li>I encountered a bug already: compute shaders don&#39;t reload from disk while the app is running, even when setting the cache settings appropriately. But I found a workaround, by dynamically loading the text file contents, mapping them to a &quot;shader source&quot; object and using that. </li>
+<li>...and and annoying limitation: compute shaders don&#39;t support include files, yet at least. Annoying, but the workaround is to 1) add the #include directive anyway 2) process it in code and copy-paste the include in the source. </li>
+</ul>
+<p>This means ... more porting time! Several hours later, I&#39;ve ported all overworld generation pass shaders (9 of them), some common shader code files, and the utility class that manages the creation and resource management of all passes. This has resulted in reading/understanding/writing some low-level Vulkan-ish Godot rendering device code, so that&#39;s ... refreshing! </p>
+<p>Add a few more hours for debugging, resource handling and QoL features, and I finally got the overworld generation working again. It&#39;s like the Unity implementation, but faster. It&#39;s actually closer to [the original implementation from 2017(<a href="https://byte-arcane.github.io/sigil-of-kings-website/2017/12/14/overworld-map-generation/">https://byte-arcane.github.io/sigil-of-kings-website/2017/12/14/overworld-map-generation/</a>) (gulp). </p>
+<p>And here&#39;s a video of me using it to create maps in real-time. </p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/siWriEp6Miw" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/siWriEp6Miw?autoplay=1><img src=https://img.youtube.com/vi/siWriEp6Miw/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Overworld map generation in Godot"/></div>
+<figcaption>Overworld map generation in Godot</figcaption>
+</figure>

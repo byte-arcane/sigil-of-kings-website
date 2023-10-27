@@ -1,0 +1,37 @@
+---
+layout: post
+title: Pathfinding and visualization
+date: 2017-11-03 00:34:32.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618046776;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2084;}i:1;a:1:{s:2:"id";i:1945;}i:2;a:1:{s:2:"id";i:1635;}}}}
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '59'
+author:
+permalink: "/2017/11/03/pathfinding-and-visualization/"
+---
+<p><a href="{{ site.baseurl }}/assets/2017/11/test_astar-2017-11-03-00-32-05-61.webp"><img class="alignnone size-full wp-image-1628 aligncenter" src="{{ site.baseurl }}/assets/2017/11/test_astar-2017-11-03-00-32-05-61_thumb740.webp" alt="" width="1280" height="672" /></a></p>
+<p>&nbsp;</p>
+<p>The core libraries are now done (or so I thought), so I'm slowly refactoring the game libraries, one component at a time. But because nothing escapes my refactoring extravaganza, I discovered another victim in the core libraries, ready to be refactored mercilessly: the grid/graph pathfinding. So, my original idea is to make the pathfinders objects that keep some state and run one iteration at a time, as I envisioned that I might interrupt an A* calculation halfway through. Well, thinking about it, that's nonsense, so ... refactor away.</p>
+<p>Now the pathfinding routine is just a function with 3 arguments:</p>
+<ul>
+<li>A <strong>config </strong>struct which, as the name implies, provides configuration/setup for the search execution: start point, goals, heuristics, search space etc.</li>
+<li>A <strong>state </strong>struct which maintains the algorithm state: fscore/gscore maps, the priority queue, etc.</li>
+<li>An <strong>output</strong> struct which stores the output from the search, such as the path, path costs (optional), visited nodes (optional), etc.</li>
+</ul>
+<p>To aid debugging, I've added a conditionally compiled part that <strong>records state and output at every search iteration. </strong>After this semantic separation in these structures, recording the state is now a breeze! I just keep a vector of states/outputs per iteration to see their "history" and how they evolve.</p>
+<p>So, with the nicely modularized grid pathfinder function and the newly refactored rendering system, we can implement an application that visualizes pathfinding (inspired by <a href="https://www.redblobgames.com/pathfinding/a-star/introduction.html">Amit's super awesome A* page</a>, among others). I've made an application that uses ImGui and my widgets (the tilegrid one to be precise), so that I can dynamically modify weights on the map, as well as start and goals, heuristics, 4 or 8 connectivity, etc. Additionally, several visualization options are provided as overlays: visited cells, gscore, fscore, the calculated path, start/end points, etc, all as layers: gscore, fscore and weights exist for all cells, so they are rendered using a dense tile renderer, while start, goals, visited cells are rendered using a sparse tile renderer. The tilegrid widget uses a group renderer, tha renders all the layers specified. Way too much text and way too little action, here's a video capture of the visualizer:</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/jEWn37fcySA" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/jEWn37fcySA?autoplay=1><img src=https://img.youtube.com/vi/jEWn37fcySA/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video jEWn37fcySA"></iframe>
+</div>
+<p>&nbsp;</p>
+<p>Next thing to do is make sure the graph pathfinder works well, and then continue the refactoring quest, which is totally worth it.</p>

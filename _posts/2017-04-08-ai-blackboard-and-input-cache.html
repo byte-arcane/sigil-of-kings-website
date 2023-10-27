@@ -1,0 +1,40 @@
+---
+layout: post
+title: 'AI: Blackboard and Input Cache'
+date: 2017-04-08 11:56:06.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_published: '1'
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '3770944838'
+  _jetpack_related_posts_cache: a:1:{s:32:"817cf27cba4645788e73b3c711e7d520";a:2:{s:7:"expires";i:1618273757;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1168;}i:1;a:1:{s:2:"id";i:1368;}i:2;a:1:{s:2:"id";i:580;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '68'
+author:
+permalink: "/2017/04/08/ai-blackboard-and-input-cache/"
+---
+<p>As I've been working towards the first Utility AI test, I decided to fix my poor implementation of a <strong>Blackboard </strong>class.  My blackboard is loosely based on <a href="https://en.wikipedia.org/wiki/Blackboard_system">this</a> concept; it's an intermediate storage of the decisions and calculations of the AI system, for example:</p>
+<ul>
+<li>Where's the closest enemy?</li>
+<li>How many enemies are within melee distance?</li>
+<li>Is my health at a critical level?</li>
+</ul>
+<p>Before, it was effectively a bunch of <strong>map&lt;string, DataType &gt;</strong>, and I used strings to access. Of course accessing maps all the time is going to be deadly to performance if I'm doing hundreds/thousands of accesses per turn, so I wanted to switch to a more future-proof, efficient system, which has the performance of <strong>enums, </strong>without having to recompile when I'm adding stuff.</p>
+<p>The new system uses the following semantics:</p>
+<ul>
+<li><strong>Property: </strong>A name for a blackboard entry, e.g. "ClosestEnemy"</li>
+<li><strong>PropertyGroup:  </strong>The group that a property belongs. All properties within a group have a single type. E.g. "Distance"</li>
+<li><strong>PropertyMap: </strong>A map of property group names to properties, implemented as a <strong>vector&lt;vector&lt;string&gt;&gt;</strong>. One entry is special and contains a list of property groups. This is stored in the global registry.</li>
+<li><strong>PropertyIndex: </strong>a pair (group_index, property_index). This is used to uniquely identify a property of a group</li>
+</ul>
+<p>Now the blackboard is effectively a <strong>vector&lt; pair&lt; vector&lt;T&gt; /*property values*/, int /*group*/&gt; &gt;</strong>, and I'm using PropertyIndex to access it.</p>
+<p>So,  we create the property index once from strings (e.g. specified in JSON) and we're using the indices for fast access. One potential downside is that if we want to have only one property set for a group, and that property has an index of 10, we then need to allocate all 11 elements.  But this can be easily solved by putting the property in its own group.</p>
+<p>Blackboards need to be filled explicitly. Then, there's the <strong>Input Cache, </strong>which is my implementation of an automatically filled blackboard. From my <a href="{{ site.baseurl }}/2017/03/31/ai-towards-utility-based-ai/">last post regarding Utility AI</a> , this would be the storage and calculation logic of values, which are the inputs to the response curves. So, these values behave exactly like a blackboard, but they're just limited to be floats only, in range [0,1], and I should provide an automatic way to calculate these values if required. So, this can reuse the above mentioned machinery: fetching a value from the input cache is done simply by using a PropertyIndex, as the Input Cache uses its own group to store the float values.</p>
+<p>Next time, a decision example of a lumberjack shooting an endless horde of wolves, deciding upon a use of a shotgun, a pistol, a knife and idling using Utility AI.</p>

@@ -1,0 +1,94 @@
+---
+layout: post
+title: Effects & Enchantments
+date: 2020-01-24 11:16:49.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619349070;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:3285;}i:1;a:1:{s:2:"id";i:3281;}i:2;a:1:{s:2:"id";i:2114;}}}}
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  _oembed_cd76f7bfb737a9091409905cb27d9d67: <blockquote class="imgur-embed-pub" lang="en"
+    data-id="a/wKThG6e"><a href="https://imgur.com/a/wKThG6e">View post on imgur.com</a></blockquote><script
+    async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>
+  _oembed_time_cd76f7bfb737a9091409905cb27d9d67: '1581022972'
+  rank_math_internal_links_processed: '1'
+  _last_editor_used_jetpack: block-editor
+  rank_math_analytic_object_id: '17'
+author:
+permalink: "/2020/01/24/effects-enchantments/"
+---
+<p><!-- wp:paragraph --></p>
+<p>A typical RPG/roguelike has equipment, cards, skills etc that can all provide bonuses or penalties in various statistics, primary or derived. For example, movement speed, attack speed, maximum health, etc. There are possibly lots of ways to implement them. After a few unsuccessful theoretically-efficient approaches, the current revision looks reasonable.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Temporary, permanent, recurring and conditional effects</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Examples that should be possible include:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li><strong>Potion of healing</strong>: one-off, adjust current health [permanent]</li>
+<li><strong>Potion of regeneration</strong>: every N seconds, adjust current health. Stop after N*K seconds [permanent, recurring]</li>
+<li><strong>Potion of speed</strong>: movement speed increased by 20%, for 1 minute [temporary]</li>
+<li><strong>Potion of remove blindness</strong>: one-off, sets blindness to false ONLY if the creature is not naturally blind [permanent, conditional]</li>
+<li><strong>Sword of orc slaying</strong>: +50% weapon damage (applied when we use an ability that uses the equipped weapon), only if we're attacking orcs [temporary, conditional]</li>
+<li><strong>Boots of the desert</strong>: +50% movement speed when crossing the desert biome [conditional]</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, observing such use-cases, I made the following design choices:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>All types of effects/modifiers can have conditions</li>
+<li>Permanent effects write directly to the actual values the affect. A health potion updates the actual health value. If they have conditions, they check them once, before they apply the permanent effect.</li>
+<li>Temporary effects are stored in a separate list. Every time we want to get a particular value (weapon damage, max health, etc), we need to run a system function that gets the base value and applies all effects (if any of them has conditions, it's applied if the condition is satisfied)</li>
+<li>Events are set up for recurring permanent effects</li>
+<li>Events are set up for temporary effects, to remove them from the list when the effect expires.</li>
+<li>Temporary effects can be applied when an item is being carried (figurine), equipped (sword) or used (potion).</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>A drawback of the separate list for temporary effects is that we have to maintain indirect access to all variables that could be modified by effects, so that the access function always takes into account any effects. Additionally, we can't even cache effects as they can be conditional. So for example, we have functions like "EvaluateMaxHealth", "EvaluateMovementSpeed" etc, that get the base maximum health, then look for any effects that target max health (and pass the conditions, if any) and generate the final value.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>In the temporary effects list we have 3 types of effects, based on what they modify:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li><strong>Numerical</strong>. +1 Skill, +50 health, +15% attack speed. </li>
+<li><strong>Boolean</strong>. Set paralyzed or not, deaf or not, able to fly or not, etc.</li>
+<li><strong>Option</strong>. Set field of vision algorithm. Probably more to come.</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>Overall the system should be very flexible and allow for weird effects expressed naturally by data driving, e.g. a potion of lycanthropy that only works in a full moon, over the dead body of a wolf (a date condition and a condition that there's an item pile that contains a wolf corpse under the feet of the player). The only important rule to remember when developing effects is that any values that can be affected by temporary effects need to accessed by these evaluator functions, unless we do not want to take modifiers into account.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Here is a video that shows a few potions in action: healing, emergency healing (only when health is &lt; 20%), alacrity (player moves at incredible speed), X-ray vision (see through walls), oracle (see entire map):</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:core-embed/youtube {"url":"https://youtu.be/VdZxQdRleuY","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed-youtube wp-block-embed is-type-video is-provider-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/VdZxQdRleuY" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/VdZxQdRleuY?autoplay=1><img src=https://img.youtube.com/vi/VdZxQdRleuY/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video VdZxQdRleuY"></iframe>
+</div>
+</figure>
+<p><!-- /wp:core-embed/youtube --></p>
+<p><!-- wp:paragraph --></p>
+<p>Here's another video that shows the death particle system adjusted to go towards the direction of the hit:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:embed {"url":"https://youtu.be/TTRm8uedHv4"} --></p>
+<figure class="wp-block-embed">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/TTRm8uedHv4" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/TTRm8uedHv4?autoplay=1><img src=https://img.youtube.com/vi/TTRm8uedHv4/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video TTRm8uedHv4"></iframe>
+</div>
+</figure>
+<p><!-- /wp:embed --></p>

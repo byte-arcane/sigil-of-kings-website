@@ -1,0 +1,61 @@
+---
+layout: post
+title: Of spiderwebs and blood
+date: 2023-04-27 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/04/cemetery_1.png
+meta:
+author:
+permalink: "/2023/04/27/of-spiderwebs-and-blood/"
+---
+
+<p>Lots of work this week, all of course towards the level generator. To preface the need for this work: the problem with making up tasks yourself and working by yourself is that there&#39;s nobody to reign you in. So, when I get obsessed with adding support for something, well, that&#39;s it. </p>
+<p>This time, my new goal/desire for the level generator was: I want to be able to generate rooms within a zone that they have a bit more special configuration/behaviour in terms of content. For example: a haunted crypt in a cemetery. Problem? Rooms inherit configuration/behaviour and don&#39;t have their own. And that can/will not change for Reasons. So, how to work around that? On the quest for a solution I solved a number of other not-as-pressing issues, so here we go.</p>
+<p><strong>Tag granularity</strong></p>
+<p>That was the main nemesis. I want an abandoned lodge in the woods. If the lodge is a room in a lodge area, then there was a problem: the &quot;abandoned&quot; tag was applied to the area and I got cobwebs in the forest and outside. That&#39;s not right, I just want stuff inside. Same with carnage (imagine a murder scene in a lodge). I might not want blood spatters outside. So what to do? One approach is to create special placement rules for e.g. &quot;SpiderwebIndoors&quot; or &quot;GoreIndoors&quot;. This could be a fix, but I&#39;m afraid it won&#39;t scale, so it&#39;s off the menu. </p>
+<p>The approach I took: instead of using a room for the lodge, make it a zone! So the zone configuration specifies another zone, that is really just the same room, expressed differently. Perks of using a zone vs room: the zone can have its own tags and settings, so problem solved!</p>
+<p><strong>Sparse feature granularity</strong></p>
+<p>Ok great, so I now have the lodge as a single zone, comprised of about 10 tiles. But now I realise that my sparse feature generator, for things like blood spatters, cobwebs etc, does not always place something in the room, or does not place enough. The reason is that the sparse feature generator was designed for larger maps, and works with tile clusters, with a minimum size of 10. So you can&#39;t have e.g. two traps spawned next to each other. So, I could never have a room with spiderwebs in all its 4 corners, because the entire zone/room is a single cluster. But I like the idea <strong>AND I WANT TO HAVE IT!!</strong> (yes, the gamedev tantrums). So, I had the grand idea to allow multiple instances of a sparse feature per cluster, and while it&#39;s 1 instance for most things, for spiderwebs I can make it four. By adjusting existing other quantities like the percentage of clusters that it can appear and the minimum appearances (1), I can now have my spiderweb-infested rooms at last!</p>
+<figure><a href="{{ site.baseurl }}/assets/2023/04/granular_tags_1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/granular_tags_1.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/granular_tags_1.webp 1920w, {{ site.baseurl }}/assets/2023/04/variants/granular_tags_1-960w.webp 960w, {{ site.baseurl }}/assets/2023/04/variants/granular_tags_1-640w.webp 640w, {{ site.baseurl }}/assets/2023/04/variants/granular_tags_1-320w.webp 320w" alt="Abandoned and bloody lodge in the forest #1" width="1920" height="1080" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Abandoned and bloody lodge in the forest #1</figcaption>
+</figure>
+<figure><a href="{{ site.baseurl }}/assets/2023/04/granular_tags_2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/granular_tags_2.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/granular_tags_2.webp 1920w, {{ site.baseurl }}/assets/2023/04/variants/granular_tags_2-960w.webp 960w, {{ site.baseurl }}/assets/2023/04/variants/granular_tags_2-640w.webp 640w, {{ site.baseurl }}/assets/2023/04/variants/granular_tags_2-320w.webp 320w" alt="Abandoned and bloody lodge in the forest #2" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Abandoned and bloody lodge in the forest #2</figcaption>
+</figure>
+<p><strong>Cemetery: rooms-by-corridor layout updates</strong></p>
+<p>Alright, this is another element from my list of locations to be able to generate. I had a cemetery before, but it was completely static. Now I wanted a procgen cemetery with support for crypts and so on. How to do it? The most compatible existing generator is the rooms-by-corridor (I know, horrible name) one that I have been using for prisons. The catch: the prison generator was limited to have rectangular rooms that share walls. So part one of the modification was to add support for different sized rooms, and very importantly, &quot;open&quot; rooms (e.g. imagine a square grass patch with gravestones). So now the algorithm supports that, but still uses a same-sized room size, and that&#39;s the maximum room size from all candidate rooms for this area. If a room is smaller than its alloted area, it&#39;s placed anywhere within that area, randomly. </p>
+<p>Ok, so now we can have tombstone-grass-patch &quot;rooms&quot; and crypt rooms, yay! But we&#39;re not done. What if I want to turn a crypt into a zone, so that it can have its own tags and other special elements? That&#39;s a bummer because the child zone placement algorithm really just picks random points on the map. But we don&#39;t want that at the cemetery, as we have clear allocated &quot;blocks&quot; for areas. So, I converted the placement algorithm to overridable behaviour, and now the generator calls a function to obtain a random point on which to attempt to spawn a zone, and the rooms-by-corridor algorithm overrides that and selects one of the fixed starting points/slots in its grid.</p>
+<p>Final touch: if we do generate a zone, we don&#39;t want a room spawned next to or on top of that zone. So, if a slot is taken by an area, we don&#39;t generate a room there. Done!</p>
+<figure><a href="{{ site.baseurl }}/assets/2023/04/cemetery_1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/cemetery_1.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/cemetery_1.webp 1920w, {{ site.baseurl }}/assets/2023/04/variants/cemetery_1-960w.webp 960w, {{ site.baseurl }}/assets/2023/04/variants/cemetery_1-640w.webp 640w, {{ site.baseurl }}/assets/2023/04/variants/cemetery_1-320w.webp 320w" alt="Cemetery with 2 crypts #1, layout: 2x3 blocks, each 1x3. Each crypt has a coffin and spiderwebs. The cemetery is surrounded by a metal fence." width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Cemetery with 2 crypts #1, layout: 2x3 blocks, each 1x3. Each crypt has a coffin and spiderwebs. The cemetery is surrounded by a metal fence.</figcaption>
+</figure>
+<figure><a href="{{ site.baseurl }}/assets/2023/04/cemetery_2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/cemetery_2.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/cemetery_2.webp 1920w, {{ site.baseurl }}/assets/2023/04/variants/cemetery_2-960w.webp 960w, {{ site.baseurl }}/assets/2023/04/variants/cemetery_2-640w.webp 640w, {{ site.baseurl }}/assets/2023/04/variants/cemetery_2-320w.webp 320w" alt="Cemetery with 2 crypts #2." width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Cemetery with 2 crypts #2.</figcaption>
+</figure>
+<p><strong>Themes</strong></p>
+<p>Theme-specific graphics were originally handled in C#. I eventually realised that the C++ generator can benefit from knowing about themes too, and the more work is done in C++, the less work will be done in C#. So now I&#39;ve added themes and overrides support embedded in the generation script. What does this mean exactly? We have a snow map, and we want to spawn a building outside. The building specification is predefined in the database, but the material/appearance is a bit more dynamic: since we have a snow map, we should use something compatible with 1) snow maps 2) being a building. I&#39;ve made a bunch of presets for all combinations of biomes and zone architecture (outdoors/cavern/dungeon), but now they are a bit more granular in terms of overriding. E.g.:</p>
+<ul>
+<li>Stable: wood/biome-specific dungeon walls, biome floor</li>
+<li>Village storage, biome or other material floor</li>
+<li>Outdoors lean-to: wood/concrete for walls, biome floor</li>
+<li>Cemetery: fence for wall, biome floor</li>
+<li>Crypt: biome-specific dungeon walls, biome-specific dungeon/cavern floor</li>
+</ul>
+<p>All this could just be &#39;#&#39; and &#39;.&#39; in ASCII, oh well.</p>
+<p><strong>Other changes</strong></p>
+<ul>
+<li><strong>JSON configuration database</strong>. During this work, I&#39;ve found myself adding increasing support of JSON flyweight configurations in C++ as well, while previously limited to room prefabs and zone configuration, now also for things like biomes, floor/wall/liquid information (useful for themes for example)</li>
+<li><strong>More tags</strong>. E.g. supporting creature-free areas, haunted areas and so on</li>
+<li><strong>Support temporary rooms/zones</strong>. This is useful for e.g. some quest areas/rooms, so we add them to the database just before generation, then generate and refer to the database elements by name, then remove them again at the end</li>
+<li><strong>Prefab zones from rooms</strong>. So far I had prefab zones where I could specify tiles explicitly, or prefab rooms where I can do the same, with a few more limitations. Now I can specify a prefab zone by referencing a prefab room. Why is that useful? Cemetery and crypt: we can have generic crypts that contain encounters/treasures, but we can also have a special crypt, with special stuff going on, and maybe even a staircase down...</li>
+<li><strong>Ruined rooms bugfixes</strong>. If a corner tile is getting erased in a ruined room, then I erase an adjacent one as well, to make sure I don&#39;t end up with a checkerboard pattern, and to satisfy some other code that assumes that if we have any tiles removed, we don&#39;t need to add doors.</li>
+</ul>
+<p>Oof that was a lot. </p>
+

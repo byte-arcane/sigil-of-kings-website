@@ -1,0 +1,42 @@
+---
+layout: post
+title: HPA*
+date: 2017-01-11 23:57:47.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_published: '1'
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '657813345'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618290224;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1945;}i:1;a:1:{s:2:"id";i:1949;}i:2;a:1:{s:2:"id";i:1627;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '77'
+author:
+permalink: "/2017/01/11/hpa/"
+---
+<p>I finally finished with the implementation of <a href="https://webdocs.cs.ualberta.ca/~mmueller/ps/hpastar.pdf">HPA*.</a></p>
+<p>The pathfinder can be parameterized on cluster size, cluster-local path quality, coarse path quality and minimum distance between entrances to name a few. Below are a few examples. HPA* is ideal for use for many unit pathfinding queries, which I intend to have in AoT.</p>
+<p>Clusters and entrances. Background is the movecost heatmap (blue: low move cost, red: high movecost)</p>
+<p><figure src="{{ site.baseurl }}/assets/2017/01/output_overworld_navpathhpavis_true_false1.webp" alt="output_overworld_navpathhpavis_true_false.png"/></p>
+<p>Clusters, entrances and connections</p>
+<p><a href="{{ site.baseurl }}/assets/2017/01/output_overworld_navpathhpavis_true_true.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2017/01/output_overworld_navpathhpavis_true_true.webp" alt="Showing image {{ site.baseurl }}/assets/2017/01/output_overworld_navpathhpavis_true_true.webp" width="512" height="512" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2017/01/variants/output_overworld_navpathhpavis_true_true.webp 512w, {{ site.baseurl }}/assets/2017/01/variants/output_overworld_navpathhpavis_true_true-320w.webp 320w"/></a></p>
+<p>Low quality path using HPA* (cost: 70.464)</p>
+<p><a href="{{ site.baseurl }}/assets/2017/01/output_overworld_navpath_q0_70-464.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2017/01/output_overworld_navpath_q0_70-464.webp" alt="Showing image {{ site.baseurl }}/assets/2017/01/output_overworld_navpath_q0_70-464.webp" width="512" height="512" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2017/01/variants/output_overworld_navpath_q0_70-464.webp 512w, {{ site.baseurl }}/assets/2017/01/variants/output_overworld_navpath_q0_70-464-320w.webp 320w"/></a></p>
+<p>High quality path using HPA* (cost: 25.349)</p>
+<p><a href="{{ site.baseurl }}/assets/2017/01/output_overworld_navpath_q9_25-3496.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2017/01/output_overworld_navpath_q9_25-3496.webp" alt="Showing image {{ site.baseurl }}/assets/2017/01/output_overworld_navpath_q9_25-3496.webp" width="512" height="512" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2017/01/variants/output_overworld_navpath_q9_25-3496.webp 512w, {{ site.baseurl }}/assets/2017/01/variants/output_overworld_navpath_q9_25-3496-320w.webp 320w"/></a></p>
+<p>High quality path using regular A* (cost: 23.765)</p>
+<p><a href="{{ site.baseurl }}/assets/2017/01/output_overworld_navpath_q10_23-7657.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2017/01/output_overworld_navpath_q10_23-7657.webp" alt="Showing image {{ site.baseurl }}/assets/2017/01/output_overworld_navpath_q10_23-7657.webp" width="512" height="512" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2017/01/variants/output_overworld_navpath_q10_23-7657.webp 512w, {{ site.baseurl }}/assets/2017/01/variants/output_overworld_navpath_q10_23-7657-320w.webp 320w"/></a></p>
+<p>&nbsp;</p>
+<p><strong>Dynamic path</strong></p>
+<p>The pathfinder works also with dynamic weights: when parts of the weights are updated, we only recalculate the cluster-local paths in the clusters that the weights are in, ie. minimizing A* calculations.</p>
+<p>Here's a busy visualization of a dynamic path:</p>
+<p><a href="{{ site.baseurl }}/assets/2017/01/output_visibility_unitpath_unit_dwarves_vis_normal4.gif" target="_blank"><img src="{{ site.baseurl }}/assets/2017/01/output_visibility_unitpath_unit_dwarves_vis_normal4.gif" alt="Showing image {{ site.baseurl }}/assets/2017/01/output_visibility_unitpath_unit_dwarves_vis_normal4.gif" width="512" height="512" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2017/01/variants/output_visibility_unitpath_unit_dwarves_vis_normal4.webp 512w, {{ site.baseurl }}/assets/2017/01/variants/output_visibility_unitpath_unit_dwarves_vis_normal4-320w.webp 320w"/></a></p>
+<p>The movecost map is visualized again as a heatmap. Green is the "unknown movecost", and is the so-far invisible area. The map is split in 8x8 clusters. All entrances and connected paths are visualized with magenta. The fat white line is the evolving path calculation. It is clear that "highways" are formed naturally when we explore the movecost map, as several paths coalesce</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>

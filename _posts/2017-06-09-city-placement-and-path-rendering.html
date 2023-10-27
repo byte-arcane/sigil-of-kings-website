@@ -1,0 +1,45 @@
+---
+layout: post
+title: City placement and path rendering
+date: 2017-06-09 14:52:36.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_published: '1'
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '5942041135'
+  _oembed_cf3dd953ab9aebe6d512dcb033be18ff: <iframe width="630" height="473" src="https://www.youtube.com/embed/b7gVOUbiO2o?feature=oembed"
+    frameborder="0" allowfullscreen></iframe>
+  _oembed_time_cf3dd953ab9aebe6d512dcb033be18ff: '1506329330'
+  _oembed_a094dd4ccd5998a5d71390a9a2e5a21a: <iframe width="630" height="473" src="https://www.youtube.com/embed/QdqjD6aQWvU?feature=oembed"
+    frameborder="0" allowfullscreen></iframe>
+  _oembed_time_a094dd4ccd5998a5d71390a9a2e5a21a: '1506329330'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1612557948;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1945;}i:1;a:1:{s:2:"id";i:1949;}i:2;a:1:{s:2:"id";i:2042;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '62'
+author:
+permalink: "/2017/06/09/city-placement-and-path-rendering/"
+---
+<p>After the generation of the world, the next logical step is the placement of cities of the various factions. The general idea is to have each faction specify its own desired method of placing cities, e.g. at a coast in order to have ports, by a mountainside for dwarves, always at coast for a pirate faction, in the forest for elves, etc.  Cities are placed one at a time for each faction: faction0 city0, faction1 city0, ..., factionN city0, faction0 city1 ... The reason for this is that if some requirements are more difficult than others, we do get to try to satisfy them for every faction, as otherwise the last faction would have difficulty placing cities in ideal locations. Here is a visualization of cities and routes (sea and land) between them</p>
+<p><a href="{{ site.baseurl }}/assets/2017/06/overworld_render_test-2017-06-09-12-04-41-25.webp"><img class="alignnone size-full wp-image-1537" src="{{ site.baseurl }}/assets/2017/06/overworld_render_test-2017-06-09-12-04-41-25_thumb740.webp" alt="overworld_render_test 2017-06-09 12-04-41-25" width="1024" height="1024" /></a></p>
+<p>The world starts connected: cities in the same landmass are connected to each other via roads, and ports are connected to each other via naval routes. At the moment the paths are calculated independently, which creates the unfortunate result of almost-overlay of paths which does not make sense:</p>
+<p><a href="{{ site.baseurl }}/assets/2017/06/overworld_render_test-2017-06-09-12-15-09-47.webp"><img class="alignnone size-full wp-image-1540" src="{{ site.baseurl }}/assets/2017/06/overworld_render_test-2017-06-09-12-15-09-47_thumb740.webp" alt="overworld_render_test 2017-06-09 12-15-09-47" width="1028" height="1030" /></a></p>
+<p>And when we smooth the paths to look pretty from a bird's eye view, the paths again slightly diverge:</p>
+<p><a href="{{ site.baseurl }}/assets/2017/06/overworld_render_test-2017-06-09-12-15-27-89.webp"><img class="alignnone size-full wp-image-1544" src="{{ site.baseurl }}/assets/2017/06/overworld_render_test-2017-06-09-12-15-27-89_thumb740.webp" alt="overworld_render_test 2017-06-09 12-15-27-89" width="1028" height="1030" /></a></p>
+<p>So, what needs to be done is that every time a path is calculated, the movecost map is updated to reduce movement cost at areas with a path. This causes coalescing of a big chunk of almost-overlapping paths. Here's an example result when setting the movecost to 75% on tiles with paths, while calculating more paths, using the same viewpoint as above:</p>
+<p><a href="{{ site.baseurl }}/assets/2017/06/overworld_render_test-2017-06-09-15-14-29-64.webp"><img class="alignnone size-full wp-image-1560" src="{{ site.baseurl }}/assets/2017/06/overworld_render_test-2017-06-09-15-14-29-64_thumb740.webp" alt="overworld_render_test 2017-06-09 15-14-29-64" width="1024" height="1024" /></a></p>
+<p>A much cleaner result! Here's a video of the city and path (non-coalesced) visualization:</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/b7gVOUbiO2o" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/b7gVOUbiO2o?autoplay=1><img src=https://img.youtube.com/vi/b7gVOUbiO2o/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video b7gVOUbiO2o"></iframe>
+</div>
+<p>&nbsp;</p>
+<p>Another thing that's in the works is a smooth transition between smooth paths from a very zoomed out view to actual, real, tile-to-tile piecewise-linear, straight/diagonal line paths when fully zoomed-in. The reasoning behind this is that when you're zoomed in enough, you probably care about the exact, precise path. When zoomed out, you possibly want a more high-level overview, which can be more pleasing with smoother curves. Here's a video with the dynamic path smoothing in action:</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/QdqjD6aQWvU" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/QdqjD6aQWvU?autoplay=1><img src=https://img.youtube.com/vi/QdqjD6aQWvU/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video QdqjD6aQWvU"></iframe>
+</div>

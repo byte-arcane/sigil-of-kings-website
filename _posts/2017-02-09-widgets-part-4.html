@@ -1,0 +1,38 @@
+---
+layout: post
+title: Widgets - Part 4
+date: 2017-02-09 22:22:22.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_published: '1'
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '1688190157'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1612412060;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:79;}i:1;a:1:{s:2:"id";i:429;}i:2;a:1:{s:2:"id";i:1619;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '73'
+author:
+permalink: "/2017/02/09/widgets-part-4/"
+---
+<p>More widget work this week, but it's shaping up reasonably well, so next week I might actually be moving on to something else.</p>
+<p><strong>TileGrid improvements</strong></p>
+<ul>
+<li>TileGrid rendering is now pixel-perfect for the single-rectangle case, so thankfully that bug is gone.</li>
+<li>I've added configurable edge scrolling for TileGrids, so that by moving the mouse at the edge of the tile grid, the focal point is shifted towards that edge. The closer the cursor is to an edge, the bigger the adjustment. It can be seen in the video below</li>
+</ul>
+<p><strong>Widget cloning</strong></p>
+<p>Given a database of allocated, configured but inactive widgets, we should at any point be able to clone one and activate it, ready for use, for example when spawning floaters and modal widgets.</p>
+<p><strong>Floaters and Modal widgets</strong></p>
+<p>Floater and modal widget functionality is now implemented: handling focus, input, spawning and destruction.</p>
+<p>Floaters do not get input or focus. In contrast,  modal widgets get full focus: while a modal widget is active, no other widget may get input focus, unless it's under the modal widget's hierarchy. For example, a modal ok/cancel dialog widget would allow input+focus for its text and buttons, but not for any other widget. Example below:</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/UrNNrUmQbwA" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/UrNNrUmQbwA?autoplay=1><img src=https://img.youtube.com/vi/UrNNrUmQbwA/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video UrNNrUmQbwA"></iframe>
+</div>
+<p><strong>Resizable widgets</strong></p>
+<p>Widget dimensions get finalized at activation time. If widget dimensions are set to 0 or under, then we can calculate optimal dimensions based on what the widget really is, e.g. a text widget would calculate the optimal dimensions for the text that it will display. For padding the optimal dimensions, negative dimensions are interpreted as amount of padding to add to the optimal. Example: A textbox widget with dimensions (100, -16) will calculate the optimal box height given a width of 100, and will add 16 to that height: that will be the final height of the box on activation.</p>

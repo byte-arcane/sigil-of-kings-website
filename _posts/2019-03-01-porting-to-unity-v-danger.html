@@ -1,0 +1,76 @@
+---
+layout: post
+title: 'Porting to Unity  V: Danger!'
+date: 2019-03-01 15:15:40.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _publicize_twitter_user: "@aotdev1"
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1616997898;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2080;}i:1;a:1:{s:2:"id";i:2114;}i:2;a:1:{s:2:"id";i:3107;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '28'
+author:
+permalink: "/2019/03/01/porting-to-unity-v-danger/"
+---
+<p><!-- wp:paragraph --></p>
+<p>Since last time, I've tackled (or not) a few issues.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4><strong>NO</strong> gameobjects/monobehaviours in the game database / ECS. <br /></h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>First and more importantly, I've made the decision to represent entities with a custom, very lightweight class, that does not derive from any Unity stuff. Reason being that I don't want to interact too much with Unity, especially derive from these classes that carry a lot of baggage. I'm pretty happy to manage entity lifetimes and bite the bullet in terms of inspector "niceties", rather than start using GameObjects and then, when these are tangled deep in the game code, I realize that it's actually a terrible idea and it gets too slow. So that's that.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Entities are represented now with custom classes, and to avoid potential infinite serialization depth that Unity is not happy about, I use weak references. So, instead of:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>city entity</strong> -> city component -> owned mines (entities) -> mine entity -> membership component -> owner entity -> <strong>city entity</strong> -> ...</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>... which causes an infinite loop, I use the following:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>city entity</strong> -> city component -> owned mines (entity <strong>references</strong>) </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>so the chain is broken there. The references are just IDs that look up in a pool. So that's that. In the meantime, I'm trying to make the inspector show in place of the entity references the entity contents, but currently I'm not doing a good job. Revisit later.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Danger maps<br /></h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>This is simply the danger map calculation (what level of encounters one might find at a certain point on the overworld map), which involves distance field calculations to cities and routes and some poisson sampling, both of which I'm calculating in C++ via a native plugin. So, performance remains nice, which is nice. Here it is, alongside the biome/routes map. Red is dangerous, blue is safe</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2103} --></p>
+<figure class="wp-block-image"><img class="imgc" src="{{ site.baseurl }}/assets/2019/03/danger_map.webp" alt="" class="wp-image-2103" /></figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:image {"id":2104} --></p>
+<figure class="wp-block-image"><img class="imgc" src="{{ site.baseurl }}/assets/2019/03/overworld_paths.webp" alt="" class="wp-image-2104" /></figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Visualizations</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Implementing visualizers in Unity is a breeze, and I love being able to see what I hover over and see data, data, data. In terms of pixels or values in the inspector. I captured a video to show how this looks like, I love it :)</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/XBZgSaHTCms" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>RPG<br /></h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Last but not least, I ported the RPG-related datafiles (skills, attributes, skill masteries, etc). So, next work is going to be adventure location generation, and maybe character generation and levelling. </p>
+<p><!-- /wp:paragraph --></p>

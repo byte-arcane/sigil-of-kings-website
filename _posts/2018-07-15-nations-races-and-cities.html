@@ -1,0 +1,45 @@
+---
+layout: post
+title: Nations, Races and Cities
+date: 2018-07-15 17:03:15.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1615465027;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1929;}i:1;a:1:{s:2:"id";i:1938;}i:2;a:1:{s:2:"id";i:1727;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '47'
+author:
+permalink: "/2018/07/15/nations-races-and-cities/"
+---
+<p>One thing that has been bugging me for a while is the administrative aspect of the world's population. Several races coexist in the world, sometimes not so peacefully. One of the important questions is, how to divide the population groups? This can answer questions such as who lives where, who likes whom, how does the player interact with each group, etc. The context is always important: this is a game where the player controls a single character over the course of maybe several in-game decades, in a persistent and procedural world, where there are lots of self-sufficient cities with guilds, shops etc.</p>
+<h3>Nation-based</h3>
+<p>One way of dividing them is DnD/Forgotten Realms style using <a href="https://en.wikipedia.org/wiki/List_of_Forgotten_Realms_nations">nations</a>. Each nation has different government type (plutocracy, magocracy, autocracy) and has citizens of potentially many races. This is a nice, "realistic" division, but comes with a number of complications for a type of game where you're an adventurer going around in the world and doing stuff. Just a few issues below:</p>
+<ul>
+<li><strong>Nation conflicts and diplomacy. </strong>When there are several nations, it's only natural that over the course of time conflicts arise. If relations were all nice among them, there's no reason not to be unified. Modeling nation-wide war in a game where the player controls a single or a few characters can be problematic. What happens if nation A wages war on nation B? What does that mean for the player? Can the player not safely visit several cities of nation A or B anymore?</li>
+<li><strong>Nation-wide AI, city-wide AI, unit AI. </strong> With nations, there's more AI to develop. What responsibilities does a nation have? What can it do? Found cities, wage wars, etc? We're getting heavily into 4x game territory, and that becomes a bit much for solo development.</li>
+<li><strong>Nation identity.</strong>  When creating a number of fictional nations, effort must be put so that the nations are unique, individual, interesting. I'm personally very averse to fiction where the differences are superficial. For example picking a name from a generator list, roll a dice for government, roll a dice for alignment, etc and that's it. That's not enough. Forgotten realms for example has quite good depth for each nation, but that's over tons of books and game supplements. Solo development can not afford such depth.</li>
+</ul>
+<h3><strong>Race-based</strong></h3>
+<p>Another way to split nations is by race, where the race would also be the nation. You have dwarves, elves, humans, etc. That's nice and simple and at least addresses the "identity" issue above. There are still potential conflicts and AI to be modeled though, but they are nothing compared to the effort in creating a striking identity for a nation. The identity of the races still needs to be developed to escape the confines of the generic high fantasy elf/dwarf and other races, but that would be done for the nation-based division anyway, as a separate task. ( Create identity for dwarves, humans, orcs, etc, also create identity for nation of Whatever and Etcetera). Issues with race-based division:</p>
+<ul>
+<li><strong>Not sensible.</strong> It just doesn't make much sense that, at least "good" nations would prohibit citizenship from other intelligent species, as long as they could all co-exist peacefully. Of course dwarves could be reserved against other races, or elves be haughty and racist, but having that at 100% everywhere makes the races one-dimensional and not so believable.</li>
+<li><strong>Player interaction limitation. </strong>In the game, several guilds exist that the player can join. If the player is from race A, do you get excluded from guilds in cities of race B? Otherwise, why would they be the special cases of allowing members of different race? It would take quite a bit of writing effort to make that sensible and believable. The game would force you to be part of a big group, where <span data-dobid="hdw">inadvertently you'd have situations of "us vs them" at a nation/race scale.</span></li>
+</ul>
+<h3>Multicultural city-states</h3>
+<p>Another way to divide the world is to ignore the nation-wide scale using city states (Elder Scrolls cities feel sort-of like that). Cities are self-sufficient, can contain guilds and various other buildings and people that a player can interact, and have the following advantages:</p>
+<ul>
+<li><strong>No need for full-out warfare.</strong> A nation gathering army and ganging up to attack a city is much easier than a city gathering army to attack another city. So all-out warfare between city-states is not something that one can expect to naturally happen. <strong>Subterfuge </strong>on the other hand is much more likely, and can create very interesting scenarios: for example a guild hires you to steal a relic from a rival guild of another city-state, or the government hires you to sabotage a mine operation that belongs to another city-state.</li>
+<li><strong>Multicultural</strong>. A city-state can optionally be multi-race, or single-race, or anything in-between. A fully dwarven city in the mountain is as plausible than a hillside settlement with hill dwarves and hill orcs, as long as the races can coexist peacefully.</li>
+<li><strong>No nation-wide simulation layer. </strong>Easier to develop as there's no need for nation AI. Nations don't need to found new cities, as the time scale of the game is not centuries (which would take for a city to start, grow and have some sort of history). There's no resource management layer between cities and nations (does a mine's ore go into nation coffers? Does a nation have resources, or they are per-city?)</li>
+<li><strong>Emergent identity. </strong>The city-state types are used as a prototype several times, but the simulated and played history can affect the development of individual city-states. A dwarven city in the mountains can start as poor, if surrounded by not-so-resourceful environment, but its fate might change if they discover a rare mineral nearby and mine it. A different dwarven city could have a completely different fate, for example it could be eradicated by Unknown Destructive Forces or sabotaged to oblivion. The basic identity (how does a dwarven city look like, how does it function, etc) is written for a limited number of prototypes, while the emergent identity via history generation and playing is what will make it rich.</li>
+</ul>
+<p>&nbsp;</p>
+<p>The above are just some thoughts; not final, but representative of my current development mindset. While originally I started with the race-based approach, I'll be using the city-state paradigm unless I can think of a blocker.</p>

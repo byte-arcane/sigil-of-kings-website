@@ -1,0 +1,56 @@
+---
+layout: post
+title: Entity effects & more
+date: 2021-02-18 13:09:38.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1614152780;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:3175;}i:1;a:1:{s:2:"id";i:1974;}i:2;a:1:{s:2:"id";i:2257;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  rank_math_seo_score: '64'
+  rank_math_focus_keyword: effects
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+  _wpas_done_all: '1'
+  rank_math_analytic_object_id: '5'
+author:
+permalink: "/2021/02/18/entity-effects-more/"
+---
+<p><!-- wp:embed {"url":"https://youtu.be/h4FrN7-UBBk","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/h4FrN7-UBBk" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/h4FrN7-UBBk?autoplay=1><img src=https://img.youtube.com/vi/h4FrN7-UBBk/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Entity effects: boss aura and an early prototype of a burning effect"></iframe>
+</div>
+<figcaption>Entity effects: boss aura and an early prototype of a burning effect</figcaption>
+</figure>
+<p><!-- /wp:embed --></p>
+<p><!-- wp:paragraph --></p>
+<p>Several "random" bits of work again this week, as my TODO list is a hydra. Solve one entry, and <em>poof</em> more appear. Not as bugs, but more like a dependency tree where you try to resolve a node and the fog of war dissipates and reveals more things that are not in place :D</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Framework for rendering "entity effects", graphical effects attached to (and dependent on) a particular entity. Two examples are shown in the video above: a boss aura like Dungeonmans, and an early version of a burning effect.</li>
+<li>Some debugging GUI for increasing attributes/skills</li>
+<li>Added potions and tomes that increase attributes and skills</li>
+<li>Allow per-creature blood spatters (on injury) and blood pools (on death). So that skeletons, ghosts and oozes don't bleed.</li>
+<li>Refactoring my configuration database to not have dependencies at all, as it got cyclic. So, I have for example the configuration for a creature race that depends on the configuration for an effect. The moment I started adding more effects, one of the effect types might depend on a creature configuration, so the dependency chain got cyclic, so I had to get rid of that. Now I'm doing a two-pass approach: first I load all the configurations in their most basic form and register their name ("allocate" them so to speak). Then in the second pass, I read everything normally, and order does not matter as I've allocated all the configurations by name in advance.</li>
+<li>Machinery/planning for how a creature gets to learn active abilities (spells, active skills, special attack moves, etc):
+<ul>
+<li>Monsters have a mapping of ability-to-level-requirement. E.g. a monster wizard of level 3 would know firebolt, same creature level 7 would know fireball.</li>
+<li>Equipping particular weapon categories might allow for special moves. E.g. equipping polearms would give a skill (that costs energy) which attacks from 2 tiles away</li>
+<li>Progression in mastery levels in particular skills can unlock some active abilities.</li>
+<li>Consumable items (e.g. book)</li>
+<li>(tbd) Special dungeon objects</li>
+<li>(tbd) Shops/trainers/people in cities</li>
+</ul>
+</li>
+<li>Try to be a bit more gamey and less simulationist with items and effects. Equipment will not have on-use effects, whereas potions should generally have different effects than, say, scrolls or items that can be used (wands? etc). Potions and scrolls should be different, beyond "this can get wet" for example</li>
+</ul>
+<p><!-- /wp:list --></p>

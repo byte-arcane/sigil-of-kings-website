@@ -1,0 +1,39 @@
+---
+layout: post
+title: Trailer scripting
+date: 2022-03-31 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/03/trailer_scripting.png
+meta:
+author:
+permalink: "/2022/03/31/trailer-scripting/"
+---
+
+
+<figure><a href="{{ site.baseurl }}/assets/2022/03/trailer_scripting.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/03/variants/trailer_scripting.webp" srcset="{{ site.baseurl }}/assets/2022/03/variants/trailer_scripting.webp 1920w, {{ site.baseurl }}/assets/2022/03/variants/trailer_scripting-960w.webp 960w, {{ site.baseurl }}/assets/2022/03/variants/trailer_scripting-640w.webp 640w, {{ site.baseurl }}/assets/2022/03/variants/trailer_scripting-320w.webp 320w" alt="Composition of 28 overworlds, before zooming into one of them. Python powered trailer generation. " width="1920" height="1080" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Composition of 28 overworlds, before zooming into one of them. Python powered trailer generation. </figcaption>
+</figure>
+
+<p>More non-directly-game-related work this week, towards some trailer elements. <a href="https://twitter.com/ByteArcane/status/1509228965994680322?s=20&amp;t=2LTqUH_UNHcXtf0Agd9Qkw">Here&#39;s a video</a> of some now-ditched part of the trailer (I&#39;m doing the work, it goes to the bin, I might show it in the meantime!). Also, <a href="https://imgur.com/a/gojeECp">here are 50 different overworlds</a> from a bird&#39;s eye view. &quot;Same but different&quot; is the motto here.</p>
+<p><strong>Dev console and scripts</strong></p>
+<p>The implemented dev console can be used to assist with video capture, especially when used in conjunction with the script support, which effectively chains together console commands with specified delays. Commands that pan or zoom the camera can be combined with commands like &quot;disable camera bounds clamping&quot; or &quot;hide debug UI&quot; or &quot;reload scripts file&quot; so that I can quickly try out scripts and shortcut some standard stuff for capture, e.g. hide UI or game logs. </p>
+<p><strong>Camera work</strong></p>
+<p>Camera zoom was fixed so far: linear interpolation from zoom level X to zoom level Y, which is really interpolation between Unity&#39;s orthographic camera&#39;s orthographicSize property. But the zoom rate did not feel that great in some cases, so I added easing function as an option. Lo and behold, I&#39;m now using <a href="https://easings.net/">easeOutCubic</a> for zooming in the overworld, and looks like I wanted it to!</p>
+<p><strong>Python scripting</strong></p>
+<p>I&#39;m preparing a bunch of scripts to assist with trailer prep, such as:</p>
+<ul>
+<li>Generate an alpha channel image for some chosen text</li>
+<li>Create a sequence of images with fade in/out for the above image (using the fancy text effect)</li>
+<li>FFMPEG commands to convert between video and image sequences (thin wrapper over cmd really)</li>
+<li>ImageMagick commands to blend background and text overlay images (thin wrapper over cmd really)</li>
+<li>Other general custom work, e.g. animating and arranging a number of images. </li>
+</ul>
+
+As a sidenote, I'm not showing the final trailer cuts, as I want to leave something for the imagination... Next on the todo list is in-game captures, and I possibly have to create and distribute some decorative items first to populate the dungeons.

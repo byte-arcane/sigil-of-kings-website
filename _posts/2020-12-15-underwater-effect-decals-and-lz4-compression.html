@@ -1,0 +1,122 @@
+---
+layout: post
+title: Underwater effect, decals, and LZ4 compression
+date: 2020-12-15 15:01:35.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- art
+- programming
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619033173;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:3150;}i:1;a:1:{s:2:"id";i:2883;}i:2;a:1:{s:2:"id";i:3281;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  rank_math_seo_score: '70'
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_focus_keyword: underwater
+  _wpas_done_all: '1'
+  rank_math_analytic_object_id: '9'
+author:
+permalink: "/2020/12/15/underwater-effect-decals-and-lz4-compression/"
+---
+<p><!-- wp:paragraph --></p>
+<p>A little zoo of topics here, and what they have in common is me avoiding gameplay programming (which comes next), and that they're again nice-to-haves rather than essentials. But they were all fun to do, so that's that. Here's a video that shows the underwater effect and the decals:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:embed {"url":"https://youtu.be/4fF-oa-ei2o","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/4fF-oa-ei2o" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+</figure>
+<p><!-- /wp:embed --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Underwater effect</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Recently I refactored sprite rendering to use variants with <a href="{{ site.baseurl }}/2020/12/03/autotiles-instancing-and-object-clusters/" class="rank-math-link">multiple configuration variables</a>, one of them being the type of the pass being regular, shadow or occluded. The occluded pass is like the regular pass, but we draw in areas that fail the Z test, and make this pass semi-transparent. So far so good, and what does this have to do with the underwater effect? </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image --></p>
+<figure class="wp-block-image"><a href="{{ site.baseurl }}/assets/2020/12/taWUYq2.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2020/12/taWUYq2.webp" alt="Starting point: creatures float over water. Not good!" width="698" height="480" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2020/12/variants/taWUYq2.webp 698w, {{ site.baseurl }}/assets/2020/12/variants/taWUYq2-320w.webp 320w"/></a><br />
+<figcaption>Starting point: creatures float over water. Not good!</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>Well, previously my sprites have been holier-than-thou, as they all seem to be walking on top of any body of water, like the sea or some lakes/rivers in the level maps. Clearly that does not look very nice, and does not give the impression that we're inside that liquid. So, after a few experiments, I thought I'd reuse (the programmer's wet dream) the occluded pass to do that. How? A bit of background info first: In my rendering pipeline, <a href="{{ site.baseurl }}/2020/06/05/overworld-graphics-redux-vegetation/" class="rank-math-link">sprites do use depth/Z values</a>, so I can have order in rendering, characters appearing behind trees, etc.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>First we need to detect when we're on tiles with liquid. On those tiles, push the Z value further back: more for deep liquid, less for shallow liquid. Push the sprites so that part of the sprites is underground. <strong>Important:</strong> the position on screen is identical, I'm just pushing the Z value so that part of the sprite will fail the Z test</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image --></p>
+<figure class="wp-block-image"><a href="{{ site.baseurl }}/assets/2020/12/DYjaj7h.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2020/12/DYjaj7h.webp" alt="Change Z values when in liquid tiles, so half the sprite will fail the depth test" width="680" height="484" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2020/12/variants/DYjaj7h.webp 680w, {{ site.baseurl }}/assets/2020/12/variants/DYjaj7h-320w.webp 320w"/></a><br />
+<figcaption>Change Z values when in liquid tiles, so half the sprite will fail the depth test</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>Now sprites are successfully hiding in the liquid, and so far it's already looking good! Some short creatures might be completely underwater though, so you won't be able to see them. So we can enhance the visualization, and here is where we consider the occlusion pass.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Since there's going to be a part of the sprite that fails the Z test, this will pass the occluded pass test (which renders what fails Z test), so it really "just works" as long as no settings are changed (I had to hack things to show how it would look without the occluded pass running). The sprite portion that's underwater is naturally rendered with transparency.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image --></p>
+<figure class="wp-block-image"><a href="{{ site.baseurl }}/assets/2020/12/6PPe4K2.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2020/12/6PPe4K2.webp" alt="The "occlusion rendering" pass automatically renders the missing parts with transparency" occlusion="None" rendering"="None" pass="None" automatically="None" renders="None" the="None" missing="None" parts="None" with="None" transparency"="None" width="737" height="480" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2020/12/variants/6PPe4K2.webp 737w, {{ site.baseurl }}/assets/2020/12/variants/6PPe4K2-320w.webp 320w"/></a><br />
+<figcaption>The "occlusion rendering" pass automatically renders the missing parts with transparency</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>And now for the fun of it, because we know that things get distorted underwater and that water is never perfectly still, especially as adventurers and monsters plow through it, we can add a little bit of distortion in the occluded area. So in the pixel shader, if the occluded area represents area-in-liquid (we already have used this info in the vertex shader to push the Z back), then we just apply some periodic distortion in the sampling of the horizontal texture coordinate. And here's the result!</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image --></p>
+<figure class="wp-block-image"><a href="{{ site.baseurl }}/assets/2020/12/ct46Due.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2020/12/ct46Due.webp" alt="When rendering occluded parts while in a liquid, mess up the u texture coordinates for a shimmer/distortion effect" width="728" height="475" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2020/12/variants/ct46Due.webp 728w, {{ site.baseurl }}/assets/2020/12/variants/ct46Due-320w.webp 320w"/></a><br />
+<figcaption>When rendering occluded parts while in a liquid, mess up the u texture coordinates for a shimmer/distortion effect</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>Finally, just to spice things up slightly more, items dropped underwater are slightly visible, and the level of visibility depends on the depth. So, in shallow liquid are generally faint, but in deeper water they are even more faint. Maybe I should make them completely invisible in deep water, but let's see, maybe later.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image --></p>
+<figure class="wp-block-image"><a href="{{ site.baseurl }}/assets/2020/12/QP9wsvs.webp" target="_blank"><img src="{{ site.baseurl }}/assets/2020/12/QP9wsvs.webp" alt="A key on the ground (top-left), in shallow water (top middle) and deep water (bottom middle)" width="680" height="410" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2020/12/variants/QP9wsvs.webp 680w, {{ site.baseurl }}/assets/2020/12/variants/QP9wsvs-320w.webp 320w"/></a><br />
+<figcaption>A key on the ground (top-left), in shallow water (top middle) and deep water (bottom middle)</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Decals</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>One common effect in games is decals: images that are used as "stickers" in the game world. Examples could be footprints, blood spatter, scorch marks, etc. While these have certain challenges in order to implement in 3D, it's far easier to do in 2D, as it's just another sprite splatted in the world. And typically, decals can fade out after a while. So, since I've got the relevant rendering machinery already, I wanted to add support for decals, for any purpose that I see fit later on.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>What should have been a walk in the part, turned out to be a pain thanks to Unity's bad rendering debugging facilities. So, given the way I've structured the code, adding decals should have been a walk in the park. It's another sprite pass, and I implement it as a persistent particle system, where decals have a lifetime of 5-10 seconds, after which they fade out. So, I added a few blood spatter sprites, wrote a basic shader and hooked the systems up, and lo and behold, nothing to be seen. Long story short and a few hours later, the problem was that the Compute buffer (that I'm using to send instancing data) was set up on C# side to be 3 uints per element, and in the shader I had a StructuredBuffer&lt;uint&gt; that I was addressing by buffer[i*3+0], buffer[i*3+1] and buffer[i*3+2]. I was expecting that the memory would be aliased but that was not the case. And no errors of course did not help ("Hey, you're binding a uint3 buffer to an incompatible uint shader buffer!").  Anyway, long story short, that was it, and now we have decals. I hooked them up with damage, so that when a creature gets damaged it spawns a small blood spatter, and when it gets killed it spawns a big one. Yay for proof of concept, more to come when needed.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":3179,"sizeSlug":"large","linkDestination":"none"} --></p>
+<figure class="wp-block-image size-large"><a href="{{ site.baseurl }}/assets/2020/12/image-6.webp"><img src="{{ site.baseurl }}/assets/2020/12/image-6_thumb740.webp" alt="" class="wp-image-3179" width="740" height="265" loading="lazy"/></a><br />
+<figcaption>Killing the ghost results in blood pool. Ok, maybe this needs changing. But hey, decals work!</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4><strong>LZ4 compression</strong> for save files</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>Save files can get large, due to the large number of 2D arrays for various purposes: lots of layers per map, world map data, some other heavyweight caches, entities, etc. The finished game should have hundreds of cities and dungeons. I'm not going to go too deep into this rabbit hole for now, as it's eventually loading needs to become asynchronous, but to begin with, I wanted to reduce the file size.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The starting test case is 7 multi-level dungeons , so about 15-25 levels altogether, plus world map. Size on disk is 21MB, it takes about 3.2 seconds to save and 3.5 seconds to load (in Play in Editor, not final build). So I got a simple LZ4 implementation for C++ and put it in the C++ plugin. The plugin now has 3 more functions:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Save an array of bytes to a file using LZ4</li>
+<li>Get the number of uncompressed bytes needed by an LZ4 file on disk</li>
+<li>Decompress an LZ4 file to a preallocated array of bytes</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>The LZ4 bytes store as a first value an integer with how many bytes will we need. The reason I did that was because the plugin functions work with preallocated memory. So C# can query the correct size, allocate the byte array and send the array to be populated in C#. Still it's far from optimal due to some possibly unnecessary copies, but hey, it works. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The timings for the LZ4 version are pretty much the same, but the file size is now 5MB instead of 21MB. Yay!</p>
+<p><!-- /wp:paragraph --></p>

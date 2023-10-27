@@ -1,0 +1,45 @@
+---
+layout: post
+title: "Unity to Godot Part 6: Trees, shadows and a million monsters"
+date: 2023-10-26 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/10/monsters.png
+meta:
+author:
+permalink: "/2023/10/26/unity-to-godot-part-6-trees-shadows-and-a-million-monsters/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/tpdJChwpFGI" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/tpdJChwpFGI?autoplay=1><img src=https://img.youtube.com/vi/tpdJChwpFGI/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Overworld flythrough video"></iframe></div>
+<figcaption>Overworld flythrough video</figcaption>
+</figure>
+
+<p>This week was busy on a few fronts, but mostly on improving rendering. The new thing I was mainly busy with, was vegetation and creatures, and shadows and occlusions. A relevant older post is <a href="https://byte-arcane.github.io/sigil-of-kings-website/2020/06/05/overworld-graphics-redux-vegetation/">this one here</a>. </p>
+<p>The scene in the videos contains roughly 22,000 mountains (rendered twice: normal and shadows) 150,000 trees (rendered twice: normal and shadows) and 1,000,000 sprites (rendered 3 times: normal, shaddows and occluded)</p>
+<p>For my sanity, I&#39;m using the <a href="https://github.com/google/shaderc">shaderc</a> tool to assist with porting shaders to GLSL, as Godot&#39;s shader integration is friendlier towards ... Godot shaders, rather than GLSL. Admittedly, porting shaders is tedious because things get a bit more complicated when communicating between GLSL and regular code, e.g. there are no &quot;free&quot; uniforms (everything needs to be in some sort of buffer), some buffers should ideally have a very strict layout (aligned at 32 bytes), there needs to be a distinction between uniforms and push constants, and so on. </p>
+<p>I&#39;m still working and iterating on the abstractions for rendering, as that&#39;s pretty big and will affect more that 75% of the remaining refactoring work, so I better get this right. Previously, throughout the code I was using Graphics.DrawMeshIstanced and I was setting an appropriate layer. This is a bit too ... rogue for my liking, so with the new setup I want something more structured, where there is no stray rendering really, so that the rendering pipeline is well-known and contained (still, I should be able to dynamically add-remove render passes, like particle systems). </p>
+<p>I&#39;ve now just completed integrating the map border, which is yet another shader/pass. </p>
+<p>Other topics/changes:</p>
+<ul>
+<li>As I&#39;m moving through the abstractions, I&#39;ve refactored all texture-related code to use a simple wrapper over Godot&#39;s ResourceId that includes texture metadata (width/height/format/etc).</li>
+<li>Added unprojection of mouse coordinates to world-space coordinates again, for hover tile identification</li>
+<li>Trying to standardize to as few pushconstant formats as possible, e.g. one that&#39;s used for all overworld passes contains camera matrix, real time and texture atlas info.</li>
+<li>Found some good presets for world generation</li>
+<li>Added biome map and resources map (mined material distributions) to the runtime resources structure</li>
+<li>Fixed some bug with sprite depth calculation in the shaders (this allows proper occlusions now)</li>
+<li>Fixed some bug where palm trees were appearing in non-deserts in the overworld</li>
+<li>Fixed mushroom distribution in forests (too many previously)</li>
+</ul>
+<p>That&#39;s it for now, next week is iterating more on the abstractions as I integrate more and more things from previous work. The only thing left from overworld rendering is the fog of war (for which I can temporarily fudge data), but after that I have to be able to start the game in the overworld, which means fixing lots of runtime errors and thinking hard on how to organise the game state and rendering, to improve on the previous mess, as this is the chance for a cleaner slate!</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/_NorYuZ7b68" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/_NorYuZ7b68?autoplay=1><img src=https://img.youtube.com/vi/_NorYuZ7b68/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="The million monster march"></iframe></div>
+<figcaption>The million monster march</figcaption>
+</figure>

@@ -1,0 +1,39 @@
+---
+layout: post
+title: Polyline Effects
+date: 2022-02-17 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/02/pathfx.png
+meta:
+author:
+permalink: "/2022/02/17/polyline-effects/"
+---
+
+<p>This week the menu was &quot;path-based special effects&quot;, aka fun time-wasting with shaders. The reason is because I want to get a steam page going. To make a steam page, I need some sort of trailer (even with alpha features). To make a trailer I need interesting visuals. So, I need to create a few spells and spell effects, as they&#39;re always good candidates for showcasing things. By <strong>path-based</strong>, I mean <strong>continuous</strong> visual effects (ray, or fire blobs) along a path represented as a polyline, where we could either be moving tile-by-tile, or jump many tiles at once. Some examples below, with associated videos.</p>
+
+
+<figure>
+<div class="video-container"><iframe src="{{ site.baseurl }}/assets/video/lightning_bolt_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption><strong>Lightning</strong>. This can take the form of a bouncing long bolt, if your remember Baldur&#39;s Gate</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="{{ site.baseurl }}/assets/video/pathfx_fire2_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption><strong>Fire</strong>. This will be used for a firewall spell for example, where the player specifies start/end points and a bresenham line is created</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="{{ site.baseurl }}/assets/video/pathfx_rope_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption><strong>Rope</strong></a>. I&#39;ve wanted for a long time (years!) to create mobility skills that would include a rope/grapple hook, e.g. target a wall tile and immediately jump there. So at last I&#39;ve made the visual effect that I always had in mind.</figcaption>
+</figure>
+
+
+<p>There&#39;s a single particle system that is used for all these, which spawns quads along the polyline path, and sends them to the shader (alongside path information). The shader uses the path data to figure out how close to the path each pixel is, and set the pixels appropriately. It took me a few tries to create a version general enough to support these 3 effects easily, and obviously it should support many more.</p>
+

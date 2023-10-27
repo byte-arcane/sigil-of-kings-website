@@ -1,0 +1,494 @@
+---
+layout: post
+title: Attributes, skills and masteries
+date: 2018-10-10 08:51:21.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1617721114;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2373;}i:1;a:1:{s:2:"id";i:1992;}i:2;a:1:{s:2:"id";i:2110;}}}}
+  rank_math_internal_links_processed: '1'
+  _last_editor_used_jetpack: block-editor
+  rank_math_analytic_object_id: '39'
+author:
+permalink: "/2018/10/10/attributes-skills-and-masteries/"
+---
+<p>My intention for this first draft of attributes and skills is to use a mix of systems that I like: Dungeons and Dragons, Might &amp; Magic and Elder Scrolls. Needless to say, this is a draft and several things will change.</p>
+<p>The system is <strong>classless: </strong>characters are free to develop as they like, mixing and matching from a large pool of skills, where standard archetypes (fighter/wizard/rogue) are implemented as strategies for attribute and skill allocation.</p>
+<h3>Attributes</h3>
+<p>Attributes define the potential of a character for performing/using skills. They change infrequently, so they act as a skeleton for builds. They affect skills by providing bonuses (or penalties) and restricting skill mastery. I'm going with the typical DnD attributes except constitution.</p>
+<ul>
+<li><strong>STRENGTH:</strong> Physical power and resilience. Affects hitpoints.</li>
+<li><strong>AGILITY: </strong>Motor skills.</li>
+<li><strong>INTELLIGENCE: </strong>Intellect, reasoning. Affects spellcasting.</li>
+<li><strong>PERCEPTION: </strong>Intuition, awareness, insight.</li>
+<li><strong>CHARISMA: </strong>Influence on others</li>
+</ul>
+<p>For starters, I'll use the DnD scale where a value of 10 is average. Similarly, characters gain a point every 3 levels.</p>
+<h3>Skills</h3>
+<p>Skills are areas of expertise and training. They are split into multiple categories: Body and mind, offense, defense, stealth, lore, perception, crafts, magic, social and adventure. The categories are just a way of grouping related skills, so that players do not see a massive flat list of skills.</p>
+<p>Skills can be used in a variety of scenarios, when a character is attempting certain actions (swim in the river/climb mountains: use Athletics. Attack with a greatsword: use "two handed style". Talk to a guild member, use "persuasion" or "renown". etc).</p>
+<p>Skills start at 0 can be trained up to 50. Characters will earn 5 skill points each level to distribute. A skill value cannot be higher than 2x character level. So, a skill can be maxed at lvl 25. For reference, the soft cap for character level would be around 30, reached at about 20h of playtime.</p>
+<p>Skills have optional associated major and minor attributes (in the below table, in column 3, if only one initial appears, it's a major attribute). Major and minor attribute affect skill advancement as explained in the masteries section below.</p>
+<style type="text/css"><!--td {border: 1px solid #ccc;}br {mso-data-placement:same-cell;}--></style>
+<table dir="ltr" border="1" cellspacing="0" cellpadding="0">
+<colgroup>
+<col width="250" />
+<col width="117" />
+<col width="105" />
+<col width="540" /></colgroup>
+<tbody>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Athletics&quot;}">Athletics</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Body and mind&quot;}"><strong>Body and mind</strong></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;SA&quot;}">SA</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Climbing, swimming, etc&quot;}">Climbing, swimming, etc</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Fortitude&quot;}">Fortitude</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;S&quot;}">S</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Resilience to effects on the body, e.g. poison and disease&quot;}">Resilience to effects on the body, e.g. poison and disease</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Reflexes&quot;}">Reflexes</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;A&quot;}">A</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Avoidance of physical effects&quot;}">Avoidance of physical effects</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Willpower&quot;}">Willpower</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;P&quot;}">P</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Resilience to effects on the mind, e.g. charm, sleep, hypnotize. Also used for morale checks in combat.&quot;}">Resilience to effects on the mind, e.g. charm, sleep, hypnotize. Also used for morale checks in combat.</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Concentration&quot;}">Concentration</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;I&quot;}">I</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Resistance to being interrupted while using powers and casting spells&quot;}">Resistance to being interrupted while using powers and casting spells</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Body building&quot;}">Body building</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;S&quot;}">S</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Hit points bonus&quot;}">Hit points bonus</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Meditation&quot;}">Meditation</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;I&quot;}">I</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Mana points bonus&quot;}">Mana points bonus</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Weapon style [two-handed]&quot;}">Weapon style [two-handed]</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Offense&quot;}"><strong>Offense</strong></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;S&quot;}">S</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective wielding of two-handed weapons + tactics&quot;}">Effective wielding of two-handed weapons + tactics</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Weapon style [one-handed]&quot;}">Weapon style [one-handed]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;SA&quot;}">SA</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective wielding of one-handed weapons, with or without shield + tactics&quot;}">Effective wielding of one-handed weapons, with or without shield + tactics</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Weapon style [dual-wielding&quot;}">Weapon style [dual-wielding</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;AS&quot;}">AS</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective wielding of two weapons simultaneously + tactics&quot;}">Effective wielding of two weapons simultaneously + tactics</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Weapon style [ranged]&quot;}">Weapon style [ranged]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;AS&quot;}">AS</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective wielding of ranged weapons + tactics&quot;}">Effective wielding of ranged weapons + tactics</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Melee weapon mastery [blunt]&quot;}">Melee weapon mastery [blunt]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;SA&quot;}">SA</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of blunt weapons: stunning, etc&quot;}">Effective use of blunt weapons: stunning, etc</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Melee weapon mastery [slashing]&quot;}">Melee weapon mastery [slashing]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;AS&quot;}">AS</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of swords and axes: bleeding, etc&quot;}">Effective use of swords and axes: bleeding, etc</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Melee weapon mastery [daggers]&quot;}">Melee weapon mastery [daggers]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;A&quot;}">A</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of daggers: backstab bonuses, critical, etc&quot;}">Effective use of daggers: backstab bonuses, critical, etc</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Melee weapon mastery [polearms]&quot;}">Melee weapon mastery [polearms]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;SA&quot;}">SA</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of polearm weapons&quot;}">Effective use of polearm weapons</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ranged weapon mastery [bows/crossbows]&quot;}">
+<div>
+<div>Ranged weapon mastery [bows/crossbows]</div>
+</div>
+</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;AS&quot;}">AS</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of bows and crossbows&quot;}">Effective use of bows and crossbows</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ranged weapon mastery [slings/blowpipes]&quot;}">
+<div>
+<div>Ranged weapon mastery [slings/blowpipes]</div>
+</div>
+</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;A&quot;}">A</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of slings and blowpipes (stunning for slings, criticals for both, etc)&quot;}">Effective use of slings and blowpipes (stunning for slings, criticals for both, etc)</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ranged weapon mastery [thrown]&quot;}">Ranged weapon mastery [thrown]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;SA&quot;}">SA</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of thrown weapons (knockback effects when using heavy items, etc)&quot;}">Effective use of thrown weapons (knockback effects when using heavy items, etc)</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Armor [light]&quot;}">Armor [light]</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Defense&quot;}"><strong>Defense</strong></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;A&quot;}">A</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of light armor: focus on mobility and stealth&quot;}">Effective use of light armor: focus on mobility and stealth</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Armor [medium]&quot;}">Armor [medium]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;AS&quot;}">AS</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of medium armor: tradeoff between protection and mobility/stealth&quot;}">Effective use of medium armor: tradeoff between protection and mobility/stealth</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Armor [heavy]&quot;}">Armor [heavy]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;S&quot;}">S</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of heavy armor: focus on protection&quot;}">Effective use of heavy armor: focus on protection</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Shield mastery&quot;}">Shield mastery</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;SA&quot;}">SA</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of shields: bucklers to tower shields&quot;}">Effective use of shields: bucklers to tower shields</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Sleight of hand&quot;}">Sleight of hand</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Stealth&quot;}"><strong>Stealth</strong></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;A&quot;}">A</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Pickpocketing creatures, burglary&quot;}">Pickpocketing creatures, burglary</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Hide&quot;}">Hide</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;A&quot;}">A</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Hide in shadows (opposite of Spot skill)&quot;}">Hide in shadows (opposite of Spot skill)</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Lockpicking&quot;}">Lockpicking</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;A&quot;}">A</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Opening locked doors, chests and any containers that are mechanically locked&quot;}">Opening locked doors, chests and any containers that are mechanically locked</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Move silently&quot;}">Move silently</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;A&quot;}">A</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Opposite of Listen skill&quot;}">Opposite of Listen skill</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Item lore&quot;}">Item lore</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Lore&quot;}"><strong>Lore</strong></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;PI&quot;}">PI</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Item identification and knowledge&quot;}">Item identification and knowledge</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Creature lore&quot;}">Creature lore</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;PI&quot;}">PI</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Creature knowledge&quot;}">Creature knowledge</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;History and legends&quot;}">History and legends</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;PI&quot;}">PI</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Knowledge about myths, legends, history and past world events&quot;}">Knowledge about myths, legends, history and past world events</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Dungeon lore&quot;}">Dungeon lore</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;PI&quot;}">PI</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Knowledge about dungeons (architecture, layouts, etc)&quot;}">Knowledge about dungeons (architecture, layouts, etc)</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Arcane lore&quot;}">Arcane lore</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;PI&quot;}">PI</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Knowledge about arcana&quot;}">Knowledge about arcana</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Literacy&quot;}">Literacy</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;I&quot;}">I</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Knowledge and ability to decipher dead languages, old scripts, etc&quot;}">Knowledge and ability to decipher dead languages, old scripts, etc</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Detect traps&quot;}">Detect traps</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Awareness&quot;}"><strong>Awareness</strong></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;P&quot;}">P</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ability to detect traps&quot;}">Ability to detect traps</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Spot&quot;}">Spot</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;P&quot;}">P</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ability to spot difficult to see creatures, items and dungeon features&quot;}">Ability to spot difficult to see creatures, items and dungeon features</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Listen&quot;}">Listen</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;P&quot;}">P</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ability to listen to moving creatures in dungeons, other dungeon sounds (e.g. water running in secret room), enemy ambush in the wilderness, etc&quot;}">
+<div>
+<div>Ability to listen to moving creatures in dungeons, other dungeon sounds (e.g. water running in secret room), enemy ambush in the wilderness, etc</div>
+</div>
+</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Sixth sense&quot;}">Sixth sense</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;P&quot;}">P</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ability to sense danger (ambush, powerful creatures, strong traps)&quot;}">Ability to sense danger (ambush, powerful creatures, strong traps)</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Disarm traps&quot;}">Disarm traps</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Crafts&quot;}"><strong>Crafts</strong></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;AP&quot;}">AP</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ability to disarm traps&quot;}">Ability to disarm traps</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Repair&quot;}">Repair</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;SP&quot;}">SP</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ability to repair items&quot;}">Ability to repair items</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Cooking&quot;}">Cooking</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;IP&quot;}">IP</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ability to cook nourishing meals&quot;}">Ability to cook nourishing meals</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Make weapons&quot;}">Make weapons</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;SI&quot;}">SI</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ability to make weapons. Skill in particular weapons is needed too&quot;}">Ability to make weapons. Skill in particular weapons is needed too</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Make armor&quot;}">Make armor</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;SI&quot;}">SI</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ability to make armor. Skill in particular armor is needed too&quot;}">Ability to make armor. Skill in particular armor is needed too</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Make accessories and utility&quot;}">Make accessories and utility</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;AI&quot;}">AI</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ability to make jewelry and general utility items&quot;}">Ability to make jewelry and general utility items</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Enchant item&quot;}">Enchant item</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Magic&quot;}"><strong>Magic</strong></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;I&quot;}">I</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ability to enchant items&quot;}">Ability to enchant items</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Alchemy&quot;}">Alchemy</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;I&quot;}">I</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ability to effectively mix potions&quot;}">Ability to effectively mix potions</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Wand mastery&quot;}">Wand mastery</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;I&quot;}">I</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of wands (single hand, with shield, dual-wielding)&quot;}">Effective use of wands (single hand, with shield, dual-wielding)</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Staff mastery&quot;}">Staff mastery</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;I&quot;}">I</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of staves as magic spell conduits&quot;}">Effective use of staves as magic spell conduits</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Magic school mastery [command]&quot;}">Magic school mastery [command]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;I&quot;}">I</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of command magic spells (charms, curses)&quot;}">Effective use of command magic spells (charms, curses)</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Magic school mastery [alteration]&quot;}">Magic school mastery [alteration]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;I&quot;}">I</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of alteration magic spells (buffs, debuffs)&quot;}">Effective use of alteration magic spells (buffs, debuffs)</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Magic school mastery [divination]&quot;}">Magic school mastery [divination]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;I&quot;}">I</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of divination magic spells (magic eye, detection)&quot;}">Effective use of divination magic spells (magic mapping, detection)</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Magic school mastery [creation]&quot;}">Magic school mastery [creation]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;I&quot;}">I</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of creation magic spells (heal, summon)&quot;}">Effective use of creation magic spells (heal, summon)</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Magic school mastery [destruction]&quot;}">Magic school mastery [destruction]</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;I&quot;}">I</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective use of destruction magic spells ( elemental, damage)&quot;}">Effective use of destruction magic spells ( elemental, damage)</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Leadership&quot;}">Leadership</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Social&quot;}"><strong>Social</strong></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;C&quot;}">C</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Ease of recruiting and maintaining followers. Also, summoning strength/effectiveness, otherwise e.g. powerful summons can turn against you. Also affects party morale in combat&quot;}">
+<div>
+<div>Ease of recruiting and maintaining followers. Also, summoning strength/effectiveness, otherwise e.g. powerful summons can turn against you. Also affects party morale in combat</div>
+</div>
+</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Persuasion&quot;}">Persuasion</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;C&quot;}">C</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Extract information, convince, reduce relationship penalties&quot;}">Extract information, convince, reduce relationship penalties</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Haggling&quot;}">Haggling</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;C&quot;}">C</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Cheaper prices for everything&quot;}">Cheaper prices for everything</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Renown&quot;}">Renown</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;C&quot;}">C</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effectiveness of adventuring feats and deeds in terms of renown&quot;}">Effectiveness of adventuring feats and deeds in terms of renown</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Perform&quot;}">Perform</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;C&quot;}">C</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Musical instruments, dancing, acting&quot;}">Musical instruments, dancing, acting</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Scouting&quot;}">Scouting</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Adventure&quot;}"><strong>Adventure</strong></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;PI&quot;}">PI</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Sight radius, more info on nearby overworld entities (e.g. creature groups and locations), ambush bonuses&quot;}">
+<div>
+<div>Sight radius, more info on nearby overworld entities (e.g. creature groups and locations), ambush bonuses</div>
+</div>
+</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Survival&quot;}">Survival</td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;PI&quot;}">PI</td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Effective camping and travelling in the wilderness, ambush bonuses, finding more food&quot;}">Effective camping and travelling in the wilderness, ambush bonuses, finding more food</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Luck&quot;}">Luck</td>
+<td></td>
+<td></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Find more things, find less curse and more blessed items, maybe occasional reroll when getting gravely injured&quot;}">
+<div>
+<div>Find more things, find less curse and more blessed items, maybe occasional reroll when getting gravely injured</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Again, the above is still work in progress and several things are prone to change. What's missing at the moment are <strong>active </strong>abilities, but that's for another time and out of the scope of this post.</p>
+<h3>Skill mastery levels</h3>
+<p>For each skill, there are several mastery levels / tiers. Everybody starts at the Novice level. When the character has allocated a certain number of points to a skill and fulfills certain attribute requirements (see Major/Minor attributes in previous section and column 3 in previous table), the character is eligible for advancing the mastery level, typically using a guild/trainer (for grandmaster level and maybe more, quests would be involved, as in Might and Magic games). Advancing a mastery level will give fixed bonuses and affect interactions with the character in the game world, unlocking quests, affecting relations, etc. For requirement purposes, the game will use natural values, not counting effects from spells/items/etc.</p>
+<p>&nbsp;</p>
+<table dir="ltr" border="1" cellspacing="0" cellpadding="0">
+<colgroup>
+<col width="216" />
+<col width="100" />
+<col width="100" />
+<col width="100" /></colgroup>
+<tbody>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Skill mastery level names&quot;}"><strong>Skill mastery level names</strong></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Skill Req&quot;}"><strong>Skill Req</strong></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Maj Attr Req&quot;}"><strong>Maj Attr Req</strong></td>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Min Attr Req&quot;}"><strong>Min Attr Req</strong></td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Novice&quot;}">Novice</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:0}">0</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Apprentice&quot;}">Apprentice</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:1}">1</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:4}">4</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:2}">2</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Adept&quot;}">Adept</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:8}">8</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:5}">5</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Expert&quot;}">Expert</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:15}">15</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:12}">12</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:8}">8</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Master&quot;}">Master</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:30}">30</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:16}">16</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:11}">11</td>
+</tr>
+<tr>
+<td data-sheets-value="{&quot;1&quot;:2,&quot;2&quot;:&quot;Grandmaster&quot;}">Grandmaster</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:50}">50</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:20}">20</td>
+<td data-sheets-value="{&quot;1&quot;:3,&quot;3&quot;:14}">14</td>
+</tr>
+</tbody>
+</table>
+<p>If a character does not fulfill the attribute requirements for a skill, they cannot allocate points any further. For example, a fighter character with STR=17, DEX=13 and INT=10 can achieve:</p>
+<ul>
+<li>Master in Heavy Armor ( STR &gt; 16)</li>
+<li>Master in Shield ( STR &gt; 16, DEX &gt; 11)</li>
+<li>Expert in Make Weapons ( STR &gt; 12, INT &gt; 8)</li>
+</ul>
+<h3>HP/MP</h3>
+<p>The game will use standard cRPG values for life and spellcasting.</p>
+<p>Max hitpoints for a level can be calculated from level, Strength attribute and Body building skill. Max spell points are similarly calculated from level, Intelligence attribute and Meditation skill. The formula draft at the moment (which will change with 99.9% certainty) is:</p>
+<p style="text-align: center;"><strong>Level</strong> x ((<strong>Attribute</strong>-10) x 1.5 + <strong>Skill </strong>x 0.5 + 10)</p>
+<h3>Testing things out</h3>
+<p>At the moment I have a character generator based on predefined archetypes (fighter/wizard/mage/etc), so the next step is to design "challenges" for characters, their cost in terms of HP/MP and their value in terms of experience.</p>

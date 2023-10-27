@@ -1,0 +1,87 @@
+---
+layout: post
+title: Procedural Generation of Painterly Mountains
+date: 2020-06-11 21:52:03.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- art
+- programming
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618849131;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1766;}i:1;a:1:{s:2:"id";i:2883;}i:2;a:1:{s:2:"id";i:1738;}}}}
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  _g_feedback_shortcode_6c040f6a54d08b15498e9bfb7b96b14497ae1c45: '[contact-field
+    label="Name" type="name" required="1"/][contact-field label="Email" type="email"
+    required="1"/][contact-field label="Website" type="url"/][contact-field label="Comment"
+    type="textarea" required="1"/]'
+  _g_feedback_shortcode_atts_6c040f6a54d08b15498e9bfb7b96b14497ae1c45: a:10:{s:2:"to";s:30:"admin@age-of-transcendence.com";s:7:"subject";s:67:"[Age
+    of Transcendence] Procedural Generation of Painterly Mountains";s:12:"show_subject";s:2:"no";s:6:"widget";i:0;s:2:"id";i:2947;s:18:"submit_button_text";s:6:"Submit";s:14:"customThankyou";s:0:"";s:21:"customThankyouMessage";s:30:"Thank
+    you for your submission!";s:22:"customThankyouRedirect";s:0:"";s:10:"jetpackCRM";b:1;}
+  rank_math_internal_links_processed: '1'
+  _edit_last: '1'
+  rank_math_analytic_object_id: '14'
+author:
+permalink: "/2020/06/11/procedural-generation-of-painterly-mountains/"
+---
+<p><!-- wp:image {"id":2948,"sizeSlug":"full"} --></p>
+<figure class="wp-block-image size-full"><a href="{{ site.baseurl }}/assets/2020/06/mountains_all.webp"><img src="{{ site.baseurl }}/assets/2020/06/mountains_all_thumb740.webp" alt="" class="wp-image-2948" width="740" height="375" loading="lazy"/></a></figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:image {"id":2951,"width":654,"height":328,"sizeSlug":"large","className":"img { image-rendering: pixelated; -moz-crisp-edges; crisp-edges; }"} --></p>
+<figure class="wp-block-image size-large is-resized img { image-rendering: pixelated; -moz-crisp-edges; crisp-edges; }"><img class="imgmax" src="{{ site.baseurl }}/assets/2020/06/mountainSprite_11-1.webp" alt="" class="wp-image-2951" width="654" height="328" /></figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><a href="{{ site.baseurl }}/2020/06/05/overworld-graphics-redux-vegetation/">Last time I showed the revamped world look, with poisson disc distributions of vegetation</a>. Mountains were absent in that version. The reason is, I don't have any good graphics for mountains. To add to the problem, I would need mountains that could be applicable to many biomes, and that's not that easy either! Things that I find available online are <a href="https://66.media.tumblr.com/8e5ff0842e87fb3e5f9d4a34d61a8b48/tumblr_oabl2evORr1uo5d9jo2_r1_640.gifv">tile-able far-zoomed-out mountains</a>, or <a href="https://i.redd.it/r36s9exzs4u21.png">2D backdrop style</a>.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>For years I had been tempted with the idea to procedurally generate mountains, and I guess the time came to try it out.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Requirements</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Lots of mountain variation</li>
+<li>Ability to generate mountains for multiple biomes</li>
+<li>Mountains should be somewhere between pixel art and painterly, as found in a good-looking retro-style 2D game</li>
+<li>Be able to overlay mountains together to make mountain ranges</li>
+<li>Mountains should be billboards rather than decals: The projection should be top-down oblique, <a href="https://i.stack.imgur.com/9Mzft.gif">like this</a></li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>Process</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Simplex noise added to a sort-of-bell-curve, to generate outline</li>
+<li>Pick the top point and generate downwards "main" ridge, using some more Simplex noise</li>
+<li>Maybe generate some mini ridges at <a href="https://en.wikipedia.org/wiki/Stationary_point">stationary </a>points, mostly using same settings but smaller length</li>
+<li>Identify "left" and "right" sides of mountain, and make sure the "left" side is lit better</li>
+<li>Calculate distance field from main ridge, and use it for shading</li>
+<li>Calculate dijkstra map using all ridge points and outline points as goals, and use it for shading</li>
+<li>Calculate a downwards slope direction for each of the "left" and "right" sides, and use that to distort a Simplex noise domain, which we sample to change the shading even more</li>
+<li>Use Simplex noise to calculate the tree line, also based on the highest peak</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>What contributes to the mountainside luminance?</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>All the below are luminance factors that get multiplied together to give the final luminance</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>shading based on pathfinding distance to the outline (a bit darker near the outline)</li>
+<li>side: 1 if on the left side, 0.75 if on the right side of the main ridge</li>
+<li>shading based on pathfinding distance to the main ridge (a bit lighter near the main ridge)</li>
+<li>domain-warped Simplex, different distortion based on the side of the mountain (left/right)</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p><!-- /wp:paragraph --></p>

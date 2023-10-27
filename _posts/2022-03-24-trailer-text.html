@@ -1,0 +1,45 @@
+---
+layout: post
+title: Trailer text
+date: 2022-03-24 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/03/trailer_text.png
+meta:
+author:
+permalink: "/2022/03/24/trailer-text/"
+---
+
+
+<figure><a href="{{ site.baseurl }}/assets/2022/03/trailer_text.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/03/variants/trailer_text.webp" srcset="{{ site.baseurl }}/assets/2022/03/variants/trailer_text.webp 1280w, {{ site.baseurl }}/assets/2022/03/variants/trailer_text-960w.webp 960w, {{ site.baseurl }}/assets/2022/03/variants/trailer_text-640w.webp 640w, {{ site.baseurl }}/assets/2022/03/variants/trailer_text-320w.webp 320w" alt="Trailer text overlay" width="1280" height="720" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Trailer text overlay</figcaption>
+</figure>
+
+<p>This week was a bit slow, working on a particular element of the trailer which is the overlay text. I wanted a nice font and some nice effect to make it stand out, and since I&#39;m on full DIY mode, I need to do something more that provided presets from open source programs. As usual, I ended up using some combination of distance fields and simplex noise. I found out a really nice font called <a href="https://fonts.google.com/specimen/Milonga">Milonga</a>. 
+
+<p>The way it works is roughly:</p>
+<ul>
+<li>Initialise an empty image with 2x the size, so that I can do some nice downscaling in the end for supersampling antialiasing.</li>
+<li>Render text using desired font to desired position in an image, with plenty of padding</li>
+<li>Calculate distance field based on distance to the opaque font pixels</li>
+<li>Calculate some 3D FBM simplex noise (pixel_x, pixel_y, time)</li>
+<li>Combine the FBM and the distance field to get a fuzzy noisy wispy text effect, still single channel</li>
+<li>Modulate to obtain other channels (resulting in the blueish hue)</li>
+</ul>
+<p>Still working on things like text placement, font size, fade in/out effects/animations etc, so that I can put all the trailer related text procedurally into the video segments. </p>
+
+<figure>
+	<div class="video-container"><iframe src="https://www.youtube.com/embed/sxTG5Xwkyl0" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/sxTG5Xwkyl0?autoplay=1><img src=https://img.youtube.com/vi/sxTG5Xwkyl0/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Trailer text starting a few seconds in, with a quick fade in/out effect"></iframe></div>
+	<figcaption>Trailer text starting a few seconds in, with a quick fade in/out effect</figcaption>
+</figure>
+
+<figure>
+	<div class="video-container"><iframe src="https://www.youtube.com/embed/sxTG5Xwkyl0" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/sxTG5Xwkyl0?autoplay=1><img src=https://img.youtube.com/vi/sxTG5Xwkyl0/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Same as above, but with longer fade in/out times and pixelated font"></iframe></div>
+	<figcaption>Same as above, but with longer fade in/out times and pixelated font</figcaption>
+</figure>

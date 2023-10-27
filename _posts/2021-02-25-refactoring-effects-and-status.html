@@ -1,0 +1,55 @@
+---
+layout: post
+title: Refactoring Effects and Status
+date: 2021-02-25 22:53:56.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1617792476;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:3291;}i:1;a:1:{s:2:"id";i:3281;}i:2;a:1:{s:2:"id";i:2461;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  rank_math_seo_score: '58'
+  rank_math_focus_keyword: effects
+  _wpas_done_all: '1'
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '4'
+author:
+permalink: "/2021/02/25/refactoring-effects-and-status/"
+---
+<p><!-- wp:embed {"url":"https://www.youtube.com/watch?v=NE5n1QoCWQo","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/NE5n1QoCWQo" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/NE5n1QoCWQo?autoplay=1><img src=https://img.youtube.com/vi/NE5n1QoCWQo/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Freezing and burning effects"></iframe>
+</div>
+<figcaption>Freezing and burning effects</figcaption>
+</figure>
+<p><!-- /wp:embed --></p>
+<p><!-- wp:paragraph --></p>
+<p>Quite a bit of refactoring this week, and some bug fixing as well. Net results: level-scalable effects and more/better status effects. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Effects</strong> now are level-scalable, and they also include a source entity. Basically, I have this Effect class everywhere in the gameplay code, which previously was just a generic Effect.Execute( Entity target). While super-general, it's also super-problematic when I want to have more info. Long story short, I realised that changing that to Effect.Execute( Entity target, Entity source, float effectLevel) is absolutely great and useful for anywhere effects are used in the codebase. So, I can have a damage effect that scales with level, e.g. 5-30 damage at level 3, and add 1-6 to the min/max for each level thereafter. Example: instead of having a lot of healing potion variations, I could even get away with just a single healing potion with level scaling. There can be still weak/strong potion variations by changing the constant/scaling values (if a weak potion cures 1d8+2d4<em>level, a strong potion could cure 2d8+4d4</em>level). Level scaling is optional, so many effects are of course not scaled like that. By knowing who the source is, it's easy to track the source entity to award XP on death, among other uses. This can/should chain, for example if a player creates a trap that applies a burning effect to a creature, that dies after 3 turns of being burnt, the user should get the XP.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Status effects</strong> got a big update, to support more complex things. I've added burning and freezing to test a few things:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Can now attach visual effects to the entity with that status, e.g. a freezing entity will appear blueish, whereas a burning entity will be surrounding in flames.</li>
+<li>Can now attach effects, permanent or temporary, to status effects. For example burning has a permanent effect where, for a few turns, we repeatedly apply a permanent hit points modification (fire damage), so basically damage over time. Freezing has a temporary effect where it reduces the total speed by 50% for its duration. Status effects can optionally stack, so if I decide later to have a status effect, such as poison, that can stack, then getting poisoned twice might be twice as bad. Status effects can be associated to verbal, somatic or visual components, where as active abilities might require any combination of verbal (e.g. spell/warcry), somatic (anything that requires body movement) or visual (anything that requires a clear view of a target) component.</li>
+<li>I'm not going to go the route of status effects cancelling each other and changing to other things (e.g. burning + frozen cancelling each other out, etc). If necessary, it can be explained anyway as your feet are burning while your arms are encased in ice :)</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p><strong>Secret things</strong> are uncovered only when they are in view, and only uncover them by the player.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>I also fixed a bug with passing <strong>StructuredBuffers</strong> to Unity shaders. Unity did not want to send a compute buffer to gpu correctly when in the shader I use StructuredBuffer and in Unity I specify the buffer with a size of 4,6,8 uints and a few more. Yes, totally reasonable, but it should warn me maybe that shader and ComputeBuffer do not match?? Ugh, spent 2-3 hours on that at least.</p>
+<p><!-- /wp:paragraph --></p>

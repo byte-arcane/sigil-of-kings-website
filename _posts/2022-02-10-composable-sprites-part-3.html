@@ -1,0 +1,48 @@
+---
+layout: post
+title: Composable Sprites Part 3
+date: 2022-02-10 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/02/composables_eq.png
+meta:
+author:
+permalink: "/2022/02/10/composable-sprites-part-3/"
+---
+
+<p>This week, well, more <strong>composable sprites!</strong></p>
+<p>If you&#39;re thinking &quot;not again&quot; or even &quot;huh, what&#39;s that?&quot; I&#39;ll just point you to the latest video demonstrating equipment, below. Put it on max speed to save time. I love the results, but I&#39;m biased as hell. It contains the same character (hobo looking dude; wanted to try long hair) wearing different equipment, but this time including: robes, 3 types of cloaks, 3 types of armor, 7 types of helmets, staff and scepter. </p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/504AZgVzYbY" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/504AZgVzYbY?autoplay=1><img src=https://img.youtube.com/vi/504AZgVzYbY/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Demonstrating different equipment. Everything works with everything."></iframe></div>
+<figcaption>Demonstrating different equipment. Everything works with everything.</figcaption>
+</figure>
+
+<p>Most equipment is from oryx sprites (scale mail is mine), that I used to extract the bits of interest and add the appropriate metadata (alignment info, some material info, etc)</p>
+<p><strong>Equipment and materials</strong></p>
+<p>The material is typically reflected in the equipment colour. I&#39;ll have various materials that correspond to different qualities and effects, and there will be visual representation. I&#39;ve assigned the grey-ish colour to iron, that you can see in the videos. Leather has an orange colour. You can see in the video above that metal gauntlets and leather gauntlets (and similar with boots) are actually shown on the sprite, even if it&#39;s the colour of 4-5 pixels in total. </p>
+<p><strong>Long hair drama</strong></p>
+<p>I wanted to achieve something, but it did NOT work out and I lost a day of development. I wanted to support long hair in a way that if the character wears a helmet, part of the hair would show, as appropriate. E.g. long hair would partially show (anything under ear level) whereas a tall mohawk would not show. Long story short, none of my ideas were bulletproof or remotely user-friendly (weird special-case distance fields or hand-pixeling things, ugghhh), so I ditched the concept. If the player adores their characters long mane or beautiful afro style or whatever, there&#39;s going to be the essential option of &quot;hide helmet&quot;, otherwise, when a helmet is worn, it will either naturally cover the hair pixels (e.g. tiara and crown in above video), or it will remove the hair (and maybe the beard) layer(s).</p>
+<p><strong>Misc</strong></p>
+<ul>
+<li>&quot;Bots&quot; (behaviours that are a mix of devtools and AI) can now be spawned from console. At the moment I have 2 bots: one that makes dungeons, enters and takes screenshots, and another that creates all these variations on skin colour and equipment.</li>
+<li>Added some editor window to test cosmetic changes</li>
+<li>Added some editor window to help align sprites (super useful when adding new equipment sprites)</li>
+<li>Fixed a bug where the colour of the hands (skin) could be different than the face colour. </li>
+<li>Changed layers so that cloak is behind body. </li>
+<li>The hands are now in a different layer, on their own. Actually the layers look more and more similar to the equipment slots</li>
+<li>I&#39;ve changed the palette recolouring: before a magenta shade between 0 and 255 would correspond to the shade of the palette colour, multiplied by that intensity. Now, full intensity is reached at 127, and the rest are used to interpolate between the palette colour and white, to add the capability to have highlights (e.g. for metal equipment)</li>
+<li>In levels, I would occasionally spawn bunny bosses. A bunny boss does not make much sense, as bunnies are peaceful and never attack, so I&#39;d only allow elite peaceful creatures to spawn, but never bosses. </li>
+</ul>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2022/02/composables_eq.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/02/variants/composables_eq.webp" srcset="{{ site.baseurl }}/assets/2022/02/variants/composables_eq.webp 561w, {{ site.baseurl }}/assets/2022/02/variants/composables_eq-320w.webp 320w" alt="A few equipment combinations" width="561" height="396" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>A few equipment combinations</figcaption>
+</figure>
+

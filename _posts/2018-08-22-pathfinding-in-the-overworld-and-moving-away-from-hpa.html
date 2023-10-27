@@ -1,0 +1,94 @@
+---
+layout: post
+title: Pathfinding in the overworld, and moving away from HPA*
+date: 2018-08-22 10:05:04.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _wp_old_slug: movement-in-the-overworld-and-moving-away-from-hpa
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618290133;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1659;}i:1;a:1:{s:2:"id";i:793;}i:2;a:1:{s:2:"id";i:2883;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '43'
+author:
+permalink: "/2018/08/22/pathfinding-in-the-overworld-and-moving-away-from-hpa/"
+---
+<h3>HPA* - bad decision?</h3>
+<p>1.5 years ago I <a href="{{ site.baseurl }}/2017/01/11/hpa/">wrote a post about my implementation of HPA*</a>, and I was quite happy with it. At that time, I did make some assumptions about movement in the overworld:</p>
+<ul>
+<li>Lots of units calculate pathfinding in the overworld</li>
+<li>Movement mode is by land, water or air (walking/riding, swimming/sailing or flying)</li>
+<li>Each unit can support multiple movement modes, each with their own speed</li>
+<li>Each unit could have traits that affect the movecosts in a subset of biomes (pirates faster over sea, dwarves faster in mountains, etc)</li>
+</ul>
+<p>The way the pathfinding system currently works is based on a unique "move cost map" ID, which is generated based on any movecost modifiers and movement modes. So, for the overworld map, we could have several IDs:</p>
+<ul>
+<li>walking, no modifiers</li>
+<li>walking, faster in coastal terrain</li>
+<li>flying</li>
+<li>flying, faster over sea</li>
+<li>walking and flying, walking faster in forest</li>
+<li>swimming, walking</li>
+<li>....</li>
+</ul>
+<p>Each of those needs a unique pathfinder. Problem is, HPA*:</p>
+<ul>
+<li>Needs quite a bit of storage</li>
+<li>Needs <strong>a lot</strong> of precalculations</li>
+<li>Works well when many units share the same HPA* data structure</li>
+</ul>
+<p>Currently, I'm a bit closer into putting units (NPC parties) on the map, and I've made some horrifying realization, which one might notice from the above: The unbounded potential combinations will dwarf the benefits that HPA* will offer, as I can't guarantee that many units will share the same data structures. So, that's my research of an optimized pathfinder out of the window. Oh well.</p>
+<h3>Updated constraints/assumptions</h3>
+<p>So, my issue now is that I can have <strong>many</strong> movecost maps and <strong>many</strong> units per movecost map (although for the latter, I don't know how many). Also, the map is going to be at least 512x512. So, how to deal with the issue of efficient pathfinding for the overworld? Constraints and assumptions. At the moment, I make the following assumptions:</p>
+<ol>
+<li>Lots of NPC parties moving in the world (say N, could be thousands)</li>
+<li>At worst case, each NPC party has its own movecost ID; a function to calculate the cost of a tile that has unique parameters for each party.</li>
+<li>When NPC parties travel great distances, it is logical to assume that they stop for supplies and a good night's sleep to every city they can find</li>
+<li>When NPC parties travel across the sea, they possibly don't carry their own boats, so they would go to a port, and board a ship to go to another port</li>
+<li>NPC parties would generally travel well-trodden roads, rather than going through the wilderness</li>
+</ol>
+<ul>
+<li>From (1) and (2) I can conclude that caching movecost maps is prohibitive, due to 512x512xN storage requirements.</li>
+<li>From (3), (4) and (5) I can conclude the the paths that NPCs will typically follow, are between cities, and that actually makes perfect sense.</li>
+<li>From (4) I can conclude that a path between cities is either fully on land, or fully on water</li>
+</ul>
+<h3>Forming a new pathfinder</h3>
+<p>So, from the above, another pathfinding system slowly springs into existence, that is centered around city-state locations. I'll be using grid A* and graph A* implementations. The grid A* calculates fine-granularity paths (a list of 2d integer points adjacent to each other) and the graph A* calculates coarse-granularity paths (a list of indices to the graph's points)</p>
+<ul>
+<li>Create a delaunay triangulation using the city-state locations</li>
+<li>Create a graph from the triangulation results: nodes are city locations, edges are city-to-city connections</li>
+<li>For each graph edge, run the grid A*
+<ul>
+<li>If the edge connects port cities in different landmasses, use a water-only move cost map, without modifiers</li>
+<li>Otherwise, use a land-only move cost map, without modifiers</li>
+<li>The results are paths between each pair of connected city points</li>
+</ul>
+</li>
+</ul>
+<p>When a unit needs to go from A to B, the following calculations take place:</p>
+<ul>
+<li>Identify the closest city to A in the general direction of B: c0</li>
+<li>Identify the closest city to B in the general direction of A: c1</li>
+<li>Calculate a path A -&gt; c0, using the grid A*</li>
+<li>Calculate a path c1 -&gt; B, using the grid A*</li>
+<li>Calculate a path c0 -&gt; c1, using the graph A*</li>
+</ul>
+<p>From the above, we can walk along a fine-granularity path from A to B, using a large amount of precalculation.</p>
+<h3>But wait... still no unbounded movecost map handling?</h3>
+<p>If you've noticed from the above, I haven't resolved one issue: the reason I rejected HPA* was because of the unbounded number of movecost maps. But, what do I do here? I just use basic movecost maps without modifiers (a land-based one and a water-based one)! So why is this any better? Well, this actually <strong>makes more sense</strong>, as</p>
+<ul>
+<li>Well-trodden paths are generally preferred</li>
+<li><strong>Cities are always part of a long path</strong>, <strong>as it should be</strong>. HPA picked arbitrary points on cell edges.</li>
+<li>Sailing routes are handled naturally.</li>
+<li>The majority of units has average movement capabilities, and that means no modifiers</li>
+<li>How <strong>fast </strong>units move can still be individually calculated, and that's not expensive.</li>
+</ul>
+<h3>Conclusion for now</h3>
+<p>The above now has to be implemented, and I've also got some other thoughts for a data structure that will allow <strong>precalculation of all potential paths A-&gt;c0 and c1-&gt;B with just a little more storage,</strong> so that pathfinding in the overworld is always reduced in a graph search with a max of about 250 points and 750 edges.</p>

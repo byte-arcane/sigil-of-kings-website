@@ -1,0 +1,85 @@
+---
+layout: post
+title: 'AI: Preparing a Behavior Tree + Utility'
+date: 2017-04-21 15:28:41.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_published: '1'
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '4241121820'
+  _jetpack_related_posts_cache: a:2:{s:32:"c05c44c03c77ed5f48e8e5a0fcc47117";a:2:{s:7:"expires";i:1615676195;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:964;}i:1;a:1:{s:2:"id";i:824;}i:2;a:1:{s:2:"id";i:793;}}}s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1615676346;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:964;}i:1;a:1:{s:2:"id";i:824;}i:2;a:1:{s:2:"id";i:793;}}}}
+  rank_math_internal_links_processed: '1'
+  _last_editor_used_jetpack: block-editor
+  rank_math_analytic_object_id: '67'
+author:
+permalink: "/2017/04/21/ai-preparing-a-behavior-tree-utility/"
+---
+<p>Well, while I said last time that there would be a rampaging lumberjack shooting down wolves, I'm not showing anything, as the results were bugged. The idea was that the lumberjack could choose between a knife (melee, very fast), a pistol (ranged, fast) and a shotgun (ranged, slow, AoE) to kill an endless horde of approaching wolves. Turns out that the AI was either using shotgun all the time, or a combination of knife-and pistol. Something somewhere was flawed, but instead of trying to solve this and scrap it, I chose to create another example, which is 1) a bit closer to the game's concept 2) a bit more complex 3) a bit more interesting, 4) it will use a combination of behavior trees and utility AI and 5) it can use the overworld map that I've generated.</p>
+<p>I've been thinking and thinking, and the more I'm thinking, the more it makes sense to combine a behavior tree (btree) and utility AI. It makes a lot of sense, as a behavior tree is good as an overall AI system (better than FSM) and utility AI is good for decisions, Utility AI will be used for (and wrapped in) Selector nodes, which are nodes that, on Tick(), select one of their children nodes and execute it.</p>
+<p><strong>Scenario:</strong></p>
+<p>There are a number of cities and dungeons scattered throughout the overworld. New dungeons spawn every so often. Monsters lurk in the dungeons, carrying treasure. A party of heroes wanders around the land and clears the dungeons. Cities can be used for healing or buying equipment (improving power and health). When a party of heroes dies, a new party is spawned.</p>
+<p><strong>AI: </strong></p>
+<p>So, here's the interesting bit. I plan to implement a behavior tree that will look like this:</p>
+<ul>
+<li><strong>SelectGeneralBehavior</strong> (Selector node using Utility AI -- the btree root node)
+<ul>
+<li><strong>RetreatToSafety</strong> (score based on current health and relative power of enemy.)</li>
+<li><strong>Battle</strong> (score based on whether we're in a dungeon or ambushed, and with ok health and relative power balance)</li>
+<li><strong>VisitStores </strong>(score based on amount of gold and proximity to city)</li>
+<li><strong>RaidDungeon </strong>(score based on proximity to dungeon , current health status and dungeon difficulty if known)</li>
+<li><strong>Idle </strong>(flat, really low score, if nothing better todo. E.g. when without money, full health and no dungeons around)</li>
+</ul>
+</li>
+</ul>
+<p><strong>The tree is processed from the beginning every time we Tick()</strong>. Because, we only tick when an action has finished, or has been interrupted. Also, contrary to some other examples that I've seen somewhere, an action would not be "Go from A to B", as this is a compound really; it implies scheduling and executing several "move" commands. In my case, an action is a <strong>unit action: </strong>something that cannot be broken down any further, e.g. MoveLeft, or Attack.</p>
+<p>Above, every sub-entry is a subtree itself. Here they are, as I <em>currently</em> envision them</p>
+<ul>
+<li><strong>RetreatToSafety </strong> (sequence node)
+<ul>
+<li><strong>HaveMoney </strong></li>
+<li><strong>VisitTemple</strong> (subtree - only executes if we have any money)</li>
+</ul>
+</li>
+<li><strong>VisitTemple </strong>
+<ul>
+<li><strong>BlackboardEvaluate&lt; SelectCity &gt; (</strong>write=<strong> "path_to_entity") </strong>// Look in the blackboard for "path_to_entity"; if not found, or it's found but not a city, calculate it. This could be used later on other criteria for which is the best city, but for now pick the closest.</li>
+<li><strong>TravelToEntity</strong> (sequence node)</li>
+<li><strong>ACTION: </strong>Heal (only executes if we're at the city)</li>
+</ul>
+</li>
+<li><strong>TravelToEntity </strong>(sequence node)
+<ul>
+<li><strong>BlackboardEvaluate&lt; CalcPathToEntity &gt; ( </strong>write =<strong> "active_path", </strong>path_to =<strong>"path_to_entity") </strong>// Look in the blackboard for "active_path"; if not found, calculate a path to "path_to_entity" and write it to "active_path". This creates a path from where we are to "path_to" entity.  <strong>Note: </strong>if path is calculated, but we're not on the path, then "active_path" needs to be invalidated, so that it can be renewed<strong><br />
+</strong></li>
+<li><strong>ACTION:</strong> Move a tile along path // If it fails, fail node</li>
+</ul>
+</li>
+<li><strong>VisitStores </strong>(sequence node)<strong><br />
+</strong></p>
+<ul>
+<li><strong>TravelToCity </strong>(sequence node)</li>
+<li><strong>ACTION: </strong>Buy equipment (only executes if we're at the city)</li>
+</ul>
+</li>
+<li><strong>RaidDungeon  </strong>// just travels to a dungeon tile. SelectGeneralBehavior should do the rest
+<ul>
+<li><strong>BlackboardEvaluate&lt; SelectDungeon &gt; (</strong>write=<strong> "path_to_entity") </strong>// Look in the blackboard for "target_dungeon"; if not found, or it's found but not a dungeon, calculate it. Criteria for selection would be dungeon level (if known) and proximity</li>
+<li><strong>TravelToEntity</strong> (sequence node)</li>
+<li><strong>RecordDungeonLevel // </strong>This is an instant action that, having arrived at the dungeon, it inspects what enemies are there and records it as the "level" of the dungeon. This would be useful when running SelectDungeon, so that e.g. we would avoid very high level dungeons.</li>
+</ul>
+</li>
+<li><strong>Battle</strong>
+<ul>
+<li><strong>ACTION:</strong> Attack // We're here either when at a non-empty dungeon, or ambushed.  Will figure out how to implement some basic attack/retaliation thing between the party and the enemies.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p>So, that's the high level plan. I've been working on the behavior tree machinery and the integration with the utility system, as well as some deep cloning code bug fixes, so it has been framework code so far. I've done a few unit tests and things seem to be working, so now towards something more concrete!</p>

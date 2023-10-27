@@ -1,0 +1,83 @@
+---
+layout: post
+title: Procedural Prefab Generation part 2
+date: 2023-02-16 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/02/cavern_layout.png
+meta:
+author:
+permalink: "/2023/02/16/procedural-prefab-generation-part-2/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/W-hhZJH1NAk" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/W-hhZJH1NAk?autoplay=1><img src=https://img.youtube.com/vi/W-hhZJH1NAk/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Simple example of throne room structure in arbitrary room"></iframe></div>
+<figcaption>Simple example of throne room structure in arbitrary room</figcaption>
+</figure>
+
+<p>More work the prefab tool this week. I have some preset layouts on which I can try and apply any prefabs. In that video I&#39;m selecting some cavern area preset and I&#39;m applying a prefab that puts a rectangular carpet, statues along its longest axis and a throne away from the entrance. I can regenerate layout, connections or prefab placement with a key, so I can quickly see behaviour in different cases, that&#39;s shown in the video. So far so good, placement algorithm is demonstrated to work on a number of simplistic layouts (rectangular room, rectangular cave), so what&#39;s next?</p>
+<p><strong>End goal of prefab system</strong></p>
+<p>Sometimes I miss the forest for the trees, as I like delving at low level algorithms, so ... why am I making the prefab system again? And how many procedural systems do I have? So ...</p>
+<ul>
+<li>Procedural layout generator (water/wall/floor/connections)<ul>
+<li>supports a fixed layout &quot;prefab&quot; generator</li>
+<li>supports embedding generators inside other generators, as &quot;zones&quot; (zones are thematic areas)</li>
+</ul>
+</li>
+<li>Optional procedural placement of &quot;features&quot; in an entire zone. Features are more generic elements, like &quot;trap&quot;/&quot;encounter&quot;/&quot;treasure&quot;, but can also be specific like &quot;fountain&quot;.</li>
+<li>Optional explicit placement of exact elements in a zone (e.g. a particular creature, etc). </li>
+<li>Any procedural layout generator that supports &quot;rooms&quot; (e.g. a basic dungeon), also supports room prefabs: pregenerated fixed rooms with fixed dimensions and content</li>
+<li>Now I&#39;m adding support for procedural prefabs in given areas (zones or rooms), which is a different algorithmic approach to the &quot;features&quot; approach above.</li>
+</ul>
+<p>If it&#39;s not clear: the above system is messy. I&#39;m effectively creating generators and I&#39;m trying to mix them together. There&#39;s duplication and duct-taping as needed. There are certain elements that are still missing, so I can&#39;t create all the scenarios that I wish, yet. I&#39;m going to list them below, and how I will imagine they&#39;ll fit into the system (with adjustments of the system)</p>
+<ul>
+<li>Boss lair<ul>
+<li>It&#39;s a zone embedded in a level (so, a bigger zone, e.g. a dungeon)</li>
+<li>The layout should be procedural (using a layout generator)</li>
+<li>The contents should be themed, but procedurally generated (so it should use the procedural prefabs that I&#39;m adding now)</li>
+</ul>
+</li>
+
+
+<figure>
+	<img src="https://i.imgur.com/bEUePPi.png" />
+	<figcaption>Hunter's lodge schematic</figcaption>
+</figure>
+
+<li>Hunter&#39;s lodge area (see image)<ul>
+<li>It&#39;s an open zone embedded in certain wilderness zones, containing a small building/room, a campfire, maybe a crate or two.</li>
+<li>The area layout should be procedural, but nothing complex ( open, roughly rectangularly shaped area, with enough space to put all required elements)</li>
+<li>The area contents (campfire, crates) should use some special procedural prefab code</li>
+<li>The lodge itself should be a sub-zone, using a simple generator, e.g. called HUNTERS_LODGE</li>
+<li>The layout of the lodge should be procedural, but possibly as simple as a rectangular room, but it needs to be themed (e.g. wooden)</li>
+<li>The contents of the lodge should use some special procedural prefab generator, e.g. some LODGE preset/algorithm that adds a bed, a kitchen, anything else needed for a cabin in the woods.</li>
+</ul>
+</li>
+<li>Wolf cave area<ul>
+<li>It&#39;s an open zone embedded in certain wilderness zones, containing a small cavernous area, and some skulls near the area entrance</li>
+<li>The area layout should be procedural, but nothing complex ( open, roughly rectangularly shaped area, with enough space to put all required elements)</li>
+<li>The area contents (skulls) should use some special procedural prefab code</li>
+<li>The cave itself should be a sub-zone, using a simple generator, e.g. called BEAST_CAVE</li>
+<li>The layout of the cave should be procedural, using a simple cave generator</li>
+<li>The contents of the cave should use some special procedural prefab generator that can place skulls, blood and a &quot;beast pack&quot; encounter, which will be evaluated (somehow somehow, in C#) to wolves</li>
+</ul>
+</li>
+</ul>
+<p>So, hopefully you can see the pattern. A part that&#39;s tough is to make the generators ... generic, whereas when we&#39;re evaluating the prefabs, we map those generic results to anything themed that&#39;re required. That&#39;s still heavy WIP. </p>
+<p><strong>Next steps</strong></p>
+<p>After tinkering with the prefab editor and realising that the iteration speed can be superfast (no unity whatsoever), I need to do two things:</p>
+<ul>
+<li>Improve the prefab tool to support any sort of layouts. Any that can be used for level/zone generation. This means reading the same config files that C# reads to be able to generate dungeons, caverns and so on. This is useful for themed procedural placement of specific things (e.g. rows of statues along a carpeted area) in larger-than-a-room areas (or just more complex). </li>
+<li>Make another tool to test out interactively the zone embedding. I&#39;ve shown results in the past, but those were generated from some mega loop that created variations. I want something interactive where I can quickly select what zone should be in what zone, and click click generate and visualize many variations of the map. It&#39;s easier than it sounds, if the different zones are specified already as presets and I just say &quot;Make a wilderness that contains a dungeon that contains a temple&quot; using either some simplistic json and re-loading in the app, or using some basic UI</li>
+</ul>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/Ap_2hKhDyCM" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/Ap_2hKhDyCM?autoplay=1><img src=https://img.youtube.com/vi/Ap_2hKhDyCM/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="ImGui hooked up with dungeon generation, for caverns"></iframe></div>
+<figcaption>ImGui hooked up with dungeon generation, for caverns</figcaption>
+</figure>

@@ -1,0 +1,54 @@
+---
+layout: post
+title: Procedural Prefab Generation part 5
+date: 2023-03-09 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/03/lodge_cave_dungeon.png
+meta:
+author:
+permalink: "/2023/03/09/procedural-prefab-generation-part-5/"
+---
+
+<p>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/lodge_cave_dungeon.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/lodge_cave_dungeon.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/lodge_cave_dungeon.webp 1792w, {{ site.baseurl }}/assets/2023/03/variants/lodge_cave_dungeon-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/lodge_cave_dungeon-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/lodge_cave_dungeon-320w.webp 320w" alt="Lodge, dungeon, cave, sparse features, different visualisation presets" width="1792" height="1039" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Lodge, dungeon, cave, sparse features, different visualisation presets</figcaption>
+</figure></p>
+
+<p>More work on the native prefabs and overall plugin code, but back to content-creation mode, to test and extend the procedural prefab placement work.</p>
+<p><strong>Visualisation presets per zone</strong></p>
+<p>So far, for showing the native generator results from the native visualiser, I&#39;ve been using some basic tileset with a grey floor and a grey wall. This is basic and functional, but does not help with identifying where one zone ends and another one begins, e.g. when does a forest change into a cavern or a dungeon. Forest to cavern is even harder as they would both use the same generator, parameterised differently. So, to make slightly prettier generator images and aid visualisation, I&#39;ve added support for zone/room visualisation presets, which is a set of optional overrides for floor/wall/liquid/door tiles. If one is not specified, the parent one is used: E.g. a &quot;wilderness lodge area&quot; without wall/floor tiles specified would use the tiles of the zone it is spawned it, and that could be a forest, grassland, or whatever other preset I end up making.</p>
+
+<p>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/lodge_dungeon_vis.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/lodge_dungeon_vis.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/lodge_dungeon_vis.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/lodge_dungeon_vis-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/lodge_dungeon_vis-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/lodge_dungeon_vis-320w.webp 320w" alt="Lodge, dungeon and different visualisation presets" width="1920" height="1050" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Lodge, dungeon and different visualisation presets</figcaption>
+</figure></p>
+
+<p><strong>Sparse feature placement</strong></p>
+<p>I have this system mentioned <a href="https://byte-arcane.github.io/sigil-of-kings-website/2019/09/14/level-generation-ii-sparsely-distributed-entities-entries-exits-treasure-etc/">here</a> to generate sparsely distributed entities such as treasure, encounters, lock/key puzzles etc. It would be nice if this is also included in the visualisation aids, so that I know what&#39;s going on while still in native plugin land. I remembered the HoMM 3 map editor and how it had some 3D-ish sphere-based icons that described the content, such as &quot;Level 4 creature&quot; so I did something similar: I found some sphere from wikipedia, made it purple to stick out like a sore thumb and wrote some scripts to auto-generate icons for things like &quot;encounter&quot;, &quot;treasure&quot;, &quot;level entry&quot; etc. It works fine!</p>
+<p>I&#39;ve also added some gui controls to interactively add/edit sparse feature placement in the maps, and this works like a charm too, for basic testing at least. All hail Dear ImGui, such a great tool.</p>
+<p>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/sparse_features_native.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/sparse_features_native.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/sparse_features_native.webp 1914w, {{ site.baseurl }}/assets/2023/03/variants/sparse_features_native-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/sparse_features_native-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/sparse_features_native-320w.webp 320w" alt="Lodge, dungeon and different visualisation presets" width="1914" height="1043" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Lodge, dungeon and different visualisation presets</figcaption>
+</figure></p>
+<p><strong>Beast cave area</strong></p>
+<p>Having sparse features again functional and part of the native visualiser/editor, time to move on to create more prefab areas! The goal is to create several scenarios/areas, and through that exercise, identify how I need to extend the prefab placement generator to be able to generate far more areas. So after the &quot;wilderness lodge&quot;, next to tackle is the &quot;beast cave&quot;.</p>
+<p>That is a very small cave map, that is littered with skulls, both outside and inside, and some beast-related encounter would be placed around there. This is comprised of 2 zone presets: an &quot;inverted dungeon without rooms&quot; which is my approach for an open area, and an embedded mini-cavern map. Both of these zones have prefab placement presets that distribute a number of floor decorations (bones) randomly. And that&#39;s it! Laziest map preset in existence. Here is an image, although JSON does not contain the encounter spawning information as I added that at runtime.</p>
+<p>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/beast_cave.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/beast_cave.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/beast_cave.webp 1910w, {{ site.baseurl }}/assets/2023/03/variants/beast_cave-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/beast_cave-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/beast_cave-320w.webp 320w" alt="Lodge, dungeon and different visualisation presets" width="1910" height="1031" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Lodge, dungeon and different visualisation presets</figcaption>
+</figure></p>
+<p><strong>Bug Squashing</strong></p>
+<ul>
+<li>I fixed last week&#39;s issue with missing prefab contents when placed in a dungeon. </li>
+<li>Also fixed a couple more bugs in the dungeon generator and expanded a bit the visualisation capabilities: the screenshot capturing granularity is now greater, so that we can see the state of the generator after each processing step more clearly. </li>
+<li>I fixed some badly written (and possibly buggy) code on determining if placing a blocking tile could potentially block passage, based on immediate neighbourhood. </li>
+</ul>
+<p>Next week, prison time!</p>
+

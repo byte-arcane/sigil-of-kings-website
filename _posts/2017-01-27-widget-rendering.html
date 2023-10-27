@@ -1,0 +1,39 @@
+---
+layout: post
+title: Widget rendering
+date: 2017-01-27 08:46:37.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_published: '1'
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '1211357593'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619514762;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1651;}i:1;a:1:{s:2:"id";i:1619;}i:2;a:1:{s:2:"id";i:79;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '75'
+author:
+permalink: "/2017/01/27/widget-rendering/"
+---
+<p>In the <a href="{{ site.baseurl }}/2017/01/20/widget-specification-part-1/">last post</a> I wrote down a first draft for the specification for widgets. All nice and fine, but not really pretty. Pretty ugly actually, so there's tons of room for improvement. And there was not much on rendering. So this week I decided to work on ... *drum roll* widget rendering! So here's how it looks like now:</p>
+<p><img class=" size-full wp-image-320 aligncenter" src="{{ site.baseurl }}/assets/2017/01/widget_out.webp" alt="widget_out.png" width="570" height="588" /></p>
+<p>... and the extra config bits are the "MainRenderer" and "MarginRenderer"</p>
+<p><img class=" size-full wp-image-322 aligncenter" src="{{ site.baseurl }}/assets/2017/01/widget_render.webp" alt="widget_render.png" width="423" height="410" /></p>
+<p>So what's different? First, instead of a constant color, we now specify a renderer for margins, and a renderer for the main body. These renderers can be specialized for constant colors, textures, animated textures, and whatever we want. In the examples above, the margins renderer uses a closed door tile from a tilemap for the four margin corners, and a swamp dragon (from the DCSS tilemap) tiled along the sides, rotated properly (my definition of properly, that is). I've intentionally set the margins to be different sizes, to demonstrated that the textures will scale in order to fit properly with minimal distortion.</p>
+<p><img class=" size-full wp-image-358 aligncenter" src="{{ site.baseurl }}/assets/2017/01/margins.webp" alt="margins" width="599" height="212" /></p>
+<p>The texture rects don't have to be square, and that's demonstrated with the other margins, where I use this texture "atlas" composed of two elements: a square corner (highlighted above) and a rectangular "side" tile. Again, the renderer automatically calculates how many times it can fit the texture rect on a margin side with minimal distortion, and maps it appropriately.</p>
+<p>The renderers are completely optional of course: no margin renderer specified -&gt; no margins rendered. Also, if margin is 0 on the left, no margin will be rendered on the left (but the rest will).</p>
+<p><strong>Resource loading<br />
+</strong></p>
+<p>To make the above happen, I also had to implement some general resource database for the application, storing currently textures, texture atlases and shader effects. The texture atlases are .json files that reference a texture and store a mapping of (name, rectangle). For example, the RGB-lines atlas file is the following:</p>
+<p><img class=" size-full wp-image-375 aligncenter" src="{{ site.baseurl }}/assets/2017/01/margins_atlas.webp" alt="margins_atlas" width="249" height="439" /></p>
+<p><strong>Shader Rects and useless (for now) optimisations</strong></p>
+<p>The game is grid-based. The grids will <strong>never</strong> be humongous. Therefore, I decided early on, 16 bits are enough to represent a grid cell in the overworld or the dungeon. Hell, even a 16-bit <strong>signed</strong> integer would do (32768), and on the plus side, negative values allow me to quickly check if a coordinate is invalid. So, I'm using a pair of 16-bit integers as tile coordinates for most grid operations in the engine, with pretty much zero chance for overflow.</p>
+<p>Now, with widget rendering, I realized I'll frequently need to pass rotated rectangles in the shader. Easy way: make a 2d rotation matrix and pass it to the shader; problem solved. But hey, that's 4 32-bit floats (matrix) in addition to 4 16-bit integers (rect). That's a bit overkill, no? Well, it is, as suddenly the data footprint grew by 200%, for <strong>typically 3 possible rotations:  </strong>90, 180 and 270 degrees. Is there a way to express it better? Most likely.</p>
+<p>I know I have a sign bits at the end of each of the 4 16-bit integers for a rect which are pretty much unused (<strong>WARNING</strong>: There might be a scenario where a rect "enters" the viewport from negative coordinates, so I need to keep an eye on that). So, that's 4 bits to pack stuff in! 2 bits can be used to represent the 0,90,180,270 rotations, and two bits can be used to represent flips (horz/vert). That's it! I actually implemented it, so that's what I'm going to be using for the vast majority of tile rendering, as well as GUI margins.</p>
+<p>Next to tackle is input handling for widgets, and perhaps if there's time a tilegrid widget, to view for example a few tilesets with a GUI.</p>

@@ -1,0 +1,71 @@
+---
+layout: post
+title: Let there be light
+date: 2021-06-24 00:22:55.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2021/06/lighting.webp
+meta:
+author:
+permalink: "2021/06/24/let-there-be-light/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/M73nxWlP4Xc" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/M73nxWlP4Xc?autoplay=1><img src=https://img.youtube.com/vi/M73nxWlP4Xc/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Lighting, fog-of-war, color-grading and fog"></iframe></div>
+<figcaption>Lighting, fog-of-war, color-grading and fog</figcaption>
+</figure>
+
+<p>Last few weeks were work on lighting. But not just pretty-pixel-art lighting, but <strong>lighting for gameplay purposes</strong>. So far, light was mostly a visual effect via <a href="https://byte-arcane.github.io/age-of-transcendence/2020/05/22/weather-and-performance/">time-of-day-lighting</a> and by representation of the 3 visibility states: currently seen (100% brightness), unseen but previously-explored (40% brightness), and never-seen (black).</p>
+<p>
+<figure>
+<img src="https://i.imgur.com/jlrdDyM.png" />
+<figcaption>The 3 visibility states: currently seen (100% brightness), unseen but previously-explored (40% brightness), and never-seen (black)</figcaption>
+</figure>
+</p>
+<p>&nbsp;</p>
+<p>But, this is not enough. Here are some examples where a more well-developed lighting solution could be utilised:</p>
+<ul>
+<li><strong>Stealth</strong>. Light is essential for stealth. Low light is advantageous when trying to move undetected, unless enemies see well in the dark</li>
+<li><strong>Light puzzles</strong>. Some doors/chests might be opened only with the presence of certain amount of light (e.g very high or very low)</li>
+<li><strong>Status effects</strong>. Creatures can be blinded, by bright light.</li>
+<li><strong>Creature traits</strong>. Some creatures can see in the dark, and don't get any penalties from low light</li>
+<li><strong>Field of view</strong>. Creatures might be able to see further in good (for them) light conditions</li>
+<li><strong>Combat effects</strong>. To-hit chances might be lower in undesirable light situations, e.g. a cave dweller in bright light or a regular creature at very low light</li>
+<li><strong>Spells, wall torches, movable objects</strong>. To control the level of light in various ways.</li>
+</ul>
+<p>To enable the above I need some way of simulating light in a way that I have access to from the gameplay code, rather than it being just a visual effect. To do that, I'm using a simple lighting "model", which seems to be working pretty well. The light model is comprised of the following:</p>
+<ul>
+<li>Light exists at a tile, between 0 (full darkness) and 1 (very bright).</li>
+<li>Each zone (level or sublevel) can specify a "ambient" light level, which is the light level without any other light sources around. For example, outdoors would be 1 and a dungeon/cavern could be 0.5.</li>
+<li>Light sources emit light in all directions, which reduces linearly</li>
+<li>Light is additive: a light source's light gets added to the ambient light.</li>
+<li>Light bleeding: at the borders between zones, light can bleed from the brighter one to the darker one</li>
+<li>Light propagates via Dijkstra maps, using the light source(s) as goals and the weights for intensities. If the brightness of a lightsource is 0.7, the goal is set to a weight of -0.7, and I gather all grid cells whose weight is &lt;= 0, and use the "-weight" as the brightness. The light decay rate (how much brightness is lost from a tile to a neighbouring one) is set to a low value, I'm using 0.07.</li>
+</ul>
+<p>So, that's about it. I'm running these calculations in the native plugin and they're pretty fast.So, to best test the system, I added torches and braziers. Torches exist on dungeon walls, braziers are actual objects (and probably movable, although heavy). I've added procedural placement of torches in the dungeon walls so I don't have to worry about placing them, and it works fine.</p>
+<p>&nbsp;</p>
+<p>
+<figure>
+<img src="https://i.imgur.com/2sqoHUj.png" />
+<figcaption>Procedural placement of torches in a dungeon</figcaption>
+</figure>
+</p>
+<p>I've iterated a few times on the look of lighting, fog of war, weather and time-of-day color grading. After some useful feedback <a href="https://www.reddit.com/r/roguelikedev/comments/nxj59c/fog_of_war_and_dynamic_lighting/">here</a> and <a href="https://www.reddit.com/r/roguelikedev/comments/o33p17/sharing_saturday_367/h29qhsh/">here</a>, I've opted for a faded sepia for areas that the player can't actively see but has explored, whereas the brightness remains the same. Time-of-day affects brightness, and colour: Ambient light get tinted with time-of-day color grading (e.g. blue-ish at night) whereas light sources provide untinted brightness. <a href="https://youtu.be/M73nxWlP4Xc?t=35">This is shown here. Compare with the earlier videos below</a></p>
+
+<figure>
+<div class="video-container"><iframe src="{{ site.baseurl }}/assets/video/lighting2_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Previous look without time-of-day color grading and fog</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="{{ site.baseurl }}/assets/video/Brazier_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>The brazier of Galadriel, emitting a stupid high amount of light, lighting up the entire dungeon and demonstrating light propagation</figcaption>
+</figure>
+
+<p>Finally, I've been experimenting with a different look for fog-of-war in the overworld (as shown at the first video), although it's still a bit too gray for my taste. Now that the light infrastructure is there, onwards to other things, and possibly some usual maintainance/refactoring which follows feature additions.</p>

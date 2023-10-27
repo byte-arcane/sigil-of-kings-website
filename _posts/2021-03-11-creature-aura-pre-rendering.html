@@ -1,0 +1,47 @@
+---
+layout: post
+title: Creature aura pre-rendering
+date: 2021-03-11 14:16:27.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1615734234;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2114;}i:1;a:1:{s:2:"id";i:1890;}i:2;a:1:{s:2:"id";i:3291;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  rank_math_seo_score: '16'
+  rank_math_primary_category: '1'
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+  _wpas_done_all: '1'
+  rank_math_analytic_object_id: '2'
+author:
+permalink: "/2021/03/11/creature-aura-pre-rendering/"
+---
+<p><!-- wp:embed {"url":"https://youtu.be/Kp1Y-XkBUU4","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/Kp1Y-XkBUU4" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/Kp1Y-XkBUU4?autoplay=1><img src=https://img.youtube.com/vi/Kp1Y-XkBUU4/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="In-game pre-rendered auras"></iframe>
+</div>
+<figcaption>In-game pre-rendered auras</figcaption>
+</figure>
+<p><!-- /wp:embed --></p>
+<p><!-- wp:embed {"url":"https://youtu.be/ssOe78BvSpw","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/ssOe78BvSpw" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/ssOe78BvSpw?autoplay=1><img src=https://img.youtube.com/vi/ssOe78BvSpw/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Aura generator tool: just save shader results to a series of images"></iframe>
+</div>
+<figcaption>Aura generator tool: just save shader results to a series of images</figcaption>
+</figure>
+<p><!-- /wp:embed --></p>
+<p><!-- wp:paragraph --></p>
+<p>The major thing this week was making <strong>better Diablo 2-style auras</strong> but not rendering them dynamically; instead, I made a simple editor tool (based on <a href="https://www.ronja-tutorials.com/post/030-baking-shaders/">this</a>) that bakes auras as texture animation, bundling everything up as a texture atlas and using that. Made the in-game aura rendering code far far easier, than having separate shaders for each. Since each texture atlas supports up to 2048 animation slices (due to texture array limitations), for 64 frames per animation I can store 32 different auras, which I think is more than enough.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Another feature that I'm in the process of adding (added, bugged, debugging now) is <strong>freezing levels when you leave</strong>. First of all, freezing is important, otherwise if all the entities from all levels play, well that just doesn't scale. So, to avoid a boring "freeze immediately" after you leave a level, at the moment I allow for 10 standard actions (a minute in "game time"), which allows entities to suffer repeated effects, move a bit, etc.</p>
+<p><!-- /wp:paragraph --></p>

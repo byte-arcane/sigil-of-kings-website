@@ -1,0 +1,45 @@
+---
+layout: post
+title: '"AI" Part One'
+date: 2017-03-24 10:52:28.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_published: '1'
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '3220309034'
+  _oembed_f2ddfeb1c43eb71ebe67cc010efb26df: "{{unknown}}"
+  _oembed_99da57314bfcc17c546f002b0ab1ac98: "{{unknown}}"
+  _oembed_b3eb9686a030c16e7a689ecfc9c4c7dd: <iframe width="630" height="354" src="https://www.youtube.com/embed/Y6-IFdk9iIM?feature=oembed"
+    frameborder="0" allowfullscreen></iframe>
+  _oembed_time_b3eb9686a030c16e7a689ecfc9c4c7dd: '1506329331'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1616889194;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2050;}i:1;a:1:{s:2:"id";i:1168;}i:2;a:1:{s:2:"id";i:1241;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '70'
+author:
+permalink: "/2017/03/24/ai-part-one/"
+---
+<p>One of my internal, early milestones in AoT is to have an automatic simulation on the world map where 2 AI factions go about their business of expanding their empire and try to conquer the world. It's going to be overworld only. The reason for that is to figure out what kind of resources make sense in the world, how to place adventure locations, and the general functionality and growth opportunities for cities. It's like a simplistic AI-driven fantasy Civilization game. The overworld gameplay is turn-based. So, given the above, I need some AI fit for a turn-based game, fit for both dungeoneering, overworld movement, faction/city handling logic.</p>
+<p>I want to evaluate a few approaches for AI (I'm not a gameplay/AI programmer by trade) so I need a testbed for this. I imagine in the end it's going to be a hybrid approach. So, part one in AI land is ... <strong>LumberWolf</strong>!</p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/Y6-IFdk9iIM" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/Y6-IFdk9iIM?autoplay=1><img src=https://img.youtube.com/vi/Y6-IFdk9iIM/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video Y6-IFdk9iIM"></iframe>
+</div>
+<p><strong>Actors:</strong></p>
+<ul>
+<li><strong>Lumberjack:</strong> Chops wood and brings them to the shop. When he sees the wolf, he drops any wood being carried and runs for shelter.</li>
+<li><strong>Wolf:</strong> Wanders all time. When he sees the lumberjack, chases him; if he reaches the lumberjack, he starts biting. Stays away from the shelter.</li>
+<li><strong>Tree:</strong> Can be harvested for wood. Contains 4 wood units.</li>
+<li><strong>Wood pile:</strong> A wood unit. Carried by the lumberjack.</li>
+<li><strong>Hut:</strong> A place to drop off wood</li>
+<li><strong>Shelter:</strong> Safe space for the lumberjack</li>
+</ul>
+<p>The current AI controller is implemented as simple if/then/else statements (e.g. if wolf nearby, drop wood, etc). It's pretty dumb. It's a mix of conditions, which are evaluated instantly, and <a href="{{ site.baseurl }}/2017/02/24/commands-and-timing/">timed entity commands</a>, which are scheduled normally in the game turn manager and will take some time.</p>
+<p>Writing the if/then/else statements is simple but oh my, for any non-trivial behavior the bugs come creeping in immediately, as the order/structure of conditions and actions is very brittle.</p>
+<p>I want to evaluate the following approaches: Finite State Machines, Goal Oriented Action Planning, Utility Systems and Behavior Trees, as these look like they're the most prominent practical ones for games.  As additional fluff, the testbed will incorporate FoV and proper movement costs (can't go through trees)</p>
+<p>&nbsp;</p>

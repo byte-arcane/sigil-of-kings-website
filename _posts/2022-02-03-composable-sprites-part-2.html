@@ -1,0 +1,83 @@
+---
+layout: post
+title: Composable Sprites Part 2
+date: 2022-02-03 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/02/composable_styled.png
+meta:
+author:
+permalink: "/2022/02/03/composable-sprites-part-2/"
+---
+
+
+<figure><a href="{{ site.baseurl }}/assets/2022/02/composable_styled.png" target="_blank"><img src="{{ site.baseurl }}/assets/2022/02/variants/composable_styled.webp" srcset="{{ site.baseurl }}/assets/2022/02/variants/composable_styled.webp 720w, {{ site.baseurl }}/assets/2022/02/variants/composable_styled-320w.webp 320w" alt="Example composed sprite using different hair/beard/eyes/mouth styles and colours, plus different equipment" width="720" height="720" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Example composed sprite using different hair/beard/eyes/mouth styles and colours, plus different equipment</figcaption>
+</figure>
+
+<p><a href="{{ site.baseurl }}/2022/01/20/composable-sprites-part-1/">Link to Composable Sprites Part 1</a></p>
+<p>For this week's update, I'm going to talk about the different layers, the order, cosmetic variations (hair/eyes/colors) vs more functional compositions (e.g. showing equipment), and a brief description of how it's implemented in the game.</p>
+<p><strong>Layers and order</strong></p>
+<p>Player-character sprites will be a composition of the following hierarchical layers:</p>
+<ul>
+<li>Head<ul>
+<li>Eyes</li>
+<li>Mouth<ul>
+<li>Beard</li>
+</ul>
+</li>
+<li>Hair</li>
+<li>Helmet</li>
+</ul>
+</li>
+<li>Body<ul>
+<li>Cape</li>
+<li>Main hand</li>
+<li>Off hand</li>
+</ul>
+</li>
+<li>Feet</li>
+</ul>
+<p>To compose a sprite, we start with a blank transparent image and we add layer by layer. The order is slightly different than the one shown above, as for example feet are after the body but before the hands. </p>
+<p><strong>Attachments and relative positions</strong></p>
+<p>Some elements are not animated (e.g. equipment, beard, eyes) but some others are (body). So how do we compose the layers for an entire animation? By requiring only the <em>root</em> layers to be animated (above: head, body, feet), and animating the rest using &quot;attachment points&quot;. When a player is holding a sword, we do not want the sword layer to have to mirror the player&#39;s movement. So we specify a 2d pixel coordinate for the sword&#39;s sprite, and a 2d pixel coordinate for the sword&#39;s parent layer, which is &quot;body&quot;. The vector from the sword&#39;s coordinate to the parent coordinate is the offset we need to apply to the sword pixels in order for them to be aligned to the parent layer. The 2d pixel coordinate of the body is animated (we need to specify one coordinate per animation frame), so for any animation frame, we match the animated coordinate of the body with the static coordinate of the sword, and the result is a sword that&#39;s animated.</p>
+
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/composable_anim.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Dynamic sprite layers</figcaption>
+</figure>
+
+<p><strong>Cosmetic variations</strong></p>
+<p>While originally the goal of the composable sprite system was to just visualise the equipped items on certain creatures, with a minor extension it can be used for including different hair styles, eye shapes, mouth shapes, beard shapes and so on. Why not? I&#39;m not putting much effort on this as the entire sprite collection might still be replaced later, but the underlying system is there. So, in the next release, some level of customisation will be included.</p>
+
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/styles_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Different haircut and beard</figcaption>
+</figure>
+
+<p><strong>Special pixel values and palettes</strong></p>
+<p>Let&#39;s say we want to support multiple hair colours. Instead of creating identical versions, we can create a version with a &quot;special&quot; colour (the unnatural magenta) where, if we detect such a coloured pixel and we have specified a palette color in a configuration somewhere, we can &quot;recolour&quot; a pixel. We can even allow shades of the palette colour if we use shades of magenta. This can be applied to any layer, and will find heavy use, as it allows for obviously different colour hair and (optionally) beard, but also different colour skins, different coloured mouth or eyes, and later on it even could be applied to represent the same weapons/armour made up of different materials, although that might need a bit more flexibility and creativity.</p>
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/styleseq_1_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Testing variations of equipment, face, hair and beard, including colours. Yes, I forgot to make the hand colour the same as the face. </figcaption>
+</figure>
+
+<p><strong>Input and output sprites, and composer system</strong></p>
+<p>All the sprites that can be used as composable elements are in one texture array. The composed sprites are generated and placed in a different, dynamic texture array. I&#39;ve written a system (in the ECS sense) that handles events related to composable sprites, e.g. changing equipment or making cosmetic changes (changing haircut etc) for a creature that supports composable sprites. When such an event is handled, we calculate the new layer configuration (which sprite, what palette, etc), create a unique ID out of this and check if such an ID already exists in our dynamic texture array. If it doesn&#39;t, we build the sprite and link it to that ID. If it exists, great, just use that already prebuilt sprite. This would be handy if we are in a settlement area with many guards (or bandits) who wear the same equipment and look the same: they should all use the same sprite. Because this description doesn&#39;t include deletion, when we run out of space, we do a cleanup pass where we detect all used sprites and remove/unregister all the rest, freeing up slots in the dynamic texture array.</p>
+<p><strong>Plans ahead</strong></p>
+<ul>
+<li>Next step is to prepare the sprites for more equipment, especially armor. There are a lot of lovely weapon collections out there, but my sprite size limitations are very harsh, so I&#39;m extracting the weapons from oryx sprites. </li>
+<li>Another step is to prepare the base sprites for another race. Eyes/mouth should be portable, but hair/beard might need changes to accomodate different head shapes. Weapons/shields should be portable via attachments, armor is not portable so it would need some manual work. This would be to prove that there is the potential of sharing a lot of sprites even among different races.</li>
+<li>Ideally, later on, I should expand this composition functionality to any creatures that support equipment (currently some skeleton types, goblinoids and necromancers). </li>
+<li>Finally, the current sprite size of 24x24 for character sprites with composable elements ends up being quite limiting. I&#39;m tempted to make the composable ones to be at least 32x32, which will allow a little bit of space for tall or wide weapons or shields. </li>
+</ul>
+

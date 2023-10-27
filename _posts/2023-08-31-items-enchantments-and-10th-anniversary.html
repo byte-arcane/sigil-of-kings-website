@@ -1,0 +1,31 @@
+---
+layout: post
+title: Items, enchantments and 10th anniversary
+date: 2023-08-31 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/08/10years.png
+meta:
+author:
+permalink: "/2023/08/31/items-enchantments-and-10th-anniversary/"
+---
+
+<p><strong>Refactoring enchantments, usable and thrown items</strong></p>
+<p>This week was mainly refactoring of enchantment properties, thrown items and usable items. One of the problems that I had before was that my enchantment system was more flexible than how I was using it to generate items. For example, a particular class of enchantments contains the &quot;Attribute&quot; subclass, which can be parameterised with the attribute. This means that we can have enchantments that can affect Strength, dexterity etc. But if I wanted to generate a &quot;tome&quot; item that increased a stat by one, so far I had to specify in the json file one entry per attribute, e.g. &quot;Tome of Dexterity&quot;, &quot;Tome of Strength&quot;, etc. Now you might think that&#39;s not bad; after all, different tomes have different names and graphics anyway. But, to counter this, it&#39;s easy to procedurally generate a name and a graphic identifier, which can be used to look up a database. </p>
+<p>The main problem was that of bloat: I end up with a huge json file with identical looking entries, e.g. Tome of Agility, Tome of Strength etc, ok that&#39;s 6 attributes, not bad. But let&#39;s go to Skills, that are 20, minimum. And imagine having items that give +1 or +2 or +3 to each skill. So it was especially important to create a parameterised version, which is parameterised on both the actual element of the type (e.g. Dexterity or Strength) and the potency of the enchantment (e.g. +1, +2, +3). There are a few more factors that come into play, but that goes in deep implementation detail territory. This is still WIP, towards the testing phase.</p>
+<p>Another design bit that I&#39;m gravitating towards is that usable/thrown items do not scale with the player, but have a fixed &quot;level&quot; (which is used to determine their efficacy and various numbers) at generation. Previously the support was &quot;anything, really&quot;, but as tempting as that sounds, it requires more mental work on setting the configurations up.</p>
+
+
+<figure><img src="{{ site.baseurl }}/assets/2023/08/10years.png" alt=""/><br />
+<figcaption>Apparently, it&#39;s been 10 years</figcaption>
+</figure>
+
+<p><strong>10 year anniversary</strong></p>
+<p>So, this bit came out of a sudden. I was curious and looked when my first-ever commit was, relevant to the project. It was ... 2nd of September 2013. Welp. I will possibly make a separate, medium-sized retrospective-y post about it. I have the blog for the last 6 years, but for anything previous I need to dig commits, or Temple of the Roguelike forums activity (I also had some unlisted Google Sites with notes, that served as a design doc in the early days, but classic Sites were killed off by Google so that seems to be gone now). While I definitely enjoy the process, it does get hard to see other projects start and finish in the meantime, but the long path is the path chosen, and there were no major misconceptions about the duration, although I could not have foreseen the number of major changes and the length of some rabbit holes. </p>
+

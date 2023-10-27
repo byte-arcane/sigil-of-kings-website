@@ -1,0 +1,95 @@
+---
+layout: post
+title: Creature traits, auras and elites/bosses
+date: 2021-03-04 07:03:24.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618183416;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:3281;}i:1;a:1:{s:2:"id";i:3285;}i:2;a:1:{s:2:"id";i:3356;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  rank_math_seo_score: '73'
+  rank_math_focus_keyword: aura
+  _wpas_done_all: '1'
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+  _wp_old_slug: creature-traits-auras-and-elites-bosses
+  rank_math_primary_category: '1'
+  rank_math_analytic_object_id: '3'
+author:
+permalink: "/2021/03/04/creature-traits-auras-elites-bosses/"
+---
+<p><!-- wp:embed {"url":"https://www.youtube.com/watch?v=3CmTf0z4y7U","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/3CmTf0z4y7U" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+<figcaption>Visuals for elites, bosses and early-draft aura look</figcaption>
+</figure>
+<p><!-- /wp:embed --></p>
+<p><!-- wp:paragraph --></p>
+<p>Some refactoring and some basic feature support this week, all towards <strong>bosses and elite enemies</strong>.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>On the refactoring side, I ditched even more ScriptableObjects in favour of my own JSON-powered flyweight classes. The changed classes were some name generators and associated data.</li>
+<li>On the same topic, I've made a "boss name generator" for boss creatures, which creates names such as "Satha the sadistic" and "Iveri the power-hungry". Basically, the first name will eventually be derived using a language that's prevailing in the region where the boss will be found, followed by some villainous adjective.</li>
+<li>Fixed a visual bug where some visual effects like burning, freezing etc would be seen before the projectiles that caused them landed</li>
+<li>Added support for creature traits and made a few. Traits are a collection of effects applied to a creature, like providing resistances, increased base health, etc. What this plans to be is what Heroes of Might &amp; Magic did: every creature was differentiated from others based on its stats and, most importantly, traits, which gave unique flavour to units. The difficult part is to come up with interesting traits of course, befitting the genre and gameplay.</li>
+<li>Added support for auras as an effect (applicable in traits). An aura is an effect that is centered on an entity and gets applied repeatedly to all entities (either friendly, or not, or anyone) within a particular radius. For example a boss with a damage aura could cause its enemies to take damage repeatedly while in radius, where as a boss with a damage-enhancing aura would cause all its allies/minions to get damage-enhancing bonuses while in radius.</li>
+<li>Elite creatures get a level bonus plus a corresponding trait for elite creatures (e.g. max health, better damage, faster, etc), whereas boss creatures get a bigger level bonus plus a corresponding trait (or two?) for boss creatures (some aura, etc). I want to have something like <a href="https://diablo2.diablowiki.net/Monster_modifier#Unique_Monster_Bonuses" class="rank-math-link">Diablo 2's unique monster bonuses</a></li>
+<li>Elite creatures have a different visual indicator to boss creatures: same effect, different colour.</li>
+<li>Early draft version (aka terrible looking) for visuals to represent auras. They are rendered correctly as a ground layer, alongside decals, but they need to be spiced up. I'll be looking of course at Diablo 2 for reference, but the rest of the work for this might be art-related or making lots of pretty shaders, which is best reserved for an "I-don't-want-to-code-architecture" day</li>
+<li>Spawned creatures can be normal, elite or boss.</li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>Here are the Diablo 2 auras to get inspired for any further visual work on this (<a href="https://diablo.fandom.com/wiki/Offensive_Auras" class="rank-math-link">source 1</a>, <a href="https://diablo.fandom.com/wiki/Defensive_Auras" class="rank-math-link">source 2</a>): </p>
+
+<div>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura00-2.gif" alt=""/>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura01-2.gif" alt=""/>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura02-1.gif" alt=""/>
+</div>
+<div>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura03-1.gif" alt=""/>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura04-1.gif" alt=""/>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura05-1.gif" alt=""/>
+</div>
+<div>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura06-1.gif" alt=""/>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura07-1.gif" alt=""/>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura08-1.gif" alt=""/>
+</div>
+<div>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura09-1.gif" alt=""/>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura10-1.gif" alt=""/>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura11-1.gif" alt=""/>
+</div>
+<div>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura12-1.gif" alt=""/>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura13-1.gif" alt=""/>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura14-1.gif" alt=""/>
+</div>
+<div>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura15-1.gif" alt=""/>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura16-1.gif" alt=""/>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura17-1.gif" alt=""/>
+</div>
+<div>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura18-1.gif" alt=""/>
+	<img class="imghstack" src="{{ site.baseurl }}/assets/2021/03/d2aura19-1.gif" alt=""/>
+</div>
+<p><!-- /wp:gallery --></p>
+<p><!-- wp:image {"id":3342,"width":580,"height":512,"sizeSlug":"large","linkDestination":"none"} --></p>
+<figure class="wp-block-image size-large is-resized"><img src="{{ site.baseurl }}/assets/2021/03/image.webp" alt="" class="wp-image-3342" width="580" height="512" loading="lazy"/><br />
+<figcaption>Diablo 2 auras, in-game</figcaption>
+</figure>
+<p><!-- /wp:image --></p>

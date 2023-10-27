@@ -1,0 +1,146 @@
+---
+layout: post
+title: Unity to Godot Part 1
+date: 2023-09-20 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/09/unity_to_godot.png
+meta:
+author:
+permalink: "/2023/09/20/unity-to-godot-part-1/"
+---
+
+<p>Ok, enough with Unity. Starting a log for porting over to Godot, and refactoring heavily along the way. It's not going to take a weekend, or 14 hours, but it will get there. The bridges have been burnt and there's no way back.</p>
+
+<p><strong>Feasibility study</strong></p>
+<p>The first thing that I did was to check if I had to use C++ modules or GDNative extensions. Looking through the docs, I decided it looked way too tedious plus I&#39;d have to port a lot of code. I can&#39;t see a definite reason for that choice, as the support for C# scripting looks reasonable enough, so I&#39;ll try to use it as-is. It should be a no-brainer for most people, but maybe I&#39;m tempted by C++ a bit too much. GDScript is not an option at all, since it would be new, it&#39;s slow, and it&#39;s used in a way that I don&#39;t plan to use it.</p>
+<p>So, decision #1 is to use C# for the project, and create a similar project/scene structure, but cleaner this time since I know what I&#39;m doing better</p>
+<ul>
+<li>The bulk of code is in C# scripts. The top-level class stores the persistent and runtime state, and it&#39;s saved in a node that persists across scenes.</li>
+<li>Use of nodes will be very lightweight, mainly for GUI and rendering. There is <strong>no association</strong> between Godot nodes and any of the game&#39;s entities.</li>
+</ul>
+<p>Given these, how does Godot score against my requirements from last week?</p>
+<ul>
+<li><strong>Easy save-game serialization</strong> As-is, with C# (can&#39;t wait to hit the lack of support for BinaryFormatter)</li>
+<li><strong>Interface with C++ plugin</strong> Tried that already, with [DllImport], seems to work, so code is mostly as-is</li>
+<li><strong>Debugging native code</strong> It&#39;s supported</li>
+<li><strong>Debugging script code</strong> Works, but I still need to find &quot;wait for debugger&quot; option</li>
+<li><strong>Easy writing/debugging shaders</strong> Looks fairly nice and GLSL-like, that I like</li>
+<li><strong>A solution for UI</strong> Looks reasonable, I&#39;ll deal with it when I get there</li>
+</ul>
+<p><strong>All aboard the Godot port</strong></p>
+<p>After a bit of feasibility checking, I think we&#39;re good to go for porting to Godot. Also <a href="https://twitter.com/unormal/status/1703163364229161236">Caves of Qud seems to be in the process of being ported</a>, and Brian&#39;s thread is very entertaining and full of energy. Exactly what we need imo. My process is going to be slightly different, due to my messy code structure, so I&#39;ll refactor some things on the way, as I was looking for an excuse to do that for a while.</p>
+<p>What <strong>needs</strong> to be ported? (or killed due to being deprecated)</p>
+<ul>
+<li>Editor scripts (6.5k LOC, 49 files)</li>
+<li>Game scripts (75k LOC, 443 files)</li>
+<li>Shaders (12.5k LOC, 133 files)</li>
+</ul>
+<p>What <strong>does not</strong> need to be ported?</p>
+<ul>
+<li>C++ native plugin code: ~100k LOC</li>
+<li>JSON configurations (instead of Unity ScriptableObjects, yay!): ~70k LOC</li>
+</ul>
+<p>Below is an itemized log.</p>
+<p><strong>Day #1</strong></p>
+<ul>
+<li>Reading about C++ modules and GDNative extensions. There&#39;s a long page of requirements and setup, so it sounds tedious. A port is not realistic as there&#39;s still no nice serialisation like C#, so it&#39;s a red herring. Will use Godot/C# so that I can reuse all my code</li>
+<li>C# tests and Rider seem fine. I tried to &quot;emulate&quot; my codebase by procgen a C# script with 10000 classes, and 1000 scripts with 1 class each, and opening the project. Timings looks fine, but I&#39;m not sure if this test is really effective if you don&#39;t really use many of these classes</li>
+<li>Looking into shaders, they look absolutely fine and the porting difficulty would not be great. It will be mostly syntactic, e.g. lots of float2 to vec2 etc. </li>
+<li>The first thing I&#39;m going to ensure it runs is the overworld generation, and I need render-to-texture (RTT) for that. So I figured how that works in Godot. For 2D we just create a Sprite2D that is going to display the RTT, and we also create a SubViewport with a ColorRect attached. Set ColorRect&#39;s layout to full rect, set the shader in the ColorRect, set the shader material to &quot;local to scene&quot; and set the subviewport as the Sprite&#39;s texture. Done! Also there&#39;s an option to trigger the RTT once, which is what I need for the overworld display. Ok, I&#39;m confident about this.</li>
+<li>While trying the RTT functionality, I realised that 3D objects need spatial shaders (not canvas_item) otherwise object looks black and there&#39;s no clear error.</li>
+<li>Godot has globalize_path for converting &quot;res://&quot; folders to absolute paths, which is useful for porting things like Application.streamingAssetsPath</li>
+<li>I successfully called the native plugin (well, just a subset of functions) and I reused most of the native plugin code. That&#39;s nice.</li>
+<li>I read about having <a href="https://ask.godotengine.org/46244/how-to-make-the-player-persistent-between-scene">persistent state between scenes</a></li>
+</ul>
+<p>~4h</p>
+<p><strong>Day #2</strong></p>
+<p>Spent quite a bit of time identifying what needs to be done.</p>
+<p>How do I port? Do I copy over the existing code structure, do I fix before porting or do I fix throughout? The wise thing to do would probably be to fix it before porting, but I have a one track mind, and the track is currently &quot;port now!&quot;. Porting throughout would require to move files carefully rather than en-masse, and I&#39;d rather move things en-masse. So, I&#39;ve spent some time on my &quot;ideal project structure&quot; and I&#39;m going to port initially as-is and move things later. A special case are the editor scripts, that are very Unity dependent, and these will be moved at the end</p>
+<p>Assets need to be ported too. I use binary Unity blobs for storing textures, but thankfully I create these textures from source assets in C#, so I&#39;ll just copy that code over and create a different blob which is loadable from Godot. A DDS would be nice if it&#39;s supported. </p>
+<p>I need to add any nuget packages. I&#39;m using Newtonsoft.Json and JonSkeet.MiscUtil only.</p>
+<p>I need to find a math library that behaves like Unity.Mathematics that I&#39;m now quite fond of (it&#39;s like GLM for C++). There&#39;s GlmSharp -- it looks a bit old, but it shouldn&#39;t matter as it&#39;s the simple API that I need.</p>
+<p>~2h</p>
+<p><strong>Day #3</strong></p>
+<ul>
+<li>Added nuget packages. Looks super-easy through JetBrains Rider: go to Tools -&gt; NuGet -&gt; Manage NuGet Packages. But JonSkeet.MiscUtil latest package does not support .NET 6 so I&#39;m not sure if I&#39;ll have issues with it. Same with GlmSharp.</li>
+<li>Copied over all non-editor scripts to new project. <strong>6,303</strong> errors</li>
+<li>Removing all &quot;using Unity.&quot; imports. It turns out that automatically importing missing references results in all sorts of bizarre imports, as I got some localisation, advertising, codec and so on that were never used. Ok after this step ... <strong>7,076</strong> errors. </li>
+<li>I&#39;m now going to apply the Qud port approach of placeholder classes/functions: GameObject, MonoBehaviour, Debug.Assert, Debug.Log, GUILayout, SerializeField, PlayerPrefs, Profiler, math namespace functions/classes, ISerializationCallbackReceiver, Application, Color32 etc. </li>
+</ul>
+<p>Ok, after lots of hours of doing the above, I&#39;m down to <strong>0 errors</strong> errors. It compiles! Of course these were just compile-time errors: the game is nowhere near ready to run. Now I have all the offenders contained in a single file (called UnityPlaceholders) so that I can refactor the code structure and make decisions about the different parts.</p>
+<p>Nontrivial things to fix:</p>
+<ul>
+<li>Unity jobs. These have to be moved to C++, they should not be complicated as the data types operated on are just PODs.</li>
+<li>Unity things like Textures, Materials, Shaders, etc. I can fake them for now just to compile of course</li>
+<li>Editor scripts, that relied on Unity a LOT. These are not as important and will be done later</li>
+<li>Shaders! These are important though, and I need to start porting (at least partially to begin with) as soon as something compiles</li>
+</ul>
+<p>I need to make a plan for the incremental placeholder removal now. The first and most obvious is the math library, as it&#39;s quite a big part of the placeholder code. After replacing the types with the glm types (ivec2, ivec3, vec2, vec3, etc), <a href="https://pastebin.com/S6k9x9ak">here&#39;s what&#39;s left from the shim layer</a></p>
+<p>~10h</p>
+<p><strong>Day #4</strong></p>
+<p>Replaced unimplemented math code with glm and Mathf. So, what is left in there? Let&#39;s do some damage control (again, taken from <a href="https://pastebin.com/S6k9x9ak">here</a>):</p>
+<p><strong>Low hanging fruit</strong></p>
+<ul>
+<li><strong>PerlinNoise</strong>: I used a little bit Unity&#39;s built-in perlin noise, I&#39;ll replace this to whatever Godot offers, and if it doesn&#39;t, I&#39;ll just add some opensimplex library I guess.</li>
+<li><strong>Font</strong>: This is barely used (in a single spot) and is half-baked anyway. Very easy to use something more sensible.</li>
+<li><strong>SystemInfo</strong>: Just system capabilities, I used them in a few places for debugging, so I&#39;ll either remove them or find equivalents.</li>
+<li><strong>grayscale</strong>: that was a stray color extension function, so it&#39;s going to move to color utilities</li>
+<li><strong>Screen</strong>: simple utility struct to get width/height, easily portable</li>
+<li><strong>Rect</strong>: should be easy to find Godot equivalent. This was used in guilayout and a few other places</li>
+<li><strong>Debug</strong>: logging, assertions, etc. Should be easy to replace later, but I&#39;ve already have the functionality in this shim layer</li>
+<li><strong>PlayerPrefs</strong>: For storage of some user settings, I barely used it so it&#39;s easy to port, or remove</li>
+<li><strong>JsonUtility</strong>: this will be refactored away to use Newtonsoft json, I used it in only a few spots in the beginning but never refactored it away </li>
+<li><strong>UnityEngine.Profiling.Profiler, ProfilerMarker</strong>: Need to find equivalent for Godot profiling</li>
+<li><strong>Color32</strong>: implement it to play along with Godot&#39;s color type (implicit conversions etc) and ensure it&#39;s 4 bytes, in the order specified, etc</li>
+<li><strong>Application, Time, LogType</strong>: These contain some globals e.g. paths, log handling and time. Need to find the equivalents</li>
+<li><strong>SerializeFieldAttribute, ISerializationCallbackReceiver</strong>: This is to make private variables visible in inspector and to process what&#39;s shown. Need to find the equivalent, if any, in Godot</li>
+</ul>
+<p><strong>Medium hanging fruit</strong></p>
+<ul>
+<li><strong>GUIStyle, GUILayout</strong>: These are used for my developer gui. I need to find the equivalent Godot functions.</li>
+<li><strong>ReadOnly/WriteOnlyAttribute, Job, IJob, IJobParallelFor</strong>: These were used in the job system, so they&#39;ll just be removed after I move the jobs to C++</li>
+<li><strong>Singleton</strong>:  This needs a bit of special handling, as apparently Singletons need to be in a global persistent scene that autoloads etc. The whole game will live in a singleton. I&#39;m not even sure if I&#39;m going to use different scenes, but I suspect I will due to the difference between root 2D and 3D nodes</li>
+<li><strong>Input, KeyCode, Event.keyCode</strong>: General input handling sprinkled through the codebase, shouldn&#39;t be hard to map even though Godot processes input events differently from what I read</li>
+<li><strong>AudioSource,AudioClip,AudioMixer</strong>: Again, basic use of these, so it shouldn&#39;t be too hard</li>
+<li><strong>MeshRenderer, MeshCollider, MeshFilter</strong>: These tend to be used as a means to an end, e.g. accessing materials etc. </li>
+<li><strong>EngineObject Destroy/DestroyImmediate</strong>: I made this wrapper to refer to all the explicit unity object destruction code. There should be something like that in Godot</li>
+<li><strong>NativeExtras.SubArray</strong>: that was a utility to efficiently slice a native array (for texture updates), I think in the new code it will transform to a Span&lt;&gt;, but it also depends on what is required to efficiently process/update texture data.</li>
+<li><strong>Physics.RayCast, Ray,RaycastHit</strong>: this was used in a couple of places only, to figure out what grid cell is under the mouse pointer. Easy to replace.</li>
+</ul>
+<p><strong>High-hanging fruit</strong></p>
+<ul>
+<li><strong>GameObject, MonoBehaviour, Component, Transform</strong>: standard unity stuff, these should be replaced with Godot node handling code</li>
+<li><strong>Camera, LayerMask</strong>: Camera handling e.g. with mouse or through code. Also used for rendering to specific layers</li>
+<li><strong>Material, Shader</strong>: This is sprinkled in the codebase around areas where we setup rendering. It is going to be tricky</li>
+<li><strong>ComputeBuffer</strong>: That&#39;s a bit tricky. This was used for pushing buffer data to the GPU, e.g. sprite data or level tile data and so on. It shouldn&#39;t be too hard to find an equivalent though, as the basis is just a GPU buffer with typical APIs</li>
+<li><strong>Graphics.DrawMeshInstancedIndirect</strong>: This was my bread and butter for instanced quad rendering. Need to find the equivalent.</li>
+<li><strong>FilterMode,TextureWrapMode,TextureFormat,RenderTextureFormat,RenderTextureReadWrite,Texture,Texture2D,Texture2DArray,RenderTexture</strong>: all of the texture handling code</li>
+</ul>
+<p>And that&#39;s all of what needs to be ported, in terms of non-editor-script, non-shader code! Phew. Doesn&#39;t look <em>that</em> bad. What&#39;s going to be harder is the code refactor, which means looking at ALL my code and splitting things around and organising them in a nice proper way, unlike the spaghetti organisation that I currently have</p>
+<p>Ok, time to refactor these, lower hanging fruit first! Also, <em>shudders</em>, each of these needs to be tested. </p>
+<hr>
+<p><strong>PerlinNoise</strong></p>
+<p>Godot seems to have some FastNoiseLite, but it&#39;s a godot object with all the standard bloat? No thanks. I got Dotnetnoise from nuget, instantiate a static instance and that&#39;s it. I created an empty scene, added a node, attached a script that calls the code in order to gather some data aaaand ... <strong>problems</strong>! See rant below. After problem was solved, I did a quick check on the generated data, looks reasonable, ok now next bullet point, but first the ...</p>
+<p>...<strong>Godot rant #1</strong> It seems that I had a file in the project a few days ago which I removed, but when I build the project, godot is trying to compile that file and fails. For a while it showed the folder the file was located in the FileSystem tab, and when I clicked in that (non-existent) folder, Godot crashed. Oops. So I found what was wrong. The &quot;play scene&quot; did not play the scene that I have loaded, but some previous scene that included the deleted file. <strong>It is not clear which scene is being run</strong>. Bad Godot UI. I need to remember to always click on &quot;Play current scene&quot; rather than &quot;run project&quot;.</p>
+<p><strong>Godot rant #2</strong> I exported some histogram data in a CSV and I dared to put them in the project. What happened? I got about 500 auto-generated files, half of them with the suffix .translation. Apparently, CSV files are treated as translations by default. But in the docs, it doesn&#39;t say how to turn that off.</p>
+<p><strong>Font</strong></p>
+<p>That looks suspiciously easy. I just have to test and see that Godot.Font works as I expect it to. Created a new scene, added a label, and in the theme overrides I changed the font to one of the ones in assets, it was rather painless. All ok. That was not really porting.</p>
+<p><strong>SystemInfo</strong></p>
+<p>I looked in the docs for any functions that show support of particular texture formats etc depending on platform but I couldn&#39;t find any. Ok, no problem, this feature bites the dust, it was used just in a single place anyway and it was for information only. </p>
+<p><strong>grayscale</strong></p>
+<p>This used to be an extension of Color, I&#39;ve now made it a utility function like other color conversions. Done.</p>
+<p><strong>Screen</strong></p>
+<p>There seem to be a few ways to get the screen dims, I used  DisplayServer.WindowGetSize(). Made a new scene, with a label that prints the screen size, I resized the window and it kept changing, so looks good.</p>
+<p><strong>Rect</strong></p>
+<p>Godot has Rect2. But this is a suspect low hanging fruit. I need to ensure that the interface and the content matches, as it&#39;s not just &quot;a struct with 4 numbers&quot;. After a quick look -- it does. </p>
+<p><strong>Debug</strong></p>
+<p>Easy! Redirecting to GD.Print, and putting it in a &quot;godot&quot; namespace so that I control which classes talk to Godot directly (for future refactoring)</p>
+<p>Finally for today, sweet pre-sleep discovery: in C# 10, we can use something like &quot;global using Rect2 = Godot.Rect2&quot; so that we can create a project-wide alias, and this is something that was not supported before! This makes it FAR easier to write engine-agnostic code, e.g. the entire codebase can use Rect2 without importing Godot in all files. All godot references can be localised to a few files.</p>
+<p>~4h</p>

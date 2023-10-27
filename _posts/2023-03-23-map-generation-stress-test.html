@@ -1,0 +1,53 @@
+---
+layout: post
+title: Map generation stress test
+date: 2023-03-23 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/03/stresstest.png
+meta:
+author:
+permalink: "/2023/03/23/map-generation-stress-test/"
+---
+
+<p>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/stresstest.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/stresstest.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/stresstest.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/stresstest-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/stresstest-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/stresstest-320w.webp 320w" alt="Stress-test example generated map" width="1920" height="1080" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Stress-test example generated map</figcaption>
+</figure></p>
+
+<p>For this week&#39;s update, the focus was stress-testing. It&#39;s a quick re-do of some older approach, but a bit more ... stressful. I wrote now some code that generates a dungeon specification procedurally, with some basic rules, which mostly are:</p>
+<ol>
+<li>Choose a layout between cavern/dungeon/coast, sized 160x90 or 80x45 (for 16:9 aspect ratio purposes)</li>
+<li>For that layout, parameterize it randomly (for all its parameters except child zones)</li>
+<li>If this layout is not a prefab, place a number of child layouts, depending on the containing zone area. For each, go to step 1 with reduced dimensions and allow selecting prefabs</li>
+</ol>
+<p>Now this very simple specification can create very very complex maps, when the RNG stars align. It also fails because occasionally some settings might end up being problematic. I wanted to generate a nice 1 hour video that demonstrates such maps, so I planned for 3500 images, requested the system to generate 5000, and it generated 3851 successfully, which was pretty close to my estimate. The number of prefabs and sparse feature configurations are pretty scant, but fine for now. Here&#39;s the resulting video:</p>
+<p>
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/h4a5dIKdHjQ" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/h4a5dIKdHjQ?autoplay=1><img src=https://img.youtube.com/vi/h4a5dIKdHjQ/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="1 hour of map generation: 3851 maps"></iframe></div>
+<figcaption>1 hour of map generation: 3851 maps</figcaption>
+</figure></p>
+<p>While preparing for the stress test, lots of things were changed, naturally, in the generator code, such as:</p>
+<ul>
+<li>General bug fixing, manifesting as failed connections in some cases</li>
+<li>Export generation configuration to JSON, allowing easy recreation of any map, and can be used for problem-solving bad maps. </li>
+<li>Support for <strong>flooded areas</strong>. Rivers and lakes are generated in maps, and sometimes they overlap with rooms. Rooms have a &quot;flooding percent&quot; parameter which dictates how much water will be left in that room. Currently, water tiles are removed randomly but in the future the shapes might need to be blobbier/nicer</li>
+<li>Inner zones can have open spaces at map borders, we just don&#39;t spawn exits there. This means that e.g. you can walk left in an embedded zone and you might hit the end of the map on an open floor, and that&#39;s ok. I didn&#39;t enforce bounding it with rock or whatever, because if rocks can become destructible with skills/spells, we still end up with a floor at the map border that leads nowhere. That&#39;s ok! It&#39;s a game, not a continuous world simulator.</li>
+<li>I just realised that if I create a coastal map and disable the &quot;open borders&quot; option, the map becomes an island map, surrounded by water. Hmmm, cool! It doesn&#39;t look too blobby, but that&#39;s an exercise for a different time</li>
+<li>Sometimes zone-zone connections were too many too close together. Now there&#39;s a test that prevents that.</li>
+<li>Dungeon maps, if I didn&#39;t specify any prefab rooms, became proper maze maps. While that&#39;s cool, I do want the option to generate a dungeon with no rooms, which is a big empty area, so I&#39;ve fixed that</li>
+</ul>
+<p><strong>Prison layout: warden office</strong></p>
+<p>I&#39;ve added support for multiple room prefabs for &quot;prison&quot; layout: one default and some other special ones with placement number constraints. So, a prison can specify a basic cell as the default, and one warden&#39;s office as a special room that HAS to be placed. Done!</p>
+<p>
+<figure><a href="{{ site.baseurl }}/assets/2023/03/wardens_office.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/03/variants/wardens_office.webp" srcset="{{ site.baseurl }}/assets/2023/03/variants/wardens_office.webp 1920w, {{ site.baseurl }}/assets/2023/03/variants/wardens_office-960w.webp 960w, {{ site.baseurl }}/assets/2023/03/variants/wardens_office-640w.webp 640w, {{ site.baseurl }}/assets/2023/03/variants/wardens_office-320w.webp 320w" alt="Warden's office in prison" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Warden's office in prison</figcaption>
+</figure></p>
+<p>Next week: minecart tracks and altars</p>
+

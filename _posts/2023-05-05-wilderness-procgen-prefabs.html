@@ -1,0 +1,132 @@
+---
+layout: post
+title: Wilderness Procgen Prefabs
+date: 2023-05-05 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/05/oasis_1.png
+meta:
+author:
+permalink: "/2023/05/05/wilderness-procgen-prefabs/"
+---
+
+<p>This week was content week, putting the procedural prefab and related systems a bit more to the test, nothing too exotic though, just a culmination of work done up to now. </p>
+<p><strong>New prefab areas</strong></p>
+<ul>
+<li><strong>Lean-to</strong>. This is an outdoors structure, one side is wall and has two columns in the open corners. It&#39;s generally empty (for now). The area outside contains a few crates and a campfire.</li>
+
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/leanto_1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/leanto_1.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/leanto_1.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/leanto_1-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/leanto_1-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/leanto_1-320w.webp 320w" alt="Lean-to example 1" width="1920" height="1080" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Lean-to example 1</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/leanto_2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/leanto_2.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/leanto_2.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/leanto_2-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/leanto_2-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/leanto_2-320w.webp 320w" alt="Lean-to example 2" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Lean-to example 2</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/leanto_3.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/leanto_3.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/leanto_3.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/leanto_3-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/leanto_3-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/leanto_3-320w.webp 320w" alt="Lean-to example 3" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Lean-to example 3</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/leanto_desert.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/leanto_desert.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/leanto_desert.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/leanto_desert-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/leanto_desert-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/leanto_desert-320w.webp 320w" alt="Lean-to example 4" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Lean-to example 4</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/leanto_tundra.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/leanto_tundra.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/leanto_tundra.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/leanto_tundra-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/leanto_tundra-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/leanto_tundra-320w.webp 320w" alt="Lean-to example 5" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Lean-to example 5</figcaption>
+	</figure>
+	
+<li><strong>Camp</strong>. This is an outdoors area, exactly like lean-to but without the structure.</li>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/05/camp_1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/camp_1.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/camp_1.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/camp_1-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/camp_1-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/camp_1-320w.webp 320w" alt="Camp example 1" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Camp example 1</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/camp_2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/camp_2.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/camp_2.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/camp_2-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/camp_2-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/camp_2-320w.webp 320w" alt="Camp example 2" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Camp example 2</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/camp_3.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/camp_3.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/camp_3.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/camp_3-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/camp_3-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/camp_3-320w.webp 320w" alt="Camp example 3" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Camp example 3</figcaption>
+	</figure>
+	
+<li><strong>Spring</strong> . This is a small outdoors area that contains a body of water and more-than-usual wildlife around it.</li>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/05/spring_1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/spring_1.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/spring_1.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/spring_1-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/spring_1-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/spring_1-320w.webp 320w" alt="Spring example 1" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Spring example 1</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/spring_2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/spring_2.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/spring_2.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/spring_2-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/spring_2-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/spring_2-320w.webp 320w" alt="Spring example 2" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Spring example 2</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/spring_3.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/spring_3.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/spring_3.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/spring_3-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/spring_3-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/spring_3-320w.webp 320w" alt="Spring example 3" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Spring example 3</figcaption>
+	</figure>
+
+<li><strong>Oasis</strong>. This is an outdoors area that contains a big body of water, it&#39;s surrounded by trees (but still allowing access to the water) and lots of wildlife are around as well, and other &quot;decoration&quot; which might map to desert-themed flowers/grass etc.</li>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/05/oasis_1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/oasis_1.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/oasis_1.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/oasis_1-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/oasis_1-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/oasis_1-320w.webp 320w" alt="Oasis example 1" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Oasis example 1</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/oasis_2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/oasis_2.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/oasis_2.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/oasis_2-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/oasis_2-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/oasis_2-320w.webp 320w" alt="Oasis example 2" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Oasis example 2</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/oasis_3.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/oasis_3.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/oasis_3.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/oasis_3-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/oasis_3-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/oasis_3-320w.webp 320w" alt="Oasis example 3" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Oasis example 3</figcaption>
+	</figure>
+
+<li><strong>Stone circle</strong>. This is an outdoors area where we just have big stones forming a pattern (pentagram, hexagram, square, others). At the moment I&#39;m using statues because I don&#39;t have any good cairns, oh well.</li>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/05/stone_circle_1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/stone_circle_1.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/stone_circle_1.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/stone_circle_1-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/stone_circle_1-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/stone_circle_1-320w.webp 320w" alt="Stone circle example 1" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Stone circle example 1</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/stone_circle_2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/stone_circle_2.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/stone_circle_2.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/stone_circle_2-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/stone_circle_2-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/stone_circle_2-320w.webp 320w" alt="Stone circle example 2" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Stone circle example 2</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/stone_circle_3.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/stone_circle_3.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/stone_circle_3.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/stone_circle_3-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/stone_circle_3-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/stone_circle_3-320w.webp 320w" alt="Stone circle example 3" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Stone circle example 3</figcaption>
+	</figure>
+	
+<li><strong>Ruins</strong>. This is an area that contains ruined buildings. It&#39;s configurable if there&#39;s cobblestone in the area, or just whatever biome ground there&#39;s underneath.</li>
+</ul>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/05/ruins_1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/ruins_1.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/ruins_1.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/ruins_1-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/ruins_1-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/ruins_1-320w.webp 320w" alt="Ruins example 1" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Ruins example 1</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/ruins_2.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/ruins_2.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/ruins_2.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/ruins_2-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/ruins_2-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/ruins_2-320w.webp 320w" alt="Ruins example 2" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Ruins example 2</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/ruins_3.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/ruins_3.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/ruins_3.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/ruins_3-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/ruins_3-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/ruins_3-320w.webp 320w" alt="Ruins example 3" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Ruins example 3</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/ruins_4.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/ruins_4.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/ruins_4.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/ruins_4-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/ruins_4-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/ruins_4-320w.webp 320w" alt="Ruins example 4" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Ruins example 4</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/ruins_5.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/ruins_5.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/ruins_5.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/ruins_5-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/ruins_5-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/ruins_5-320w.webp 320w" alt="Ruins example 5" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>Ruins example 5</figcaption>
+	</figure>
+
+<p><strong>More flexible lakes</strong></p>
+<p>I needed to add a bit more control on how lake bodies are generated. Previously I just had a &quot;coverage&quot; parameter between [0,1] but that was not enough. Now it&#39;s also parameterised on if we want the water clustered all together in a single lake, or have multiple smaller ones. All this was done to be able to make a nice oasis. Below are some example lakes.</p>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/05/lake_1_0.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/lake_1_0.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/lake_1_0.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/lake_1_0-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/lake_1_0-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/lake_1_0-320w.webp 320w" alt="max coverage, max clusters" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>max coverage, max clusters</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/lake_1_1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/lake_1_1.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/lake_1_1.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/lake_1_1-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/lake_1_1-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/lake_1_1-320w.webp 320w" alt="max coverage, min clusters #1" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>max coverage, min clusters #1</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/lake_1_1_b.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/lake_1_1_b.webp" srcset="{{ site.baseurl }}/assets/2023/05/variants/lake_1_1_b.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/lake_1_1_b-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/lake_1_1_b-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/lake_1_1_b-320w.webp 320w" alt="max coverage, min clusters #2" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+		<figcaption>max coverage, min clusters #2</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/lake_0.5_1.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/lake_0.5_1.webp" alt="med coverage, min clusters" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2023/05/variants/lake_0.5_1.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/lake_0.5_1-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/lake_0.5_1-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/lake_0.5_1-320w.webp 320w"/></a><br />
+		<figcaption>med coverage, min clusters</figcaption>
+	</figure>
+	<figure><a href="{{ site.baseurl }}/assets/2023/05/lake_0.5_0.5.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/05/variants/lake_0.5_0.5.webp" alt="med coverage, med clusters" width="1920" height="1080" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)" srcset="{{ site.baseurl }}/assets/2023/05/variants/lake_0.5_0.5.webp 1920w, {{ site.baseurl }}/assets/2023/05/variants/lake_0.5_0.5-960w.webp 960w, {{ site.baseurl }}/assets/2023/05/variants/lake_0.5_0.5-640w.webp 640w, {{ site.baseurl }}/assets/2023/05/variants/lake_0.5_0.5-320w.webp 320w"/></a><br />
+		<figcaption>med coverage, med clusters</figcaption>
+	</figure>
+
+<p><strong>Debugger Drama</strong></p>
+<p>That was a &quot;<em>fun</em>&quot; one. I got some weird placement behaviour and I thought I&#39;d use the Visual Studio debugger to see what&#39;s going on. Long story short, I ended up stepping through code like:</p>
+<pre><code>if(<span class="hljs-name">value</span>)
+    do_something()<span class="hljs-comment">;</span>
+</code></pre><p>So, debugger pointer was on if(value), value is false, then I step over, and it goes to do_something. And I started question my sanity. Long story short, the debugger is unreliable in some cases (even in debug mode) and the pointer is over lines that are not necessarily executed. Solution? Look at the disassembly! Easier than it sounds like, and it was pretty clear what was going on. Lost an entire afternoon on this nonsense.</p>
+<p>Next bit of work, probably low on imagery as it might take a bit, is fixing up the C# side so that the dungeons are playable with in-game graphics! </p>
+

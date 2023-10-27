@@ -1,0 +1,59 @@
+---
+layout: post
+title: Lairs, graphs and music
+date: 2023-08-17 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/08/lair_lich.png
+meta:
+author:
+permalink: "/2023/08/17/lairs-graphs-and-music/"
+---
+
+<p>More work on procedural-but-configurable lairs this week, it&#39;s looking better now. Some example lairs in the pictures below.</p>
+
+<figure><<a href="{{ site.baseurl }}/assets/2023/08/lair_dragon.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/08/variants/lair_dragon.webp" srcset="{{ site.baseurl }}/assets/2023/08/variants/lair_dragon.webp 1622w, {{ site.baseurl }}/assets/2023/08/variants/lair_dragon-960w.webp 960w, {{ site.baseurl }}/assets/2023/08/variants/lair_dragon-640w.webp 640w, {{ site.baseurl }}/assets/2023/08/variants/lair_dragon-320w.webp 320w" alt="Dragon's lair" width="1622" height="889" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Dragon's lair</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/08/lair_lich.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/08/variants/lair_lich.webp" srcset="{{ site.baseurl }}/assets/2023/08/variants/lair_lich.webp 1809w, {{ site.baseurl }}/assets/2023/08/variants/lair_lich-960w.webp 960w, {{ site.baseurl }}/assets/2023/08/variants/lair_lich-640w.webp 640w, {{ site.baseurl }}/assets/2023/08/variants/lair_lich-320w.webp 320w" alt="Lich's lair" width="1809" height="904" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Lich's lair</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/08/lair_emperor.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/08/variants/lair_emperor.webp" srcset="{{ site.baseurl }}/assets/2023/08/variants/lair_emperor.webp 1357w, {{ site.baseurl }}/assets/2023/08/variants/lair_emperor-960w.webp 960w, {{ site.baseurl }}/assets/2023/08/variants/lair_emperor-640w.webp 640w, {{ site.baseurl }}/assets/2023/08/variants/lair_emperor-320w.webp 320w" alt="Emperor's tomb" width="1357" height="892" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Emperor's tomb</figcaption>
+</figure>
+
+<p><strong>Lair work</strong></p>
+<p>For testing, I&#39;ve added some simple prefabs for a few areas. These areas have fixed or procedural layout, plus some &quot;dynamic entity instantiators&quot; assigned to some tiles (based on rules), which is a fancy way of saying they can be configured at runtime. For all the areas below, I specify dynamic instantiators for a &quot;boss group&quot; and &quot;treasure&quot;. </p>
+<ul>
+<li><strong>Dragon&#39;s lair</strong>: it&#39;s a procedurally generated cavern, where the &quot;boss group&quot; is a single boss creature from dragon classification. Treasure is on ground (not chest), a few instances of it.</li>
+<li><strong>Beast cave</strong>: it&#39;s a procedurally generated cavern, where the &quot;boss group&quot; is a single boss creature from a classification of &quot;beast&quot;, &quot;abberation&quot; or a few others. Treasure is on ground (not chest).</li>
+<li><strong>Lich&#39;s lair</strong>: it&#39;s a fixed room, where the &quot;boss group&quot; is an &quot;undead&quot; encounter group with a leader boss and maybe some other monsters, elite or not. Treasure is in chests, explicitly placed.</li>
+<li><strong>Emperor&#39;s tomb</strong>: it&#39;s another fixed room, where the &quot;boss group&quot; is again an &quot;undead&quot; encounter group with a leader boss and maybe some other monsters, elite or not. Treasure is in chests, explicitly placed.</li>
+</ul>
+<p>So it&#39;s possible to have fixed or procedural areas and fill them with semi-custom creatures. I&#39;m at my wits end regarding configurability. And I&#39;ve yet to deal with things like &quot;add journal notes on that table&quot; or &quot;add a special quest item on the boss monster&quot;, that&#39;s going to be a fun challenge.</p>
+<p>For the boss encounters, the rooms exclude other procedurally generated traps or creatures, although that&#39;s configurable too.</p>
+<p>Also, the existing &quot;monster role&quot; system was a big help here, for forming boss encounters -- see image in next paragraph.</p>
+<p><strong>Graphviz twopi creatures and encounters</strong></p>
+<p>My creature list is a big json file, where each entry specified the encounter groups that it&#39;s in, etc. This sounds like a graph, and if it&#39;s a graph, it can be visualized with ... graphviz! I wrote a script to arrange the encounter groups in a graph, also listing standalone creatures (not belonging to any group). Below is an example using twopi. </p>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2023/08/creature_graph.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/08/variants/creature_graph.webp" srcset="{{ site.baseurl }}/assets/2023/08/variants/creature_graph.webp 1551w, {{ site.baseurl }}/assets/2023/08/variants/creature_graph-960w.webp 960w, {{ site.baseurl }}/assets/2023/08/variants/creature_graph-640w.webp 640w, {{ site.baseurl }}/assets/2023/08/variants/creature_graph-320w.webp 320w" alt="Creature/encounter graph. Encounter groups are in cyan, standalone are in magenta, green are &quot;main&quot; monster roles, orange are &quot;support&quot; and red are &quot;leader&quot; roles" width="1551" height="1248" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Creature/encounter graph. Encounter groups are in cyan, standalone are in magenta, green are &quot;main&quot; monster roles, orange are &quot;support&quot; and red are &quot;leader&quot; roles</figcaption>
+</figure>
+
+<p><strong>Zone-based music changes</strong></p>
+<p>I&#39;ve added a nice and simple audio thing: when, in a level, you walk into a new zone (e.g. from outside in the cavern, or from inside the cavern to a special lair zone), the music fades into a new music track, so that the ambience is updated to reflect where you are. This kicks in after a bit of delay, so that you can&#39;t go back and forth very fast and make an audio mess. Here&#39;s a video demonstrating this</p>
+
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/WYnJWuet_xg" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/WYnJWuet_xg?autoplay=1><img src=https://img.youtube.com/vi/WYnJWuet_xg/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Dynamic music changing when we switch zones in a level, with a little delay"></iframe></div>
+<figcaption>Dynamic music changing when we switch zones in a level, with a little delay</figcaption>
+</figure>

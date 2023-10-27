@@ -1,0 +1,47 @@
+---
+layout: post
+title: Item-spawning dungeon features
+date: 2021-04-15 12:17:34.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618622022;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2156;}i:1;a:1:{s:2:"id";i:3175;}i:2;a:1:{s:2:"id";i:1974;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  rank_math_seo_score: '9'
+  _wpas_done_all: '1'
+  _edit_last: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_primary_category: '1'
+author:
+permalink: "/2021/04/15/item-spawning-dungeon-features/"
+---
+<p><!-- wp:embed {"url":"https://youtu.be/TOYsDh7PKLs","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/TOYsDh7PKLs" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/TOYsDh7PKLs?autoplay=1><img src=https://img.youtube.com/vi/TOYsDh7PKLs/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Testing bookshelves, aka "The Library Dungeon"" the="None" library="None" dungeon""="None"></iframe>
+</div>
+<figcaption>Testing bookshelves, aka "The Library Dungeon"</figcaption>
+</figure>
+<p><!-- /wp:embed --></p>
+<p><!-- wp:paragraph --></p>
+<p>Some backend work this week, to support item generator effects in level objects. An example is a bookshelf. Bookshelves are interactive objects that may or may not contain a scroll or a tome. Initially will appear full of books, but will become empty when searched. If an item is found, it's automatically transferred to the inventory.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>An additional fine point for bookshelves is that they are generated as a <em>single feature</em> in the native plugin that does the dungeon generation and placement work, whereas the C# side generates a <em>cluster</em> of bookshelves centered around the calculated feature position. So, some extra work to make things passable, etc. This is useful as we can do several nifty things if the native plugin generator works in terms of features, and the C# side can instantiate each feature into multiple similar entities. Another example would be a boss enemy with a number of minions, but that will come later on.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Another requirement for this work is to specify some sort of 2-dimensional enum for item types and subtypes, so we can tell the item generator system that we want a "tome" or a "scroll" object that has less-equal item level than some specified.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Another random fix was the AI of ranged attackers, where they would not take into account that obstacles might be in the way of the fired arrow. Well, now they do, and move into a position that provides a clearer shot.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>I've also started having a look at the prefab support in the dungeon generation, written last summer, as I have to write some tool to generate prefabs to use with generators.</p>
+<p><!-- /wp:paragraph --></p>

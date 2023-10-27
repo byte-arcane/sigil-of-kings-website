@@ -1,0 +1,75 @@
+---
+layout: post
+title: Field of Vision
+date: 2019-10-18 14:11:20.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618729119;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2883;}i:1;a:1:{s:2:"id";i:1945;}i:2;a:1:{s:2:"id";i:1853;}}}}
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '21'
+author:
+permalink: "/2019/10/18/field-of-vision/"
+---
+<p><!-- wp:paragraph --></p>
+<p>There are lots of FoV algorithms out there for roguelikes. <a href="http://www.roguebasin.com/index.php?title=Category:FOV">Here's a non-exhaustive listing</a>, with several dead links and incomplete descriptions, and also <a href="https://www.reddit.com/r/roguelikedev/comments/358mt5/faq_friday_12_field_of_vision/">here</a> and <a href="https://old.reddit.com/r/roguelikedev/comments/6hjbki/faq_fridays_revisited_12_field_of_vision/">here</a>. So, why carefully search through everything and pick one, when you can make your own? I had an idea several years ago, that I finally managed to implement in C#, as that's what I'm using now for the game.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The idea is very simple (and certainly not novel, as I've seen a few other similar examples around), and it's based on:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li>Processing an <strong>ordered</strong> list of cells, sorted by distance to the viewer. This list, if represented relative to origin (0,0), it can be calculated <strong>once in the game</strong></li>
+<li>At every cell, we sample <strong>up to 2</strong> previous cells towards the direction of the viewer, and based on relative angles (demonstrated below), we add their contributions together. Diagonals and straight lines sample just a single cell: the one before.</li>
+<li>Visibility can decay with distance, for lighting as well as other purposes (e.g a creature at a low visibility area can appear as a question mark)</li>
+<li>Grid cell visibility can be any value in [0,1], so <strong>partial blockers are possible</strong></li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>The percentage contributions from the previous cells are calculated based on the projection of the normalized vector to the longest axis:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2246} --></p>
+<figure class="wp-block-image"><img src="{{ site.baseurl }}/assets/2019/10/image-1.webp" alt="" class="wp-image-2246" width="666" height="603" loading="lazy"/><br />
+<figcaption>X is at an offset of (-2,-4) from the viewer. Y is the major axis, as 4 > 2. Projection of the normalized offset is 0.894. Thus, contribution from A's visibility is 89.4%, and from B is 10.6%</figcaption>
+</figure>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>That's it really. The visibility function is used up to twice per cell, so we can cache it as we go at some temporary storage. I'd be happy to put it in an existing testbed, but I haven't found a nice, easy-to-run one in a language that I'm quite comfortable with (C++, Python, C#).  I'm pretty happy with the results as it looks reasonable and should perform well. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Here's a video of walking around the overworld where visibility is affected by elevation difference (we can see higher from a mountain, but we can see little past a mountain when we're in the valley), humidity and vegetation density. Unfortunately, humidity and vegetation density are not very clearly represented with the current tiles, so the result might look slightly arbitrary:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:core-embed/youtube {"url":"https://youtu.be/aEYc75jIeZA","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<figure class="wp-block-embed-youtube wp-block-embed is-type-video is-provider-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio">
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/aEYc75jIeZA" allowfullscreen="" frameborder="0">
+    </iframe>
+</div>
+</figure>
+<p><!-- /wp:core-embed/youtube --></p>
+<p><!-- wp:paragraph --></p>
+<p>Here are some test images with various test cases for the FoV algorithm, showing continuous visibility (for lighting) and binary (for fov tests). The green gradient is the visibility. Red is the viewer. Dark areas are walls.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2249,"align":"center"} --></p>
+<div class="wp-block-image">
+<figure class="aligncenter"><img src="{{ site.baseurl }}/assets/2019/10/fov_scaled.webp" alt="" class="wp-image-2249" width="512" height="11264" loading="lazy"/></figure>
+</div>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p>And here are the same examples, but the walls obscure visibility by 50% only</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:image {"id":2250,"align":"center"} --></p>
+<div class="wp-block-image">
+<figure class="aligncenter"><img src="{{ site.baseurl }}/assets/2019/10/fovb_scaled.webp" alt="" class="wp-image-2250" width="512" height="11264" loading="lazy"/></figure>
+</div>
+<p><!-- /wp:image --></p>
+<p><!-- wp:paragraph --></p>
+<p><!-- /wp:paragraph --></p>

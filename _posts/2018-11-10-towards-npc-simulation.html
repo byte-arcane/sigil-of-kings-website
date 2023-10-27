@@ -1,0 +1,80 @@
+---
+layout: post
+title: Towards NPC simulation
+date: 2018-11-10 10:43:42.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1618000204;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2050;}i:1;a:1:{s:2:"id";i:1971;}i:2;a:1:{s:2:"id";i:1168;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '35'
+author:
+permalink: "/2018/11/10/towards-npc-simulation/"
+---
+<p>So, now that simulations now run acceptably, we need to move on from simulations to (well, simulated) reality. There's a still big list of todos:</p>
+<ul>
+<li>Implement turn system (I have an older implementation, so it's not completely from scratch, maybe)</li>
+<li>World occasionally generates adventure locations (dungeons)
+<ul>
+<li>Nearby cities could spread rumours about them</li>
+</ul>
+</li>
+<li>Basic city-related AI
+<ul>
+<li>City occasionally spawns quests (think town hall bulletin, paid work)</li>
+<li>Factions occasionally spawn quests (guild advancement)</li>
+<li>Inns occasionally spawn rumours (quests with great rewards that might or might not be true - still thinking about this)</li>
+</ul>
+</li>
+<li>Basic NPC AI
+<ul>
+<li>Actions in a city...
+<ul>
+<li>Buy rations</li>
+<li>[?] Rest/heal. But maybe that will be automatic</li>
+<li>Check city/faction/inn quests.</li>
+<li>Meet up people at an inn and form parties</li>
+</ul>
+</li>
+<li>Actions in a dungeon...
+<ul>
+<li>Progress with an encounter</li>
+<li>Flee</li>
+</ul>
+</li>
+<li>Actions in the wilderness...
+<ul>
+<li>Move towards destination (be it a city, a dungeon or an NPC/party)
+<ul>
+<li>(hmm maybe I need to consider party vs party fight simulation)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Actions anywhere...
+<ul>
+<li>Set destination (dungeon, city, party, etc)</li>
+</ul>
+</li>
+<li>Decision making
+<ul>
+<li>Estimate quest difficulty (expected survival. Also try to see what skills are required and compare to own skills)</li>
+<li>Estimate quest importance (based on personality and goals. Rogues like gold, Paladins like righteous stuff, etc)</li>
+<li>Estimate if enough rations for a quest can be purchased</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Ability to track particular NPCs/parties (in terms of location in world map and logging)</li>
+</ul>
+<p>&nbsp;</p>
+<p>The turn/time system will be the first in the list, as actions and AI all utilize the concept of time</p>

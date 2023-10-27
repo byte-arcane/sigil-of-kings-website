@@ -1,0 +1,41 @@
+---
+layout: post
+title: Content tagging
+date: 2023-04-13 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/04/shot_seed14_altars_bloodtag.png
+meta:
+author:
+permalink: "/2023/04/13/content-tagging/"
+---
+
+<p>Main bit of work this week was the use of content tagging in the native plugin, and some further refactoring avalanche that succeeded that. Previously, tagging was supported on the C# side, filtering the configuration that was supplied to the native plugin. But now, I wanted a bit of extra control especially on prefab placement, so that when we&#39;re populating the contents of a particular room/area, some elements would appear under different circumstances/tags. In the beginning, I used this to have for example a bloody altar versus a non-bloody one, or an abandoned room or prison vs a regular one. After adding this support, I decided that adding for example bloody/abandoned prefab placement elements for each prefab placement configuration was just too much work, so refactoring round 2 started.</p>
+
+
+<figure><a href="{{ site.baseurl }}/assets/2023/04/shot_seed7_dungen_tab=abandoned.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=abandoned.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=abandoned.webp 1536w, {{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=abandoned-960w.webp 960w, {{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=abandoned-640w.webp 640w, {{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=abandoned-320w.webp 320w" alt="Dungeon with "abandoned" tag: spawns cobwebs" abandoned"="None" tag:="None" spawns="None" cobwebs"="None" width="1536" height="864" loading="eager" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Dungeon with "abandoned" tag: spawns cobwebs</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/04/shot_seed7_dungen_tab=carnage.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=carnage.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=carnage.webp 1536w, {{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=carnage-960w.webp 960w, {{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=carnage-640w.webp 640w, {{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=carnage-320w.webp 320w" alt="Dungeon with "carnage" tag: spawns blood and bones" carnage"="None" tag:="None" spawns="None" blood="None" and="None" bones"="None" width="1536" height="864" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Dungeon with "carnage" tag: spawns blood and bones</figcaption>
+</figure>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/04/shot_seed7_dungen_tab=abandoned-carnage.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=abandoned-carnage.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=abandoned-carnage.webp 1536w, {{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=abandoned-carnage-960w.webp 960w, {{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=abandoned-carnage-640w.webp 640w, {{ site.baseurl }}/assets/2023/04/variants/shot_seed7_dungen_tab=abandoned-carnage-320w.webp 320w" alt="Dungeon with both "abandoned" and "carnage" tags: spawns all of the above" abandoned"="None" and="None" "carnage"="None" tags:="None" spawns="None" all="None" of="None" the="None" above"="None" width="1536" height="864" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Dungeon with both "abandoned" and "carnage" tags: spawns all of the above</figcaption>
+</figure>
+
+<p>By now, the &quot;prefab chaos storm&quot; is clearing up a bit, and some patterns are becoming clearer. I have two systems for placing map features. Generic features (traps, encounters, fountains) use one system, whereas specific features (altar area contents, wilderness cabin area contents) use another system. Both systems support very explicit placement of things, as well as procedural. Now, realising that blood, skulls and cobwebs can be pretty generic, they moved into the &quot;generic&quot; system, and they are tag-oriented. This means that if a zone is tagged as &quot;abandoned&quot;, then suitable areas (indoors environments or rooms in outdoors environments) will contain the occasional cobweb. Similarly, if a zone is tagged as &quot;bloody&quot; we increase the chance of blood pools or skulls. If a zone is tagged as &quot;carnage&quot; we increase those chances even more. So, now I can spawn an &quot;altar area&quot; zone and tag it with &quot;carnage&quot; so that the specific prefab placement system will populate it with the altar and statues and the generic system will populate it with blood and bones.</p>
+
+<figure><a href="{{ site.baseurl }}/assets/2023/04/shot_seed14_altars_bloodtag.png" target="_blank"><img src="{{ site.baseurl }}/assets/2023/04/variants/shot_seed14_altars_bloodtag.webp" srcset="{{ site.baseurl }}/assets/2023/04/variants/shot_seed14_altars_bloodtag.webp 1536w, {{ site.baseurl }}/assets/2023/04/variants/shot_seed14_altars_bloodtag-960w.webp 960w, {{ site.baseurl }}/assets/2023/04/variants/shot_seed14_altars_bloodtag-640w.webp 640w, {{ site.baseurl }}/assets/2023/04/variants/shot_seed14_altars_bloodtag-320w.webp 320w" alt="Altars with no tags, "bloody" tag and "carnage" tag. Needs zoom-in to see well! " bloody"="None" tag="None" and="None" "carnage"="None" tag.="None" needs="None" zoom-in="None" to="None" see="None" well!="None" "="None" width="1536" height="864" loading="lazy" style="image-resolution: from-image;" sizes="(min-width: 820px) 660px, (min-width: 520px) calc(100vw - 110px), (min-width: 460px) calc(175vw - 485px), calc(92.86vw - 89px)"/></a><br />
+<figcaption>Altars with no tags, "bloody" tag and "carnage" tag. Needs zoom-in to see well! </figcaption>
+</figure>
+
+<p>Adding this required that I take a hard look on the existing generic system that was written a while ago, so the refactoring hammer started ... hammering again, breaking and rearranging bits. And the dust slowly settles.</p>
+

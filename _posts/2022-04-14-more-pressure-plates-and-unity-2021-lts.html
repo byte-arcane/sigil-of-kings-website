@@ -1,0 +1,33 @@
+---
+layout: post
+title: More pressure plates and Unity 2021 LTS
+date: 2022-04-14 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/04/procedural_pressure_plates2.png
+meta:
+author:
+permalink: "/2022/04/14/more-pressure-plates-and-unity-2021-lts/"
+---
+
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/pressure_plate2_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>New and improved pressure plates</figcaption>
+</figure>
+
+<p>A few disjoint topics this week.</p>
+<p><strong>Camera animation extensions</strong>. Added a bit more flexibility to the camera movement, as I had different requirements for different use-cases, e.g. for pan-and-zoom I wanted nice linear movement with constant velocity, whereas for locating a tile or a character I needed some exponential etc. So, every time I set the camera target, I also specify a few more bits of info: easing functions, maximum duration, screen-space velocity and tile velocity. That should cover everything :D As expected, did wonders to my constant reluctance to stick to something.</p>
+<p><strong>Pressure plate visuals</strong>. New procgen pressure plates are good, but they can be better. I&#39;ve fixed a bug where they can now spawn on areas with permanent decals/overlays such as a carpet. I&#39;m calculating the border dent colour using nearby pixels instead of a constant value, and when the plate is pressed it&#39;s a bit darker overall. All these were very useful really.</p>
+<p><strong>Upgrade to Unity 2021 LTS</strong>. This didn&#39;t go as smooth as hoped. Two issues:</p>
+<ul>
+<li>System.Random cannot be serialized any more. Thankfully, a reference implementation of the class is open-source, so I used that, made it serializable and everything works like before, and algorithm seems to be the same, which is nice</li>
+<li>Some shaders had vanished in builds. Apparently that was due to some weird tag discrepancy which got a (very hard to find) warning in 2021 LTS for a single shader, and that shader caused the entire shader collection to become messed up. Happy debugging times! At least found the issue, resolved the issue, and 2021 now works fine.</li>
+</ul>
+

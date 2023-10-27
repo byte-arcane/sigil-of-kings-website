@@ -1,0 +1,86 @@
+---
+layout: post
+title: Single NPC Dungeon Delving Simulation
+date: 2018-10-26 10:44:41.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619328219;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:2016;}i:1;a:1:{s:2:"id";i:1971;}i:2;a:1:{s:2:"id";i:2050;}}}}
+  _wpas_skip_21361648: '1'
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '37'
+author:
+permalink: "/2018/10/26/single-npc-dungeon-delving-simulation/"
+---
+<p>Previous week was <a href="{{ site.baseurl }}/2018/10/19/adventurer-archetypes-level-up-strategies/">simulation of level progression of NPC adventurers</a>. The logical continuation is to pit such generated characters against dungeons, and run simulations for the outcome.</p>
+<h3>Dungeons: A Series of Challenges</h3>
+<p>The Tomb Of Horrors.</p>
+<p>The Haunted Graveyard.</p>
+<p>The Forgotten Crypt.</p>
+<p>The Lair of the Werewolf King.</p>
+<p>All these are locations where adventures take place, and typically adventurers slay lots of monsters and acquire treasure and artifacts. Since we're still at a high level of abstraction, instead of creating dungeons and placing monsters, we can simulate the outcome in a simpler way, as a series of challenges:</p>
+<p>Adventurer walks in, faces a skill test (e.g. how good is the two-handed skill) or a skill category test (e.g. how good are the combat skills on average), takes damage based on the test result (which is a scalar rather than a bool) and heals a bit. If the test passes, adventurer gains XP and proceeds to next challenge.</p>
+<p>A dungeon is configured for a such coarse simulations as follows:</p>
+<ul>
+<li><strong>Number of challenges:</strong> How many challenges should adventurers succeed in to complete the dungeon.</li>
+<li><strong>Challenge rating:  </strong>The difficulty of the dungeon, in terms of character level.</li>
+<li><strong>Skill Challenge Pool: </strong>The skills that can be tested against, if the challenge is skill-based.</li>
+<li><strong>Skill Category Challenge Pool:</strong> The skill categories that can be tested against, if the challenge is category-based.</li>
+<li><strong>Skill Challenge Chance: </strong>The chance of encountering a skill-based challenge rather than a category-based one.</li>
+</ul>
+<p>The two challenge pools (skill and skill category) contain subsets of skills/categories, each with a specified DC (difficulty class) modifier as compared to the average for the CR (challenge rating) of the dungeon.  So for example a dungeon could have particularly hard lockpicking tests, or very easy combat.</p>
+<p>Adventurers can have their personal "retreat threshold" (aka bravery), so some will flee if their health is below 20%, others when it's below 5%, others never.</p>
+<p>The simulation goes as follows in pseudocode:</p>
+<pre class="EnlighterJSRAW" data-enlighter-language="python">for each encounter:
+    calculate challenge rating # progressively harder
+    calculate test mastery level base
+    
+    test_type = weighted select skill or category
+    if test_type == category:
+        sample category # from the list of categories that we can test for this dungeon
+        adjust test mastery level 
+        run skill check against adventurer's average skill level
+        calculate success and apply damage
+    elif test_type == skill:
+        sample skill # from the list of skills that we can test for this dungeon
+        adjust test mastery level 
+        run skill check against adventurer's skill level
+        calculate success and apply damage
+    
+    if adventurer.dead():
+        return status::Death
+    else:
+        if success:
+            adventurer.awardxp( challenge_rating )
+        else:
+            flag encounter for retry
+        adventurer.heal_some()
+
+        if adventurer.health_critical():
+            return status::Retreat
+
+return status::Success</pre>
+<p>For simulation purposes, mana acts as a "mana shield"; when mana is available it can be utilized to block off damage at half effectiveness, e.g. at 100 damage, 48 mana left =&gt; 24 damage absorbed, mana goes to zero, adventurer takes 76 damage.</p>
+<p>I developed two tests to see the simulation in action, <strong>single-delve</strong> and <strong>lifetime-delve</strong></p>
+<h3>Single-delve tests</h3>
+<p>These tests take single adventurers and put them against a single dungeon. Run enough tests at all potential character levels, and we can get an idea of survivability rates at different levels. All characters are generated using the <a href="{{ site.baseurl }}/2018/10/19/adventurer-archetypes-level-up-strategies/">level-up strategies from the previous post</a>.  Below are a few graphs that show the success/retreat/death per adventurer level by varying the general cautiousness of adventurers (CR mod), the number of challenges of the dungeon and their retreat threshold.</p>
+<p><a href="{{ site.baseurl }}/assets/2018/10/advlocres_crmod-3_enc9_retreat3.webp"><img class="aligncenter size-full wp-image-2010" src="{{ site.baseurl }}/assets/2018/10/advlocres_crmod-3_enc9_retreat3_thumb740.webp" alt="" width="1830" height="981" /></a></p>
+<p><a href="{{ site.baseurl }}/assets/2018/10/advlocres_crmod0_enc9_retreat3.webp"><img class="aligncenter size-full wp-image-2011" src="{{ site.baseurl }}/assets/2018/10/advlocres_crmod0_enc9_retreat3_thumb740.webp" alt="" width="1830" height="981" /></a></p>
+<p><a href="{{ site.baseurl }}/assets/2018/10/advlocres_crmod3_enc9_retreat3.webp"><img class="aligncenter size-full wp-image-2012" src="{{ site.baseurl }}/assets/2018/10/advlocres_crmod3_enc9_retreat3_thumb740.webp" alt="" width="1830" height="981" /></a></p>
+<p>Here is a GIF with all graphs, to avoid flooding the page, as there are many many combinations (first retreat value varies, then challenges, then CR mod):</p>
+<p><a href="{{ site.baseurl }}/assets/2018/10/single-delve.gif"><img class="aligncenter size-full wp-image-2009" src="{{ site.baseurl }}/assets/2018/10/single-delve_thumb740.gif" alt="" width="1830" height="981" /></a></p>
+<h3>Lifetime-delve tests</h3>
+<p>These tests take single adventurers, starting from level 1 and put them continuously against dungeons until they die or reach level 30. The adventurers pick a dungeon level compared to their level, using a CR modifier (-5 is easier dungeons, up to 0, as above is suicide given the previous graphs). Here is a GIF again with all graphs, much less data this time, so easier to follow: ( retreat varies first, then challenges)</p>
+<p><a href="{{ site.baseurl }}/assets/2018/10/lifetime-delve.gif"><img class="aligncenter size-full wp-image-2013" src="{{ site.baseurl }}/assets/2018/10/lifetime-delve_thumb740.gif" alt="" width="1840" height="981" /></a></p>
+<h3>Next time, party time</h3>
+<p>Clearly the survivability rates are not great, especially at higher levels. So, as it is natural, parties can and will form, as there is strength in unity. The party simulation will not be too complicated, and should give a reasonable boost to survivability esp. at higher levels.</p>
+<p>Finally there's another wild idea. These simulation results can be exported to JSON, so that when AI has to make choices about which dungeons to tackle, it will use the graph results. The more the AI knows about a dungeon (CR, encounter num, etc), the more accurate the survivability percentage it will be, utilizing rumors, dungeon lore skills, etc. So, it can make a more informed decision.</p>
+<p>Another fun idea is to try to use something like <a href="http://tracery.io/">tracery</a> (or a home-brewed adaptation) to generate "adventure stories".</p>

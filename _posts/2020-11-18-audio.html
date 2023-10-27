@@ -1,0 +1,62 @@
+---
+layout: post
+title: Audio
+date: 2020-11-18 00:45:39.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- audio
+- programming
+tags: []
+meta:
+  _jetpack_related_posts_cache: a:1:{s:32:"37550b67d263a3ce789993dc25046c5f";a:2:{s:7:"expires";i:1613277266;s:7:"payload";a:6:{i:0;a:1:{s:2:"id";i:2102;}i:1;a:1:{s:2:"id";i:3150;}i:2;a:1:{s:2:"id";i:2114;}i:3;a:1:{s:2:"id";i:2868;}i:4;a:1:{s:2:"id";i:2070;}i:5;a:1:{s:2:"id";i:2883;}}}}
+  _last_editor_used_jetpack: block-editor
+  _publicize_twitter_user: "@aotdev1"
+  _wpas_done_all: '1'
+  rank_math_focus_keyword: audio
+  rank_math_internal_links_processed: '1'
+  _edit_last: '1'
+  rank_math_analytic_object_id: '13'
+author:
+permalink: "/2020/11/18/audio/"
+---
+<p><!-- wp:paragraph --></p>
+<p>Since this is the first post about audio (I think?), I guess I can afford not being creative in naming the post. So, Unity already has audio facilities, which while nice, still leave some bits to be desired, especially if you're going Wild West without using gameobjects much, like I do.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:heading {"level":4} --></p>
+<h4>AudioListener and AudioSource</h4>
+<p><!-- /wp:heading --></p>
+<p><!-- wp:paragraph --></p>
+<p>The basics that I bothered to research, require 2 things: an audio listener and audio sources, both components. Nice and simple. Normally you hook the audio listener to the player/camera gameobject, and audio source components are hooked to the gameobjects in your world. Since I'm not using gameobjects much, I've got an AudioListener to the camera gameobject, and a number of AudioSource components in my 2nd gameobject (called Scripts). The audio sources represent audio types really, and are 7:</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:list --></p>
+<ul>
+<li><strong>Background music</strong> x2 : self-explanatory</li>
+<li><strong>Ambient sounds primary</strong> x2 : biome sounds for overworld, e.g. forest, swamp, open sea</li>
+<li><strong>Ambient sounds secondary</strong> x2: secondary ambience for overworld, e.g. river or shore</li>
+<li><strong>Positional sounds</strong> : misc sounds like doors opening/closing, secrets found, etc  </li>
+</ul>
+<p><!-- /wp:list --></p>
+<p><!-- wp:paragraph --></p>
+<p>The positional sounds source always uses the .PlayOneShot() function, which as the name suggests, plays immediately a sound, and is capable of mixing sounds, so I can reuse it to play many sounds. Simple!</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>The others (which are all looping channels) got a bit more complicated. I wanted crossfade, you see, and the solutions I found out there were not up to snuff. Snapshots something something, mixers, more and more components and gameobjects, or coroutines that you fire and forget, but if you want more control, tough luck.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>So, I'm using a <strong>ping-pong pattern</strong> for the  channels, so I need 2 of each. Thanks computer graphics for teaching me tricks! When you're in the forest and you go to the desert, the "active" forest ambience channel starts fading out, and the 2nd buffer become active and fades in the desert audio. That's it really! The fade in/out happens at the update function. In code, when we move around tiles in the overworld, I just set desired volume level, like "for ping-pong buffer 0 of ambient sounds primary, set volume to 1 and set audio clip to forest-ambience". then the update function will dutifully interpolate whatever volume we currently have towards the desired volume. That's it really! I'm quite happy with the result, and especially that it took a few hours overall to set up. I might have used more time searching for biome sounds really.</p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:paragraph --></p>
+<p>Here's a video that demonstrates the above, plus some new biome-specific tilesets. So, you enter a dungeon in the tundra, you get tundra maps, etc. The video also uses some music that I made ages ago, as I'm eager to use this game as an outlet for all my procedural, algorithmic and creative needs. </p>
+<p><!-- /wp:paragraph --></p>
+<p><!-- wp:core-embed/youtube {"url":"https://www.youtube.com/watch?v=JeTOFj6fARw","type":"video","providerNameSlug":"youtube","className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --></p>
+<div class="video-container">
+	<iframe src="https://www.youtube.com/embed/JeTOFj6fARw" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/JeTOFj6fARw?autoplay=1><img src=https://img.youtube.com/vi/JeTOFj6fARw/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Showing youtube video JeTOFj6fARw"></iframe>
+</div>
+<p><!-- /wp:core-embed/youtube --></p>
+<p><!-- wp:paragraph --></p>
+<p><em><sub>(Towards the end of the video, I'm trying hard to find the dungeon entry, but it's a large map so I started teleporting around, gave up and turned the FoV off, bad cheater I know :) )</sub></em></p>
+<p><!-- /wp:paragraph --></p>

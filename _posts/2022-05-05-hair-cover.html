@@ -1,0 +1,69 @@
+---
+layout: post
+title: Hair cover
+date: 2022-05-05 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/05/hair_cover.png
+meta:
+author:
+permalink: "/2022/05/05/hair-cover/"
+---
+
+<p>Back on track a bit, with some good ol&#39; refactoring and solving a hairy problem (literally) that I&#39;ve had for a while.</p>
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/partial_hair_cover_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Showing partial hair cover when wearing helmets</figcaption>
+</figure>
+
+<p>Previously, on composable sprites work, I had the following issue. I had no good way of dealing with weird hair (long beard, long hair, mohawk, etc) in combination with helmets that cover part or all the face. Well, I came up with a solution that is stupidly simple and it&#39;s so trivial it&#39;s embarassing I didn&#39;t think about it earlier. </p>
+<p>Before, if a layer (e.g. helmet) specified that some previous layers should be covered by it (e.g. hair and beard), I simply did not use them during the sprite composition, which looked bad in cases like a cowl, where some hair would be visible (near the forehead), as it looked like the character suddenly got bald. </p>
+<p>Now, if a layer (e.g. helmet) specifies that some previous layers should be covered by it (e.g. hair and beard), then these layers DO get drawn, but purely on the surface of their parent layer (which is the face, for the hair and beard). How does this work and what does it produce?</p>
+
+<ul>
+<li>If a helmet doesn&#39;t cover any layer, we draw everything as normal</li>
+<li>If a helmet covers the hair, then beard gets rendered normally, but the hair only get rendered on the area of the face</li>
+<li>If a helmet covers hair and beard, then both hair and beard only get rendered on the area of the face. A full face helmet completely covers the face, so all beard/hair pixels will get overwritten by the helmet.</li>
+</ul>
+
+<figure>
+<img src="https://i.imgur.com/U1KQdZL.png" />
+<figcaption>No helmet - AS BEFORE</figcaption>
+</figure>
+
+<figure>
+<img src="https://i.imgur.com/XpzVEU1.png" />
+<figcaption>Helmet on top of hair/beard - AS BEFORE</figcaption>
+</figure>
+
+<figure>
+<img src="https://i.imgur.com/n5FvJHq.png" />
+<figcaption>Partial hair cover: notice the visible sideburns, and the missing mane. If there was a mohawk or long hair, the out-of-the-head parts would not be visible</figcaption>
+</figure>
+
+<figure>
+<img src="https://i.imgur.com/nPE6zHP.png" />
+<figcaption>Full cover - AS BEFORE</figcaption>
+</figure>
+
+<p>This was about 30&#39; work and I don&#39;t want to overthink it and find failure cases, so I decided I&#39;m happy and it stays :D</p>
+<p><strong>Misc</strong></p>
+<ul>
+<li>Hooked key shortcuts to arbitrary console commands, for quick testing, configurable from file. Very useful. E.g. Ctrl + F1 runs &quot;ps rain&quot; which starts a rain particle system, but of course commands can get far more verbose and that&#39;s why the keys end up being useful</li>
+<li>Created a ScaledValue object to allow for values to be scaled by level, attribute and skill (either, or multiple at the same time), and that&#39;s useful for abilities that have a radius for example that can change with different levels or attributes</li>
+<li>Refactored ability system a little, apparently the design was not as bad as I thought, but still more changes need to be done, especially for supporting arbitrary new spells</li>
+<li>Melee AoE skills do not show the character bump-attacking all AoE entities separately</li>
+<li>Made a simple GUI to dynamically change the player appearance, seen below </li>
+</ul>
+
+<figure>
+<div class="video-container-square"><iframe src="{{ site.baseurl }}/assets/video/cosmetic_explorer_tw.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>GUI for dynamic character edits</figcaption>
+</figure>

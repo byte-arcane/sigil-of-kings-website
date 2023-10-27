@@ -1,0 +1,43 @@
+---
+layout: post
+title: 'AI: Overworld Adventures Test - Response Curve Tool'
+date: 2017-05-05 15:35:09.000000000 +01:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+  _rest_api_published: '1'
+  _rest_api_client_id: "-1"
+  _publicize_job_id: '4732701418'
+  _jetpack_related_posts_cache: a:1:{s:32:"8f6677c9d6b0f903e98ad32ec61f8deb";a:2:{s:7:"expires";i:1619220463;s:7:"payload";a:3:{i:0;a:1:{s:2:"id";i:1368;}i:1;a:1:{s:2:"id";i:824;}i:2;a:1:{s:2:"id";i:964;}}}}
+  rank_math_internal_links_processed: '1'
+  rank_math_analytic_object_id: '65'
+author:
+permalink: "/2017/05/05/ai-overworld-adventures-test-response-curve-tool/"
+---
+<p><em>That's my progress --&gt; </em><img class="alignnone  wp-image-1286" src="{{ site.baseurl }}/assets/2017/05/snail-160313_640.webp" alt="snail-160313_640.png" width="484" height="342" /></p>
+<p>&nbsp;</p>
+<p>Originally I was hoping that by this week I'd have an example using utility AI. Well, I miscalculated how much time things take. On the plus side, I developed a tool that is going to help with setting up the curves properly and visualize how considerations are combined together. The tool has a GUI (using <a href="http://anttweakbar.sourceforge.net/doc/">AntTweakBar</a>) that allows adding/removing considerations, adjusting curves, setting up mock inputs, calculating scores and saving/loading to a file (as a list of lines in the form "<em>consideration_name normalized_input curve_type curve_coeffs"</em>). Here's how it looks like:</p>
+<p><a href="{{ site.baseurl }}/assets/2017/05/response_curve_toold-2017-05-04-22-17-04-59.webp"><img class="alignnone size-full wp-image-1314" src="{{ site.baseurl }}/assets/2017/05/response_curve_toold-2017-05-04-22-17-04-59_thumb740.webp" alt="response_curve_toold 2017-05-04 22-17-04-59.png" width="1340" height="768" /></a></p>
+<p>The left graph shows all the response curves from all considerations and the right graph shows how the final score varies depending on the input value of one of the considerations. The points correspond to input values (on graph, as well as stacked)</p>
+<p>So, here are current curves that I'm going to use for the AI.</p>
+<p><strong>VisitTemple Choice</strong></p>
+<p>If we have low health, give a big boost to score (purple curve). If we have zero coins we won't go to the city (green curve == zero),  but otherwise the score rises quickly. Distance has a small effect (the closer the better), as it's not as important as health for example.</p>
+<p><a href="{{ site.baseurl }}/assets/2017/05/response_curve_toold-2017-05-04-22-46-11-92.webp"><img class="alignnone size-full wp-image-1327" src="{{ site.baseurl }}/assets/2017/05/response_curve_toold-2017-05-04-22-46-11-92_thumb740.webp" alt="response_curve_toold 2017-05-04 22-46-11-92.png" width="1340" height="768" /></a></p>
+<p><strong>VisitBlacksmith Choice</strong></p>
+<p>Blacksmith will provide boost to power and health. It's not as important as getting rations or healing, so we'll need more coins to get higher score. Distance again is not that important. If I'm in the city and I have enough rations and on full health, I should be choosing this.</p>
+<p><a href="{{ site.baseurl }}/assets/2017/05/response_curve_toold-2017-05-04-22-49-59-20.webp"><img class="alignnone size-full wp-image-1330" src="{{ site.baseurl }}/assets/2017/05/response_curve_toold-2017-05-04-22-49-59-20_thumb740.webp" alt="response_curve_toold 2017-05-04 22-49-59-20.png" width="1340" height="768" /></a></p>
+<p><strong>VisitGrocer Choice</strong></p>
+<p>This depends on the current number of rations (yellow curve), distance to city (green curve) and current coins (blue curve). Low number of coins or high number of rations lower the score quickly.</p>
+<p><a href="{{ site.baseurl }}/assets/2017/05/response_curve_toold-2017-05-04-22-54-49-27.webp"><img class="alignnone size-full wp-image-1332" src="{{ site.baseurl }}/assets/2017/05/response_curve_toold-2017-05-04-22-54-49-27_thumb740.webp" alt="response_curve_toold 2017-05-04 22-54-49-27.png" width="1340" height="768" /></a></p>
+<p><strong>RaidDungeon Choice</strong></p>
+<p>If we have 50% chance or below of clearing the dungeon, don't go (green curve). It also depends on the distance: closer is better</p>
+<p><a href="{{ site.baseurl }}/assets/2017/05/response_curve_toold-2017-05-04-23-14-02-80.webp"><img class="alignnone size-full wp-image-1355" src="{{ site.baseurl }}/assets/2017/05/response_curve_toold-2017-05-04-23-14-02-80_thumb740.webp" alt="response_curve_toold 2017-05-04 23-14-02-80.png" width="1340" height="768" /></a></p>
+<p><strong>SelectDungeon Choice </strong>(Selecting the best dungeon out of a list of available ones)</p>
+<p>Use the RaidDungeon choice, applying it to each dungeon in the list and select the best.</p>
+<p>So... that's so far. I've made the curves and I need to make sure the (now, moderately complex) behavior tree does all the magic by itself...</p>

@@ -1,0 +1,35 @@
+---
+layout: post
+title: Settlements
+date: 2022-03-02 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2022/03/settlements.png
+meta:
+author:
+permalink: "/2022/03/02/settlements/"
+---
+
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/z8236z7Aviw" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/z8236z7Aviw?autoplay=1><img src=https://img.youtube.com/vi/z8236z7Aviw/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Settlement pan and zoom"></iframe></div>
+<figcaption>Settlement pan and zoom</figcaption>
+</figure>
+
+<p>Last week&#39;s work was focussed on settlements, which are embedded locations in outdoors biomes, and can be the setting for several mission types (e.g. defense from ambush, or some night stealth mission to steal something, etc). Some related work to make that happen:</p>
+<ul>
+<li><strong>Refactor of what&#39;s considered outdoors</strong>. Previously, it was per-zone (so, a subregion of a level). Now, it&#39;s per tile, depending on the zone the tile it&#39;s in, but also if it&#39;s in a sheltered room or not. So, in a settlement, a tile can be outside, can be inside a room without a roof, and can be inside a room with a roof. The inside/outside distinction is used for particle systems such as rain/snow, for light conditions, fog, etc</li>
+<li><strong>Cutscene player</strong>. Added support of cutscenes loaded from file, that can do some pretty generic stuff, like pan/zoom to the center of the map. This is used in the video above.</li>
+<li><strong>Cemetery prefab</strong>. This required fixing up the cemetery fence autotiles, and setting it up to be an &quot;outdoors&quot; room where the fence blocks movement but not visibility.</li>
+<li><strong>Blacksmith prefab and equipment rack</strong>. Ok, it&#39;s a poor excuse of one, as I&#39;ve just added a new object in there, which is the equipment rack, that can spawn weapons or armor.</li>
+<li><strong>Bed prefab</strong>. I&#39;ve added a bed sprite for some house prefabs (well only one variant of a house atm)</li>
+<li><strong>Prefab rotations</strong>. Prefabs can specify if they support rotated/reflected versions of themselves, to create a bit more variety. With ASCII that&#39;s a no brainer, but rotations when using tiles can be problematic.</li>
+</ul>
+<p>Next time: replacing the water in levels! Teaser shown in the video above.</p>
+
