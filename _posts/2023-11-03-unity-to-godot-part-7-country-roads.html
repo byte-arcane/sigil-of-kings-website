@@ -1,0 +1,39 @@
+---
+layout: post
+title: "Unity to Godot Part 7: Country roads"
+date: 2023-11-03 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/11/roads_2.png
+meta:
+author:
+permalink: "/2023/11/03/unity-to-godot-part-7-country-roads/"
+---
+
+<p>Architectural and porting work this week.</p>
+<p>One thing that I started doing but haven&#39;t really applied to the codebase is to wrap the raw GPU buffers used for instanced data with CPU-backed buffers and interface, so that I can e.g. add/remove entity sprite data, grow as needed etc. This is WIP and I haven&#39;t really applied it to the codebase.</p>
+<p>Another architectural bit of work is development of some game states. I&#39;m still unsure what&#39;s the best way of doing this with my weird low-level setup that does not use scenes or nodes, but I&#39;ll figure it out. For now, I&#39;m just using one node, that maintains a number of states. The entire ECS system runs on a single state because I don&#39;t need ECS in main menu, when creating the overworld, etc. I need the ECS for inside the game only. So, moving the entire ECS structure in a single gamestate caused considerable refactoring. Other game states that I developed for testing are:</p>
+<ul>
+<li>Overworld biome setup: Based on parameters, we create the overworld&#39;s biome data</li>
+<li>Overworld resources setup: This comes right after biome setup, and creates resources (mined materials and wood/ore allocations)</li>
+<li>Overworld cities setup: That took a bit of work but it&#39;s ported now! This step comes after resources, and here we distribute the cities, races that comprise them, factions in cities, and so on. All the societal stuff get set here. Also we calculate city-city relations. When I have better visualisations for this I&#39;ll share.</li>
+<li>Game: This state needs a &quot;world configurations&quot; which is populated by the previous 3 gamestates. This configuration can now be cached on a (5MB) file, so we can start many games in the same world, without having to configure it from scratch.</li>
+</ul>
+<p>Porting the city generation code was extra hard because previously I was creating/using entities throughout (e.g. generate city entities, then generate factions and assign them to the city entities, etc) and now, at the city generation stage, there&#39;s no concept of entities or ECS. Bonus point now is that I can literally take the world representation and use it in a different game altogether</p>
+<p>Another bit of work that I have not done before (yay!) is to visualise roads. So far, after generating cities, I use the pathfinding system to generate connections between cities (assuming there has always been some sort of trade during some time in the history of these cities) and also connections between cities and their mines. These routes were never visualised in-game. Well, that&#39;s until now! This was the latest bit of work, and after a bit of headscratching I developed yet another shader that very very cheaply in a single pass renders the entire road network! The idea behind the road network is that you&#39;re less in danger when you travel via the roads, plus you travel faster via roads. </p>
+<p>Now my problem is that I really, really need art for 1) cities 2) mines, otherwise my roads appear to be senselessly meandering through the land. This might come next time, but expect bad off-the-shelf (or, <em>gasp</em>, my own) pixel-art because I have not seen a proper overworld tileset even though I&#39;ve been looking for years. </p>
+
+<figure><img src="{{ site.baseurl }}/assets/2023/11/roads_2.png" alt="Roads, zoomed in"/><br />
+<figcaption>Roads, zoomed in</figcaption>
+</figure>
+
+<figure><img src="{{ site.baseurl }}/assets/2023/11/roads_1.png" alt="Roads, zoomed out"/><br />
+<figcaption>Roads, zoomed out</figcaption>
+</figure>
+
