@@ -1,0 +1,46 @@
+---
+layout: post
+title: Unity to Godot Part 7: Particle Systems
+date: 2023-11-16 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/11/particle_systems.png
+meta:
+author:
+permalink: "/2023/11/16/unity-to-godot-part-7-particle-systems/"
+---
+
+<p>More into graphics territory. For the last week (and more) I&#39;ve been proceeding to another part of the port, which is &quot;particle systems&quot;. I&#39;m putting that in quotes because the original code started being used for particle systems, but ended up being used for render effects that are not really particle systems. After a bit of work, I ended up with some simple abstractions that allow the flexibility of the previous system, but at the same time trying to manage the tedium of setting up the GPU side of things. What does that entail?</p>
+<ul>
+<li>There&#39;s a base class for render effects, that can be configured statically if needed (e.g. which sprite, and other bespoke parameters), but also supporting dynamic data (again sprites, or some central position, or a list of points).</li>
+<li>Derived classes create the uniforms specification for the shader</li>
+<li>I&#39;ve written a python script to generate GLSL and C# code for std140 layouts representing configuration structures. All the non-texture, non-buffer uniforms go into those structures. </li>
+<li>I&#39;ve written a few python scripts to assist porting of shaders, e.g. replacing standard stuff from HLSL-like to GLSL (float2 to vec2, etc) or compiling from python for quick turnaround times</li>
+<li>I&#39;ve now ported 12 such &quot;particle systems&quot;, each with its own C# configuration code and shader files. I&#39;ve got about 6 left</li>
+</ul>
+
+https://youtu.be/44SEMy674JI
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/sGWA9hj5u38" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/sGWA9hj5u38?autoplay=1><img src=https://img.youtube.com/vi/sGWA9hj5u38/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Overworld map generation in Godot"/></div>
+<figcaption>Creature destruction</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/44SEMy674JI" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/44SEMy674JI?autoplay=1><img src=https://img.youtube.com/vi/44SEMy674JI/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Overworld map generation in Godot"/></div>
+<figcaption>Magic missile fireworks</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/kzMRcyE0DGg" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/kzMRcyE0DGg?autoplay=1><img src=https://img.youtube.com/vi/kzMRcyE0DGg/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Overworld map generation in Godot"/></div>
+<figcaption>Visualising terrain difficulty</figcaption>
+</figure>
+
+<p>Funny little anecdote: youtube lately recommends my stuff to viewers looking for civilisation 6 or factorio, so I get more viewers than usual (1500 and 1000 for last two videos) and several of them express their confusion, and a few of them are intrigued. Not a bad thing! But due to &quot;failed expectations&quot; from the recommendation algorithm I do get more downvotes too, but that&#39;s expected.</p>
+
