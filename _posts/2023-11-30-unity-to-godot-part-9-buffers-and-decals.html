@@ -1,0 +1,31 @@
+---
+layout: post
+title: "Unity to Godot Part 9: Buffers and decals"
+date: 2023-11-30 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/11/text_bubble.png
+meta:
+author:
+permalink: "/2023/11/30/unity-to-godot-part-9-buffers-and-decals/"
+---
+
+<p>These last couple of weeks I&#39;ve been in the graphics rabbit hole, digging and climbing and digging again. I&#39;ve finished porting the particle systems, so the next target was decals (like blood, footsteps and text bubbles). The relevant code was ported, with some significant alterations, especially with regards to CPU/GPU buffers, which can now be resized (previously I was using fixed preallocated buffers). Resizing buffers is not <em>that</em> trivial, because resources that have been &quot;built&quot; using the old buffers need to be rebuilt when the buffer gets resized, as under the hood the GPU resource has to be reallocated. </p>
+<p>To make matters (and graphics development) a bit more complicated, it&#39;s not crystal clear how Godot manages the opaque resource IDs (source code is there, but I&#39;ve been too &quot;lazy&quot; to delve deep) so it&#39;s easy to get errors related to either leaking IDs or attempting to free invalid IDs. And an additional mini-frustration is that these errors are not easily &quot;accessible&quot;/visible while debugging C# code -- you can step over a C# call to a Godot C++ function, the error triggers in there but is not made visible anywhere, and at some point the buffers get flushed to console and we get notified.</p>
+<p>I&#39;ve also been porting/fixing somm atlas-related tools (e.g. generation of atlas specification from directories, distance field generation, fixups related to alpha channel, etc)</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/0NAzfbU2H0g" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/0NAzfbU2H0g?autoplay=1><img src=https://img.youtube.com/vi/0NAzfbU2H0g/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Overworld map generation in Godot"></iframe></div>
+<figcaption>Text bubbles</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://i.imgur.com/Ujv0YS3.mp4" allowfullscreen="" frameborder="0"></iframe></div>
+<figcaption>Fading footsteps</figcaption>
+</figure>
