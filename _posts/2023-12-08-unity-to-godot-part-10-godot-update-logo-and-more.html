@@ -1,0 +1,33 @@
+---
+layout: post
+title: "Unity to Godot Part 10: Godot update, logo and more"
+date: 2023-12-08 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2023/12/logo.png
+meta:
+author:
+permalink: "/2023/12/08/unity-to-godot-part-10-godot-update-logo-and-more/"
+---
+
+<p>Back from the void! The last couple of weeks were not very productive with regards to the port, as I felt I needed a bit of gaming. The obsession of choice was Might &amp; Magic 6: The Mandate of Heaven, which is a fantastic experience with some great elements (which Sigil of Kings borrows!) and some not-so-great ones. As a game design note, I realised that the moment my characters reached a level where I was not getting any more new spells or I didn&#39;t have any real choice where to put level up points to, I got bored of the gameplay and cheated my way through to see the story. Note to self: always have interesting choices, either in early or late game. Also note to self: in-game encyclopedias about all sorts of things are a lifesaver, rather than either DIY notes or even in-game poor GUI-driven ad-hoc notes. More like Civilization and the old X-Com games, less like Might &amp; Magic. </p>
+<p>But ok I did a little bit of gamedev too. What&#39;s on the menu there? A few things:</p>
+<ul>
+<li><strong>Update to Godot 4.2</strong>. This, with 10 lines of code, resulting in 6x better performance. It was an update I&#39;ve been waiting for, so that&#39;s fantastic. Previously I could not share low-level RenderingDevice textures with high-level sprite texture so I had to get data to the CPU and then back to the GPU again, and for a 4K resolution buffer this <em>hurts</em>. Now I create some <a href="https://docs.godotengine.org/en/stable/classes/class_texture2drd.html">Texture2DRd</a> and BAM, no more copies, no more performance waste, awesome!</li>
+<li><strong>Temporary render effect manager</strong>. This is trying to replicate some existing functionality for ... managing render effects. Nothing major really, but one more porting bit.</li>
+<li><strong>Bespoke Godot logo idea</strong>. People seem to be getting creating with Godot logos, and I thought <em>why not</em>, so I&#39;ve made a couple of temporary changes to be able to heavily influence the look of the overworld map to look like the Godot logo (results below). Now for this video, Youtube thinks it&#39;s minecraft, so I get another bunch of confused viewers, but at least they&#39;re not complaining much this time xD. I mean, I hashtag the video with #godot and apply tags like &quot;roguelike&quot; and &quot;sigil of kings&quot;, can&#39;t help them any more. </li>
+<li>Currently working on porting creature effects, e.g. auras, burning, poisoned, invisible etc. This was previously not the best architected code, so I guess it&#39;s a bit of suffering refactoring time, yay. </li>
+</ul>
+<p>Have a nice weekend!</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/2XbFMRhno2U" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/2XbFMRhno2U?autoplay=1><img src=https://img.youtube.com/vi/2XbFMRhno2U/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Fading footsteps"></iframe></div>
+<figcaption>Godot logo</figcaption>
+</figure>
+
