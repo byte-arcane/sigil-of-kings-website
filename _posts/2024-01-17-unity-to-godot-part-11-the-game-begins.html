@@ -1,0 +1,42 @@
+---
+layout: post
+title: Unity to Godot Part 11: The Game Begins
+date: 2024-01-17 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/01/ovw_fow.png
+meta:
+author:
+permalink: "/2024/01/17/unity-to-godot-part-11-the-game-begins/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/9j2xzUARVTw" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/9j2xzUARVTw?autoplay=1><img src=https://img.youtube.com/vi/9j2xzUARVTw/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Walking in the world, with fog of war enabled"/></div>
+<figcaption>Walking in the world, with fog of war enabled</figcaption>
+</figure>
+
+<p>More porting this week! As usual. But there&#39;s a bit of a huge difference since last time. Because, this time, <strong>the game actually works, properlyish (TM)</strong>. I&#39;ll keep this succinct, with work done and progress of the port:</p>
+<ul>
+<li>After implementing a few additional render passes, such as path visualisation with arrows, tile highlighting and entity overlays, I thought it&#39;s a good idea to start working to make the game run and show <em>something</em>.</li>
+<li>The first hurdle was the sprite composition code: the player starts with face configuration and variable equipment, and all this causes on-the-fly sprite generation, so that code needed a few fixups to get working again (coordinate system change, mipmap calculations, bugfixes etc)</li>
+<li>Added a placeholder &quot;character generation&quot; game state, so that in reality it might be a bunch of screens to configure the character, but for now it&#39;s a JSON preset</li>
+<li>When we start a new game, we use the &quot;active world&quot; preset and the &quot;active character&quot; preset, both of which have been generated or selected from previous gamestates (world generation and character generation)</li>
+<li>Added support for different sprite sizes embedded in sprite data, so that some decals could cover a large game area, e.g. a 8x8 grid (no example yet though)</li>
+<li>Some bugfixing on mines and towns having wrong positions. </li>
+<li>Hovered tile is now highlighted</li>
+<li>Ported fog of war shader</li>
+</ul>
+<p>What&#39;s next?</p>
+<ul>
+<li>Better port of input/actions. I had this horrible Unity UI previously, which I&#39;m planning to temporarily port to a horrible-looking ImGui &quot;UI&quot;, but I want to replicate what was there with as little effort as possible before I ditch it altogethere. The reason is that the horrible UI is a way to validate that things like multi-targetting or multi-stage actions are still working.</li>
+<li>Make save/load work again (it&#39;s probably broken I guess)</li>
+<li>Dare to try and enter a level, where all hell will break loose, and rendering will crumble. </li>
+<li>Refactor, refactor. Plenty of that to do still. </li>
+</ul>
+
