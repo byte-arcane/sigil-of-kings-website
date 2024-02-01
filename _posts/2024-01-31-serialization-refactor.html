@@ -16,7 +16,6 @@ author:
 permalink: "/2024/01/31/serialization-refactor/"
 ---
 
-<p>Post:</p>
 <p>Ok, this week&#39;s theme is serialization (no porting work at all). I also foresee the work to continue like this until it&#39;s complete, and this will take a while. From an outside perspective and on the grand scheme of things, it looks like yet another rabbit hole (game -&gt; nope, port to Godot -&gt; well, let&#39;s redo the serialization from scratch before finish porting). So, why bother?</p>
 <p><strong>Motivation/background</strong></p>
 <p>I&#39;ve been using BinaryFormatter since my first foray into Unity, several years ago. BinaryFormatter can serialize anything as long as you tag a [Serializable] on your class -- fantastic! In some cases I had serious performance issues, especially in arrays of simple datatypes. I wrote a few specialised converters, and the issue was resolved. On top of that, I added some LZ4 compression to the bytestream and I thought I was done. I was not.</p>
