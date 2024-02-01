@@ -1,0 +1,55 @@
+---
+layout: post
+title: Serialization refactor
+date: 2024-01-31 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/01/serialization.png
+meta:
+author:
+permalink: "/2024/01/31/serialization-refactor/"
+---
+
+<p>Post:</p>
+<p>Ok, this week&#39;s theme is serialization (no porting work at all). I also foresee the work to continue like this until it&#39;s complete, and this will take a while. From an outside perspective and on the grand scheme of things, it looks like yet another rabbit hole (game -&gt; nope, port to Godot -&gt; well, let&#39;s redo the serialization from scratch before finish porting). So, why bother?</p>
+<p><strong>Motivation/background</strong></p>
+<p>I&#39;ve been using BinaryFormatter since my first foray into Unity, several years ago. BinaryFormatter can serialize anything as long as you tag a [Serializable] on your class -- fantastic! In some cases I had serious performance issues, especially in arrays of simple datatypes. I wrote a few specialised converters, and the issue was resolved. On top of that, I added some LZ4 compression to the bytestream and I thought I was done. I was not.</p>
+<p>A couple of years ago now, I discovered that BinaryFormatter has <em>very serious</em> security issues. Like, a bad actor can infect a savefile and while you&#39;re loading the savefile you might execute arbitrary code. So, yeah .... bad. It&#39;s bad enough that it&#39;s being getting slowly obsolete. &quot;Best&quot; thing is that Microsoft will not offer an alternative, they say &quot;just use JSON or XML instead&quot;. Gee thanks Microsoft, very useful. So, since I don&#39;t want to potentially be sued for damages if something like that happens, I knew I have to boot it out, but I was postponing. </p>
+<p>Another issue is robustness of save files. Currently, because the game has complex state ( overworld, potentially hundreds of levels active, potentially thousands of entities active, destructible terrain support so I need to store the map rather than changes), I do NOT use any &quot;save objects&quot;. The game state is being dumped as-is on disk. With my optimisations, save/load like that, currently (with few entities and levels) happens really quickly: less than a second. But of course, we can only ever load a single version. ANY variable change in the game state invalidates the save file. It&#39;s ok for early development, but for later on I know it will give me lots of headaches. So, how to solve this?</p>
+<p>I&#39;ve done some rudimentary investigation in serialization libraries, meaning I&#39;ve been looking at graphs and reading about features and limitations, rather than testing them. Plenty out there: Json, UTFJson, MessagePack, Protobufs, FlatBuffers, etc. There&#39;s a new one out there now, from the developers of MessagePack (who seem to be <em>very</em> experienced on the topic), called <a href="https://github.com/Cysharp/MemoryPack"><strong>MemoryPack</strong></a> that is the most performant of them all. Intriguing! Ok let&#39;s test that thing. </p>
+<p><strong>First attempt: MemoryPack</strong></p>
+<p>The way MemoryPack works is by dynamically generating source code for each of your serializable classes, that are marked as such with a MemoryPackable attribute. So, it looks like a safer drop-in for Serializable of BinaryFormatter. So, I went through the entire codebase and changed most things, so that I can test it on some real-world data structures. Results? Good, but with limitations. I tested saving and loading the world generation config, which contains the biome data per tile (that&#39;s a quarter million tiles), the resources of the world, all cities and their configurations. Testing involved using MemoryPack without compression, and some built-in Brotli compression. LZ4 compression can still be applied using my code on the uncompressed bytestream. Some numbers:    </p>
+<ul>
+<li>Uncompressed, save file is <strong>16MB</strong>, compresses in <strong>20ms</strong>, decompresses in <strong>20ms</strong>.</li>
+<li>Applying LZ4, save file is <strong>5.4MB</strong>, compresses in <strong>40ms</strong>, decompresses in <strong>20ms</strong>.</li>
+<li>Using Brotli &quot;fast&quot;, save file is <strong>3.5MB</strong>, compresses in <strong>70ms</strong>, decompresses in <strong>60ms</strong>.</li>
+<li>Using Brotli &quot;best&quot;, save file is <strong>3.2MB</strong>, compresses in <strong>270ms</strong>, decompresses in <strong>50ms</strong>.</li>
+</ul>
+<p>So, this tells me that for now LZ4 is fantastic, and if size goes wild I&#39;ll consider Brotli &quot;fast&quot; preset. Right, so this little test was all nice, so I started porting more types, confidently. And I hit on a few limitations:</p>
+<ul>
+<li>Polymorphism is not well supported. If I have a variable of class Foo, which can be either Foo, FooDerived1 or FooDerived2, memorypack cannot pick and choose correctly. It can only do that if Foo is abstract or an interface (plus it requires some extra code).</li>
+<li>WeakReference<T> that I&#39;ve been using, is not supported. Oops! What the hell do I do now.</li>
+<li>Versioning is very limited and comes with a list of &quot;you can/cannot do that&quot;, plus it possibly makes things slower.</li>
+</ul>
+<p>So, this ended up being a bit disheartening. <a href="https://www.reddit.com/r/gamedev/comments/1abir3m/how_do_you_implement_savegame_version_migration/">I asked on reddit</a> and I got a few opinions, and one of them described his system and gave me a few numbers re performance etc. What I got out of that was that I need to implement something similar with &quot;SaveObjects&quot; rather than state-dump. <strong>But maintaining save objects is error prone</strong> and I&#39;m very forgetful. Plus, I can&#39;t use JSON as I know for a fact that performance will plummet. So, what do I do? </p>
+<p><strong>Plan: Source Generation Squared</strong></p>
+<p>So, MemoryPack uses source code generators. When I change my MemoryPackable classes, new source files are being generated and automatically become part of the project. These classes are responsible for (de)serialization.  </p>
+<p>I want to use &quot;SaveObjects&quot; from now on, so that I can save the state to a SaveObject, which can be serialized in and out. <strong>SaveObjects should use MemoryPack, whereas the normal code should not</strong>.</p>
+<p>I want to <strong>dynamically</strong> generate SaveObjects because, let&#39;s face it, I&#39;m not going to be maintaining SaveObject datatypes after each change I&#39;m doing in the game state. To do that, I want to use source generators.</p>
+<p><strong>So, effectively, I want to use source generators to generate code decorated with &quot;MemoryPackable&quot; which will call more source generators</strong>. What is the benefit of doing this? My generator should be able to create code in a &quot;latest save version&quot; namespace, whereas SaveObjects from previous versions are also kept alive. The game state can only import/export latest SaveObject version. </p>
+<p>To be able to load old saves, I can provide very targetted migration logic for particular datatypes, otherwise the default behaviour would be to 1) copy a type that exists 2) initialize with default a type that didn&#39;t exist in the past 3) ignore a type that used to exist but not anymore. By providing code to move from one version to the one immediately after, I can port to any version (theoretically)</p>
+<p>This is the plan, anyway. I hope it works. But hope is not reliable, so I need to test. I made a new &quot;proof of concept&quot; project with some datatypes and simple class hierarchies, and try to get part of the whole thing working. How to proceed? Roughly, in 3 stages:</p>
+<ul>
+<li><strong>Stage 1: Proof of concept, manual</strong>. Implement the target classes that I hope to generate, and make sure that we can go between State &lt;-&gt; current SaveObject &lt;- older SaveObject &lt;- even older SaveObject. </li>
+<li><strong>Stage 2: Proof of concept, automated</strong>. Actually write the source generator that creates identical code to what I wrote and works. This will generate ALL SaveObject classes based on saveable datatypes, include all partial State classes that implement the appropriate &quot;ToSaveObject&quot; and &quot;FromSaveObject&quot;  functions.</li>
+<li><strong>Stage 3: Prepare codebase</strong>. This can be done in parallel to Stage 2. Here, I need to make sure that my codebase is appropriately decorated with some custom attributes on classes and fields, so that the generator will &quot;just work&quot;. Follows similar approach to MemoryPack and many other serializers. I also need to refactor out the WeakReference somehow</li>
+<li><strong>Stage 4: Code refactor</strong>. Well, here I should try the generator, test it, fix all bugs that will appear since I&#39;m going to be applying it to a vastly larger hierarchy.</li>
+</ul>
+<p>That&#39;s it! So, when I come out of this rabbit hole, I should have 1) better, refactored code 2) A save system that is as secure as it gets 3) A performant, automated and versioned save system. Currently, I&#39;ve done some of stage 1 and some of stage 2, handling different types except collections and generics. Crossing fingers for the rest.</p>
+
