@@ -1,0 +1,51 @@
+---
+layout: post
+title: Serialization and weak references
+date: 2024-02-08 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+author:
+permalink: "/2024/02/08/serialization-and-weak-references/"
+---
+
+<p>More serialization this week, but there is a new twist this time. </p>
+<p><strong>Generic glitch</strong></p>
+<p>Last time I was implementing a proof of concept for automatically generating SaveObject types from any structs/classes. This was going fine until I hit generics and collections. The duality of &quot;simple type, no need for saveobject&quot; and &quot;complex type, needs saveobject&quot; ended up being quite problematic, especially for cases where e.g. I have a dictionary&lt; simple, complex&gt; or dictionary<complex, simple> or dictionary<complex, complex>. C# leaves things to be desired in the generics department, and I&#39;m no expert in it either, so it posed quite a problem. Now what? </p>
+<p><strong>Take two: Automatic cloning into different namespace</strong></p>
+<p>Well, because of my faffing with the code analysis libraries, I realised there was another way: I can parse the codebase, detect all types that I want versioned, and re-create them in a different versioned namespace (e.g. from foo.bar.SomeType to v001.foo.bar.SomeType). This is possible, and after several hours I made a proof of concept using the codebase. By adding an additional attribute, [[VersionedSaveable]], I could move the type to this new namespace. There&#39;s a lot of associated work though, as I only want to preserve serialized data. This means killing off constructors, method implementations, interface derivations (as no methods are implemented) etc. But I stopped somewhere there, as there&#39;s more nontrivial work to be done:</p>
+<ul>
+<li>What if I change a [[MemoryPackable]] type, how do I detect that? Such a change would trigger a major version change and incompatibility, because such changes are not versioned.</li>
+<li>Other complications are the code migration. I still have to automatically generate code that migrates from one version to another. </li>
+<li>Another bit of code that&#39;s a bit complicated to write: I need to be able to detect a &quot;type signature&quot; in terms of serialized data, so I detect what types have changed and what types haven&#39;t. This creates the following nightmare, where e.g. version v001 has been generated for types A,B and C, and A contains a class D that hasn&#39;t changed. But later on, C and D types change, which would result in a new version v002 and associated set of types. But now, all occurences of D in namespace v001 would need to change to v001.D because D type has changed. This sounds a bit like dependency hell. </li>
+</ul>
+<p>So, this namespace-types idea starts to show lots of rabbit holes, that I really, <em>really</em> don&#39;t want to descend in. How to avoid all that? </p>
+<p><strong>Take three: KISS and versioned MemoryPackable</strong></p>
+<p>Ok, let&#39;s backtrack a bit and see what are the main issues with using MemoryPack as-is:</p>
+<ul>
+<li><strong>No support for weak references</strong>. I have to deal with them in a custom way no matter what approach I choose. </li>
+<li><p><strong>Limited version support</strong>. Assuming that my approaches will not be ultra-optimised, what if I use the &quot;full versioning&quot; support of MemoryPack? It&#39;s characteristics are:</p>
+</li>
+<li><p><strong>unmanaged struct can&#39;t change any more</strong>. This is fine, as I only use my own unmanaged structs very infrequently, for things that don&#39;t really change much.</p>
+</li>
+<li><strong>all members must add [MemoryPackOrder] explicitly(except annotate SerializeLayout.Sequential)</strong>. This is tedium, but better to have tedium rather than code maintenance.</li>
+<li><strong>members can add, can delete but not reuse order (can use missing order)</strong>. That&#39;s fine</li>
+<li><strong>can change member name</strong>. That&#39;s convenient</li>
+<li><strong>can&#39;t change member order</strong>. That&#39;s fine, no reason to mess with order</li>
+<li><p><strong>can&#39;t change member type</strong>. That&#39;s fine as it&#39;s rather unlikely</p>
+</li>
+<li><p><strong>Bespoke version migration</strong>. So, what about migrating from a previous version? If I&#39;ve added a new member, I can just set an appropriate default value. If the value depends on other serialized data, MemoryPack provides support for callbacks before/after serialization or deserialization, for example we implement a callback for post-deserialization and set any new members a value based on other, loaded members.</p>
+</li>
+<li><p><strong>Can&#39;t handle polymorphism with non-abstract base classes</strong>. Well, I&#39;ll need to refactor my code to solve this issue, but it&#39;s not huge; I think I have less than 10 class hierarchies that are like that.</p>
+</li>
+</ul>
+<p>Also, thanks /u/Kyzrati for <a href="https://www.reddit.com/r/roguelikedev/comments/1ahib1m/sharing_saturday_504/koo9w41/">making me aware of the existence of Steam branches and how you handle it</a>, as I think that&#39;s a good approach for major version changes, and puts a bit less pressure for developing a custom monster-system. I love this community and the structured discussions, hope it doesn&#39;t all go down the drain due to the IPO&#39;s knock-on effects.</p>
+<p><strong>The refactor boogeyman: weak reference type</strong></p>
+<p>Alright, after a bit of reverting, I need to resolve some limitations with MemoryPack. One of them is that it doesn&#39;t handle classes in classes. That&#39;s easy. Another one, which unfortunately ended up being quite a bit more problematic, is the lack of support for WeakReference<T>. In my code, in the state that is saved, I sometimes store things like effect objects (that are dynamically created) but also store weak references to such objects in collections (e.g. enchantment collections). An example is the player, who has equipped an item that provides an enchantment, but also has consumed some potion that provides yet another enchantment. These currently active enchantments are stored in a collection of weak (non-owning) references, as the original objects might be in the configuration database, on an item, etc. If I didn&#39;t use weak references and I serialized the state, upon loading I&#39;d have different objects for the same thing: one in the collection and one in the original source. Weak references worked with BinaryFormatter (so deserialisation resulted in a single object and strong/weak references to it) but now they are not supported. Oops, I have to refactor. Trouble is, this has become quite tricky to refactor so ... I&#39;m working on it! Effects are used a lot in the code, and due to some occasional code smell and some limitation that I realised recently, there might be another refactor there. </p>
+
