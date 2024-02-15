@@ -1,0 +1,47 @@
+---
+layout: post
+title: Serialization done, back to porting
+date: 2024-02-15 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/02/warp.png
+meta:
+author:
+permalink: "/2024/02/15/serialization-done-back-to-porting/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/VdhMHk20AvU " allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/VdhMHk20AvU ?autoplay=1><img src=https://img.youtube.com/vi/VdhMHk20AvU /hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="\"I shouldn't have eaten those mushrooms...\""></iframe></div>
+<figcaption>"I shouldn't have eaten those mushrooms..."</figcaption>
+</figure>
+
+<p>Plenty of things done this week! Well, as much as my part time allowance ... allows. </p>
+<p><strong>Weak references</strong></p>
+<p>First of all, last week&#39;s problem is this week&#39;s solution. I&#39;ve resolved the weak references issue by handling it in two ways. First, for all types except temporary effects, I&#39;ve got some &quot;entity data reference&quot; datatype that store where/how can we find the strong owning reference. For example, we can provide the entity that owns the reference, an enum that can be mapped to code that goes through the entity and finds a container of strong references, and some id/key to pick the right one. Nice and simple.  </p>
+<p>Temporary effects are handled somewhat differently because when we create the weak references, we can&#39;t always know our exact location in the entity (or config database -- that&#39;s another potential &quot;owner&quot; of the strong reference). For these ones, after a lot of head scratching I decided: what the hell, I don&#39;t care if during deserialization it becomes a separate copy. What is imperative though is to ensure that any code that was finding a temporary effect by looking at object being the same (in C++ that would be an address check), now I need to create a unique stable key (persistent across runtimes) and compare keys. C# manages to be a PITA in that department, as the default GetHashCode() function is not stable and to check for equality (IEquatable) you&#39;re supposed to implement 3 functions that all look very similar and they all use all included member variables/properties. Tedious! So, I&#39;m just building a string representation of the class and I&#39;m using that. Maybe it&#39;s slightly slower, but it&#39;s going be very useful for debugging as well.</p>
+<p><strong>Serialization</strong></p>
+<p>Ok with weak references done, the road was clear for moving back to MemoryPack. The other hindrance was the requirement for base classes to be abstract, but that didn&#39;t become an issue during moving so that was nice. I started decorating everything as necessary, mostly manually. I counted them: 419 serializable types with 2086 attributes specified: if a class is serializable, if/what subclasses it contains, if some members should be explicitly included/ignored, and for each serializable member its order during serialization. </p>
+<p>As I wrote last time, I&#39;m going with the version tolerant option, and explicit member order. The good thing about it is that if I forgot to specify order in a serializable member, I get a compile error/reminder, rather than a sneaky bug. Great! </p>
+<p>For increased robustness, I wrote a code analysis tool that inspects the codebase and reports if I forgot to make a new derived type serializable, or a number of other checks that wouldn&#39;t be caught otherwise. </p>
+<p>After all was done, I ran a new benchmark. Well, long story short, the performance was the same, which means the &quot;version tolerant&quot; support had negligible effects, comparatively. Great!</p>
+<p><strong>JSON fixes for serializable class properties</strong></p>
+<p>Previously properties were never used to store data, but I&#39;ve been refactoring the code to do that since MemoryPack supports that well. This conversion from fields to properties did allow for some cleaner code as well, with the easy specification of public getter and private setter. But to make things slightly more complex, any such properties that need to be serialized and are members of a base class, create problems for derived classes as MemoryPack demands better visibility, so the setters need to be protected rather than private. But I digress.</p>
+<p>JSON.Net loading code expects serializable types with fields rather than properties, so any such logic needed to be amended. So, now it&#39;s amended.</p>
+<p><strong>Back to the game</strong></p>
+<p>With all the above sorted, I could now run the game again. Fixed quicksave/quickload, which are indeed pretty quick but not lightweight, as I&#39;m storing a whopping 17MB file. Probably some unnecessary stuff, but it&#39;s pretty fast so I don&#39;t care for now.</p>
+<p>Next up was the deepcopy operation, which kicked off the serialization rabbit hole. I replaced the code with using MemoryPack to deepcopy: convert to bytes and then deserialize to new object. Easy, fast, works. </p>
+<p>Next up was the creation of an &quot;adventure location&quot;, a dungeon. This was successful as well. </p>
+<p>Next up was to be able to get into a new level, this is almost the penultimate bastion in the porting process (last one is effects!). Had to do some general bugfixing, and still working on it, currently porting shaders.</p>
+<p><strong>Reading from last render pass</strong></p>
+<p>Closing for today with another unexpected nice thing. My fog of war shader utilised background texture reading in the shader: the current pass had to read the texture generated from the last pass. Unity made that easy, Godot makes it easy too for their high level pipeline, and I was worried that my DIY render pipeline would make this quite tedious. Long story short, it was extremely simple to do, so with about 20 lines of code I have support for this in any shader. This allows things like heat haze effects, or other distortion effects such as the one at the top of the page and down here</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/tH_x9bV1H4I " allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/tH_x9bV1H4I ?autoplay=1><img src=https://img.youtube.com/vi/tH_x9bV1H4I /hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Another trippy effect"></iframe></div>
+<figcaption>Another trippy effect</figcaption>
+</figure>
