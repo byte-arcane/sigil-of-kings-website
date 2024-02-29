@@ -1,0 +1,49 @@
+---
+layout: post
+title: Inspector, death and beyond
+date: 2024-02-28 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/02/ghost.png
+meta:
+author:
+permalink: "/2024/02/28/inspector-death-and-beyond/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/ANy65j7viTw" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/ANy65j7viTw ?autoplay=1><img src=https://img.youtube.com/vi/ANy65j7viTw/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Death, the great beyond!"></iframe></div>
+<figcaption>Death, the great beyond!</figcaption>
+</figure>
+
+<p><strong>Handling death</strong></p>
+<p>What happens when an entity dies? Do they go to entity heaven? Nope, it&#39;s more like reincarnation, given the I&#39;m using pooling strategies for reusing some objects. But what happens to the entity with regards to the game? When I originally had these questions, I didn&#39;t overthink it much. </p>
+<p>But first of all, a quick description of how location works in Sigil of Kings. There&#39;s a &quot;location&quot; component that stores 1) a 2D integer, 2) an entity id and 3) a location type. The location type could be &quot;level&quot;, &quot;overworld&quot;, &quot;city&quot; or &quot;invalid&quot;. The entity id would be the city/level entity for cities/levels. So, in a great moment of wisdom (that&#39;s sarcastic), I thought &quot;set the location type to invalid for dead entities&quot;. </p>
+<p>Initially that worked fine, but it causes a few headaches when handling resurrection, corpses and of course player death. Simple example: the player is the sensor. When the sensor changes location, we switch graphics to what the sensor can see in this new location. When the sensor is the player and the player dies, there&#39;s ... darkness. The void. No entity heaven in sight, just &quot;invalid location&quot;. So, need to handle this. I set for myself a 3-tiered TODO list (I&#39;m a hardcore list writer) for how to handle player death:</p>
+<ul>
+<li><strong>Now:</strong> Still allow UI to inspect state (player or whatever we have explored). Esc starts new player in the world, and F8 loads the last quicksave as usual</li>
+<li><strong>Later:</strong> Death screen overlay, with options: Inspect, New, Quickload, Main menu</li>
+<li><strong>Much later:</strong> Death screen overlay, with the options above, but also thing like &quot;New World&quot; or &quot;Wait for help&quot;</li>
+</ul>
+<p>So far, the &quot;now&quot; goal is going alright, and what happens is the following (to accomodate how my code works): when the player dies, we immediately clone the player entity (before it gets destroyed), rename to &quot;ghost&quot;, change the sprite and tag the entity as a ghost, so that it&#39;s never detected. It&#39;s a bit hacky, but this currently results in a happy ghost that can walk around, and unfortunately, get stuck in webs etc. Could turn into a fun minigame, who knows. The player entity dies and goes into a &quot;dead entity&quot; special pool, where all destroyed entities go. That&#39;s a temporary solution because it does not scale. I could use that pool for resurrection later on. </p>
+<p><strong>Dear ImGUI Inspector</strong></p>
+<p><a href="https://github.com/ocornut/imgui">Dear ImGUI</a> needs no introduction at least for programmers of interactive applications in C++, as it&#39;s pretty much the holy grail in the dev/debug tool department. Bindings exist for more languages/frameworks, including C#, and even Godot! </p>
+<p>So I&#39;ve been using it more and more lately in Godot/C# to make more powerful inspection capabilities. Within a game engine, embedded inspection capabilities typically happens at the node level, but since my game is mostly in C#, I don&#39;t get to benefit from any of that. But with ImGui and a bit of reflection, it&#39;s easier than ever to write a generic and extensible-as-needed inspector. One important note: the generic inspector should not be able to modify values, because that can be catastrophic: some values in objects are only meant to be changed through functions etc. Modification can always be supported with a dev console anyway (which exists in some form already).</p>
+<p>This week I put quite a bit of work in the inspector, and this part I consider as porting Unity editor windows for selecting/viewing entity information etc. I have a common way of visualising entity data: I can either middle-click on a tile and get the entities in that tile (plus tile info) in their own area at the ImGui hierarchy, when I can expand/fold as I see fit, or I can quickly press F1 while hovering over a tile and see the exact same data, force-expanded up to 3 levels, for quick checks. It was a bit of a PITA to handle the size of ImGui tooltips to grow with the content, and I still get it wrong: I kinda made it work with PushItemWidth but the value is hardcoded</p>
+<p>The other beautiful thing with the ImGui integration is that I can go through my mega entity list in the inspector, hover over entity entries in the inspector, and the corresponding entities can be highlighted on the map! Well, anyway, I&#39;m super-excited about things like that. And another awesome thing is that in Unity&#39;s inspector, because of how they did serialization, you couldn&#39;t have potentially endless chains, e.g. an entity containing entities containing entities etc. Well, with ImGui you can. And before you say &quot;sounds like a horrible idea&quot; remember that an entity containing entity IDs is certainly not a bad idea, and in the eyes of the inspector, entities and IDs can both directly expand to the entity&#39;s contents.</p>
+<p>Future work: If you&#39;ve paid attention to some of my ramblings at the blog and here over the years, you might have noticed I sometimes develop some tools for the game in C++ (using imgui) or python (using tkinter). Well, now I can write them directly embedded in the game framework! This is going to ease development of tools that need understanding of game code/classes: instead of replicating stuff in C++ or python, now I can write the tools directly in C#. This includes prefab editors, json database editors etc. But that&#39;s for later.</p>
+<p><strong>Save/Load Heisenbugs</strong></p>
+<p>I got a bunch of bugs that were <em>thankfully</em> the same bug under the hood, which had to do with loading. I&#39;d save, then load and play a bit multiple times, and randomly in one of those loaded sessions I&#39;d get very weird crashes/errors. After a bit of investigation, it became clear that there was some &quot;old&quot; state before the load that was messing with the post-load state. After more investigation, I shamefully discovered the source of bugs, which was a &quot;I&#39;ll handle this later&quot; moment during the port a month ago or so: I was loading the game within the system update loop, which caused two system objects to exist and interfere with each other. The fix is super simple of course: a quickload/quicksave action is only getting scheduled during the system loop, and the actual load/save happens completely outside the loop.</p>
+<p><strong>Misc</strong></p>
+<ul>
+<li>Creatures/objects/effects now visible.</li>
+<li>Fixed some time-of-day gradient bugs.</li>
+<li>Fixed a bug in the fog of war on borders.</li>
+<li>Heat haze is reduced when raining.</li>
+<li>Entity cloning.</li>
+</ul>
