@@ -1,0 +1,57 @@
+---
+layout: post
+title: Graphics Aquatic
+date: 2024-03-07 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/03/water.png
+meta:
+author:
+permalink: "/2024/03/07/graphics-aquatic/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/uyl8whgjB84" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/uyl8whgjB84 ?autoplay=1><img src=https://img.youtube.com/vi/uyl8whgjB84/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Multiple quicksave support"></iframe></div>
+<figcaption>Multiple quicksave support</figcaption>
+</figure>
+
+<p>Weekly updates time! There&#39;s an eclectix mix of changes: porting, visual, audio, bugs ... well, the usual culprits I guess.</p>
+<p><strong>Save slots</strong></p>
+<p>Without a doubt, saving and loading game state is incredibly useful for testing. I mean, I can&#39;t imagine people not doing that, as it sounds like &quot;game programming: the roguelike approach&quot;. So, years ago, I decided to implement quicksave/quickload, I made it performant enough so that I save my sanity, and that was that. </p>
+<p>I think I saw on twitter recently some fellow developer posting their support for multiple save slots in their admittedly far more polished and near-finished game, so it got me thinking: &quot;why shouldn&#39;t <em>I</em> have it?&quot;. Well, no reason at all! So, with a little bit of work and bit of ImGui magic, I got the feature working in a very convenient way I might say (for development at least). The video above demonstrates this a bit. Basically we have a number of slots, with one marked as &quot;active&quot; (using radiobuttons). There&#39;s an easy way to create a new save and add it to the list, and there&#39;s an easy way to delete saves: delete files from hard drive and click a &quot;refresh&quot; button in the gui. That&#39;s it! So, now I can save before I enter a level, then go in a level, perform a few actions, save again, and backtrack to any point I like. </p>
+<p>So, after having saves for about 5 years, I managed to add support for this clearly ultra-challenging feature. The future is now, folks!</p>
+<p><strong>ImGui input capture</strong></p>
+<p>I&#39;ve had developer GUI for years now (foreshadowing). One of the problems that I had was that if I had a slider for example and moved the slider using click-and-drag, the camera would also start moving. Oops. And being the type &quot;perfect is the enemy of good&quot; for apparently <strong>very low values</strong> of both &quot;perfect&quot; <em>and</em> &quot;good&quot;, I let that ... slide (the puns write themselves). &quot;It&#39;s just me&#39; nobody else will complain&quot; I kept telling myself. So, 5 years in Unity, I didn&#39;t bother fixing that.</p>
+<p>Now with Godot and ImGui, same problem, same attidude. Until last week where I added some InputText widget for the save slots, and starting typing a savegame name, and halfway through typing something like &quot;at world&quot;, I would get a stutter when I hit &quot;r&quot;. After connecting the admittedly <em>very</em> obvious dots, I realised that I was triggering a shader reload every time I typed &quot;r&quot;. Ok, that was the straw that broke the camel&#39;s back. </p>
+<p>So, I put my engineering hat on, googled for 10&#39;, tried 3-4 different things for 10&#39; more, and <em>lo and behold</em>, found a solution and this issue is now fixed forever. The solution is twofold: first, there are a couple of ImGui flags that tell you if keyboard and mouse was used in ImGui, e.g. if you&#39;re hovering over a window, mouse gets used. The second part is that everywhere in my code where I check for key/mouse presses, I check an additional boolean which says &quot;can we handle input&quot; which is true when neither mouse or keyboard are captured. </p>
+<p><strong>Sounds and surfaces</strong></p>
+<p>I thought I&#39;d play around with sound a bit this week, as I wanted to try out the new sound packs that I got. And I quickly realised that my audio infrastructure could be much much better. In particular, I implemented support for surfaces specifying sounds for stepping on with boots or bare feet. This means that I can specify different sounds when creatures walk with or without boots on different biomes, and even make splash sounds when walking through water. Nice! I think the sounds that I use, and the mixing, could be astronomically improved, but I like building systems and the system works. I Just Need Good Data. On a similar note, I also implemented support for a multitude of creature sounds, including flying, screaming, dying, etc, but I haven&#39;t hooked up actual sounds for these yet, neither the code hooks to trigger them. I guess that&#39;s a very long-winded way of saying &quot;I made some enums&quot;.</p>
+<p>Because in my sound packs I had different sounds for walking over rugs, I changed how I represent rugs in the game to support that, which was a good idea as the previous code was a bit hacky. Also: now when creatures walk over rug, you get a different sound!</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/B7Xawqn3apM" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/B7Xawqn3apM ?autoplay=1><img src=https://img.youtube.com/vi/B7Xawqn3apM/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Water, submersion and distortion"></iframe></div>
+<figcaption>Water, submersion and distortion</figcaption>
+</figure>
+
+<p><strong>Water, transparency and autotiles</strong></p>
+<p>Water is tricky because I want something better than a two-frame tile animation and sprites haphazardly mixed with it. In the Unity code, I had some complicated solution that required similar code over several shaders, and the code is like shadertoy code if you know: lots of magic values, that does some magic and out come visual effects. I was not keen on porting all the hacks from Unity, and that&#39;s one reason the Godot port takes as long as it does. </p>
+<p>So, after a bit of tinkering, that included adding support for saving named rendertargets from various stages during rendering, I got the water working nicely again, with underwater distortion and haziness included. On top of that, now there&#39;s a little bit of wave at the separation between water and sprite. Great! </p>
+<p>One more problem though. I&#39;m using auto-tiling masks where water is &quot;recessive&quot;: a tile that is water and is surrounded by land will contain water in the center and the tile&#39;s borders will be land. When the character is partially underwater in such a water border tile, the problem is that the character looks like is under ... land. So, I had two options. I either write some very complicated code to handle this (no idea how) <strong>or</strong> I make the water tiles &quot;dominant&quot;. This means that a single water tile with all land neighbours, will be entirely water, and all the neighbouring land tiles will contain the water border. After a day of dealing with my complex autotiling system I managed to make it work, so ... phew. </p>
+<p><strong>Misc</strong></p>
+<ul>
+<li>Fixed some bugs associated with saving/loading, which led to fixing some more bugs, so graphics are almost ported actually!</li>
+<li>Because I support arbitrary zoom in/out, at zoom-out some effects become noisy (e.g. waves) or look plain weird (heat haze). So I added &quot;global&quot; shader support for passing the camera distance, and the shaders can modify the effect&#39;s intensity based on the distance. There are possibly some good mathematical approaches to do this properly, but nobody&#39;s got time for that in the DI-all-Y indie space.</li>
+</ul>
+<p>That&#39;s mostly it for this week! A number of things remain for the port:</p>
+<ul>
+<li>Handling inputs and contextual actions</li>
+<li>Restore partially the developer-game-gui so that I can handle inventories and execute actions</li>
+<li>Test everything: abilities, more dungeons, bots, ai etc</li>
+</ul>
+
