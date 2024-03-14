@@ -1,0 +1,43 @@
+---
+layout: post
+title: "Inputs, water, lava!"
+date: 2024-03-14 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/03/liquids.png
+meta:
+author:
+permalink: "/2024/03/14/inputs-water-lava/"
+---
+
+<p>So this week was a bit slower than usual, although it started off well. As I said last time, there are a few pending things to complete the port (at least the more important parts):</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/juahRHP4Mds" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/juahRHP4Mds ?autoplay=1><img src=https://img.youtube.com/vi/juahRHP4Mds/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Active abilities and placeholder UI"></iframe></div>
+<figcaption>Active abilities and placeholder UI</figcaption>
+</figure>
+
+
+<ul>
+<li>Handling inputs and contextual actions</li>
+<li>Restore partially the developer-game-gui so that I can handle inventories and execute actions</li>
+<li>Test everything: abilities, more dungeons, bots, ai etc</li>
+</ul>
+<p>The first and second parts are actually complete! ImGui replaced the old system, and everything works as expected thankfully on that front. I&#39;m stilly trying to wrap my head around how to handle actions in a nice way. For example, I have a &quot;Confirm&quot; action which maps to LMB, Return key, maybe gamepad controls etc. But this results in cases where I might want to click somewhere on the map e.g. for panning, and the click is recognized as a Confirm action for the default &quot;ContextHandle&quot; behaviour, so the character will try to light an adjacent torch, etc. So, a bit more care is needed over there.</p>
+<p>I guess I&#39;m now on the testing side, so let&#39;s see how long that takes before I call it a day and wave the &quot;Port Complete Successfully&quot; flag. </p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/4o9IlVaCTMk" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/4o9IlVaCTMk ?autoplay=1><img src=https://img.youtube.com/vi/4o9IlVaCTMk/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Overlapping water, poison, blood and lava"></iframe></div>
+<figcaption>Overlapping water, poison, blood and lava</figcaption>
+</figure>
+
+<p><strong>Multiple overlapping liquids</strong></p>
+<p>One of the things I knew needed more work was the handling of multiple overlapping liquids. Sure, water next to land looks fine, but what if I have 4 different liquids adjacent to each other in a square formation? I used to handle than, but since now I&#39;ve made changes to the liquid rendering, I knew it would be broken, and it was. So, after a few days of effort, I managed to get this working again, which is nice. </p>
+<p>So, that&#39;s all for now, now if you&#39;ll excuse me, I&#39;ll be in the back, playing whack-a-mole with my bugs</p>
+
