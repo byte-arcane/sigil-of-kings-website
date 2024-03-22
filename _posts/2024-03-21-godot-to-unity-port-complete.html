@@ -1,0 +1,47 @@
+---
+layout: post
+title: Godot to Unity port complete!!!
+date: 2024-03-21 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/03/portcomp.png
+meta:
+author:
+permalink: "/2024/03/21/godot-to-unity-port-complete/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/FAE6HZAG71w " allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/FAE6HZAG71w  ?autoplay=1><img src=https://img.youtube.com/vi/FAE6HZAG71w /hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="A little bit of ported gameplay"></iframe></div>
+<figcaption>A little bit of ported gameplay</figcaption>
+</figure>
+
+<p>Alright, so ... <em>deep breath</em>, port has been FINALLY completed! It took exactly 6 months, unfortunately that was exactly my prediction, as I was secretly hoping to be done sooner. Where did the time go? </p>
+<ul>
+<li>The <strong>C#</strong> code was ported pretty quickly, in the beginning: it&#39;s C# to C# after all, so removing Unity calls wasn&#39;t that hard, for most of it</li>
+<li>The <strong>developer GUI</strong> was ported pretty quickly, at the end: I did that a few weeks ago. Replacing Unity&#39;s IMGUI with Dear ImGui. It was a <strong>breeze</strong> I&#39;m telling you.</li>
+<li>The <strong>rendering pipeline</strong> had to be written from scratch, this took quite a while. Instead of using Unity&#39;s rendering code and GameObjects, now I use a single Godot &quot;sprite&quot; on which I render the entire game via the low-level Vulkan-based API. This gives me very good control, allows me to introduce bugs and has caused me a few architectural headaches, but it&#39;s all working fine now. </li>
+<li>The <strong>shaders</strong> took time and energy to port, as I had to rewrite them from Unity&#39;s Cg-like to GLSL, plus I had to refactor quite a few shaders. To make matters worse, because the Vulkan API is so low level, simple uniform variables are not possible, and things have to be packed in carefully-aligned buffers. Fussy, fussy, fussy, but done. </li>
+<li><strong>Dynamic texture reading/writing</strong> took a bit of time, as it&#39;s an important element, especially for sprite composition</li>
+<li>The native plugin needed <strong>zero</strong> time to port - hah! The beauty of having a separate modular piece of software, we just plug it in new engine, with the same bindings because I&#39;m still using C#</li>
+<li><strong>Refactoring</strong>. I did plenty of refactoring, but nowhere near as much as I need. But I&#39;m happy with some of the changes. Refactor affected mostly graphics, as that&#39;s where old code HAD to be removed, and be replaced with new things. Another refactored element was the game state approach, as I had to make a few separate stages like world generation, population with resources, population with cities, and then the game. I wanted to have something modular like this because I need to start testing UI, and I want to test it on these early world generation screens.</li>
+<li><strong>Adding new features</strong>. During this time I did manage to add a few new things. For example the sound system is a bit better as the way sounds can be assigned to surfaces/actions/etc is nicely flexible. I&#39;m still nowhere near demonstrating this well, because I need lots of sounds. But the framework is there. </li>
+<li>New <strong>bugs</strong>! Yes, unintentional, but there is so much new and reshuffled code, that new bugs have been added and mixed with the old. </li>
+</ul>
+<p>So ... what now? Well, first I need to fix a few more bugs. I have been in bug squashing mode for a few days, and plenty more to be done. I need to start a bug tracker with bug severity, that would be helpful, because now bugs are lines of the form &quot;bug: blah&quot; in my TODO file. Maybe that will change to &quot;bug-x: blah&quot; where x is the priority level, possibly that&#39;s as much complexity I&#39;m willing to add. At the same, I have some feature ideas that I want to implement, and this can break the dullness of constant bugfixing, but it means that more features = more new bugs. Cost of keeping my sanity and motivation.</p>
+<p><strong>Developer GUI improvements</strong></p>
+<p>This week, among the bug fixes, I improved the developer gui a bit. Three major points here:</p>
+<ul>
+<li><strong>All flyweights can be edited (mostly)</strong>. My JSON-defined configuration database is big. So far, I had no way of easily changing that on the fly. Now, with the help of C#&#39;s reflection and ImGui, I can write a little bit of code that allows editing of the entire configuration database (hundreds of classes and objects). The magic is that we can process classes easily by iterating through the class variables and calling appropriate ImGui controls. This is super-powerful, and means that now I can adjust configuration on the fly and see what settings work best. Still can&#39;t save the updated configuration, but that&#39;s trivial. Support for changing a derived class altogether should also be added soon.</li>
+<li><strong>TempPool allocation</strong>. I had some custom code to allocate temporary objects from a pool, but now I&#39;ve added some GUI and tracking so that I know what&#39;s tracked where, even source code file and line. That&#39;s super useful in the case of any leaks, which are easily reported. It&#39;s like a manual memory allocator really at this point</li>
+<li><strong>Log channels</strong>. I&#39;ve added some functionality that I used to have in Unity wrt log channel granularity. I can quickly set the log level of individual subsystems (e.g Time, Gfx, Sensory), or set it globally for all, and can clear/flush the log. This allows targetted logging during debugging, e.g. set global log level to &quot;error&quot;, set Gfx and Time to &quot;info&quot;, clear/flush the log, perform desired actions that reproduce graphics/timing bug, then flush log and inspect it. I&#39;ve even added a button that automatically opens the log file in Notepad++, it&#39;s sooo convenient. </li>
+</ul>
+<p><strong>Bug fixing</strong></p>
+<p>Ok, I&#39;m not a fan of changelog updates, so I&#39;m not going to dump all the esoteric commit messages (unless you&#39;re curious!), but I thought I&#39;d take a note for each, and they ended up being around 30 fixes, without counting new features e.g. the GUI stuff above.</p>
+<p>Overall, I think this was a good week. And I can tell to my brain that &quot;port is complete&quot; so that I can move on to other things without having the feeling that I&#39;m still in Unity-to-Godot porting limbo. </p>
+
