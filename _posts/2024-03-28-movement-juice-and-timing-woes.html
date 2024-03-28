@@ -1,0 +1,42 @@
+---
+layout: post
+title: Movement Juice and Timing Woes
+date: 2024-03-28 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/03/flames.png
+meta:
+author:
+permalink: "/2024/03/28/movement-juice-and-timing-woes/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/2Iu0JNsu5Qw" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/2Iu0JNsu5Qw?autoplay=1><img src=https://img.youtube.com/vi/2Iu0JNsu5Qw/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Some ultra snappy movement juice. Maybe too snappy. "></iframe></div>
+<figcaption>Some ultra snappy movement juice. Maybe too snappy. </figcaption>
+</figure>
+
+<p>This was a more chilled-out week, crushing a few more bugs, some minor visual improvements, and being busy with some extra LifeRL stuff.</p>
+<p><strong>Movement juice</strong></p>
+<p>Most movement in the game so far was a simple linear interpolation between source-target positions, with some special cases for some rotating projectiles (e.g. throwing axes) or arrows, that need to rotate. I&#39;ve refactored that code a bit and added support for a multitude of modes, including &quot;walk&quot;, &quot;fly&quot;, &quot;swim&quot; plus what was there before. This allows for funkier interpolation, which if you use your imagination a lot, might look like walking for bipeds! </p>
+<p>During this refactoring I ended up freeing a few more bits for per-sprite properties, so now I have 8 more bits left per sprite, which is fantastic for any future scope creep! For example, to support up to 8 interpolation modes I need a 3-bit index per sprite.</p>
+<p><strong>Timing</strong></p>
+<p>I&#39;ve been messing around with timing again because of bug fixing, and I can tell you I&#39;m not happy with my timing code. It&#39;s a complex topic as it is, especially when animations and delays start getting chained, and my code doesn&#39;t help. So I&#39;m fixing a few things and refactoring some others. I believe I&#39;m improving the code, but I don&#39;t seem to gravitate to a simple-catch-all solution. I&#39;ve been having naughty thoughts about making an animation dependency handler, the magical one-stop-shop for handling everything, but the design principles sound similar to parallelised job systems, and if you&#39;ve heard of those, you know they&#39;re not exactly trivial matters, so I try to keep the fancy-system urges at bay.</p>
+<p><strong>Bugs</strong></p>
+<p>Besides timing-related bugs, I&#39;ve been fixing a few more bugs, like some out-of-bounds tiles being available at some GUI-based skills, or magic missile auto-selecting entities that it shouldn&#39;t, or environment flames not rendering correctly in terms of occlusion. All of these are fixed, with plenty more in the backlog.</p>
+<p>Holidays next week, so a slow week is expected. I guess, appropriately (for certain parts of the world), I&#39;ll have time to think what easter eggs I should be adding to the game.</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/BZ4wpM4Dg7g" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/BZ4wpM4Dg7g?autoplay=1><img src=https://img.youtube.com/vi/BZ4wpM4Dg7g/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Trailblazing literally"></iframe></div>
+<figcaption>Trailblazing literally</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/aAITt9PmtZ8" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/aAITt9PmtZ8?autoplay=1><img src=https://img.youtube.com/vi/aAITt9PmtZ8/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Happy tumbling"></iframe></div>
+<figcaption>Happy tumbling</figcaption>
+</figure>
