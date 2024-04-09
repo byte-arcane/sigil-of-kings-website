@@ -1,0 +1,47 @@
+---
+layout: post
+title: Wildfires
+date: 2024-04-05 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/04/wildfire.png
+meta:
+author:
+permalink: "/2024/04/05/wildfires/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/I_S_NsguBso" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/I_S_NsguBso?autoplay=1><img src=https://img.youtube.com/vi/I_S_NsguBso/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="A very flammable forest"></iframe></div>
+<figcaption>A very flammable forest </figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/AiEfoWy4bj4" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/AiEfoWy4bj4?autoplay=1><img src=https://img.youtube.com/vi/AiEfoWy4bj4/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="A more reasonable wildfire simulation"></iframe></div>
+<figcaption>A more reasonable wildfire simulation</figcaption>
+</figure>
+
+<p>On holidays this week, but I managed to squeeze a few updates: fixing a few bugs and adding a new feature. Bugs are boring: some crashes, some GPU buffers not being updated, some timing issues. The feature is a little bit interesting, and for me it was an exercise in reflection on the topic of rabbit holes. </p>
+<p><strong>Wildfires</strong></p>
+<p>As I was testing fireball effect timings (projectile, ground lighting on fire, creatures lighting on fire, etc), I realised that nearby trees remained unscathed. This is not realistic, but more importantly, it&#39;s not as <em>fun</em> as it could be. Since I support dynamic environment anyway, why not actually showcase all that? So, what this means, is that I want:</p>
+<ul>
+<li>Fireball might spawn a &quot;burning fire&quot; object in some empty floor tiles where it hits</li>
+<li>The &quot;burning fire&quot; should last a few rounds before being extinguished</li>
+<li>If there&#39;s anything flammable nearby, it <em>might</em> catch fire. This includes trees.</li>
+<li>If a creature steps into the fire, it starts burning</li>
+<li>Burning fire should also be a light source</li>
+</ul>
+<p>Alright! To make things simple, I already had some half-baked implementation of a fire object where it behaved like a trap: if you stepped on it, you caught fire. </p>
+<p>So, why is this a rabbit hole? Because there are a few things to take into account. Most important was: where do I store and execute the code for the fire&#39;s spreading logic? One thought was to have AI like with everything else, but there&#39;s certain boilerplate involved with that, so that for simple, repeating actions of non-sentient entities it would be overkill. The solution to that was to introduce another queue in the Time system that stores entities with such simple logic, ordered by when they should execute. And after they execute their logic, they schedule themselves again at the next interval. </p>
+<p>Second part is where to store the logic. I expect to have a number of different logic classes, and maybe some objects would use the same logic with different parameters. This is a perfect candidate for my json database, so that was implemented quickly. The logic object itself contains the &quot;tick&quot; function that runs at every simulation step of the object. For the fire, the logic is &quot;am I next to something flammable? Then, maybe I should light it up!&quot;. First attempt for that, I ran that logic immediately, and the result was hilarious: I spawned a fire next to a tree, and then immediately a chain reaction started, burning down the entire forest, and the map was filled with fire objects. Ok, that needs fixing. Second iteration: fire has &quot;fuel&quot; that lasts for a few turns, e.g. 5. For the first 3-4 turns we do nothing, and then the fire becomes transmissive and attempts to burn neighbours. After the fuel runs out, the fire gets extinguished. This massively improved things, so a forest can burn down at more reasonable rates, although it still is a bit too fast. Even if I set 20% burning chance for a nearby tree, in a forest situation a tree might end up being surrounded my multiple fire tiles, therefore increasing its chance to light up significantly. This is something that might need tinkering later on.</p>
+<p>Next part was to make the fire a light source. That was relatively easy, as entities support some generic-ish properties, like weight, light emission etc. I had to add support for loading these properties via json and fix up a bug or two. </p>
+<p>The part where fire object might spawn from the fireball is not implemented yet, but it&#39;s trivial. </p>
+<p>A final consideration, not mentioned here, is what happens when we change levels. What happens if we leave a level while a forest is burning down? Option 1 is to freeze simulation, but that&#39;s unrealistic. &quot;Let me go and find a scroll of rain and douse the flames&quot;. That would be nice, but one would expect the fire to move on. Running the simulation in the background sounds also hard, as it won&#39;t scale if we need to do that for all simulations and AI. And if we cherry-pick, then we lose on consistency. What to do here? The answer was thankfully already implemented, as I realised: after leaving a level, we run any AI and simulations for the level for a number of turns, before freezing everything. This means that the level changes by the time we&#39;re back, but we don&#39;t suffer huge performance penalties.</p>
+<p>A bonus consideration: rain at the moment has no effect on fire objects. Neither do any water/ice spells. Or spawning fireballs on water. I just realised, as I was writing the previous paragraph. So these also need to be taken into account, for intuitive, immersive and emergent gameplay.</p>
+<p>That&#39;s it for now - more next week!</p>
+
