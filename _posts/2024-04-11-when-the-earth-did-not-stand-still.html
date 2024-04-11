@@ -1,0 +1,41 @@
+---
+layout: post
+title: When the earth did not stand still
+date: 2024-04-11 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/04/statue.png
+meta:
+author:
+permalink: "/2024/04/11/when-the-earth-did-not-stand-still/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/0odgw1JLPB0" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/0odgw1JLPB0?autoplay=1><img src=https://img.youtube.com/vi/0odgw1JLPB0/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Triggering statue movement: slow movement, everything shakes"></iframe></div>
+<figcaption>Triggering statue movement: slow movement, everything shakes</figcaption>
+</figure>
+
+<p>Ok, back from holidays, and started working on core parts of the game like ... slow-moving statues that shake the earth! There is reason to this madness: I like to challenge the codebase on how easy it is to support something that pops to mind. Sometimes solutions are easy and fit just right, sometimes they don&#39;t. This one is thankfully in the former category.</p>
+<p>I got this idea at some point last week that my game should support this cool effect where if you solve a puzzle or if triggered via cutscene, some big statue/object moves slowly, uncovering some area, while the whole screen shakes. In my head, this existed in the introduction of Shining Force 2, but it turns out I was making stuff up. Anyway, I convinced myself that it&#39;s really important as a funky effect, adding immersion blah blah. Ok, motivation sorted, how to implement it now?</p>
+<p>Objects like statues are considered &quot;static&quot; in my code, as they don&#39;t move, and you don&#39;t throw them as projectiles. Turns out, not even such objects will be static. So, first step, I knew I had to refactor all logic where entities are either &quot;static&quot; or &quot;moving&quot;, to make them all moving. So I did that, and this change actually led to some optimisations and bug fixes, which is not bad at all. So now all objects are movable except background blockers (e.g. trees) and decals (e.g. blood stains). So far so good! Now I can treat the statue as a first-class citizen in terms to movement.</p>
+<p>Another element was the movement speed. Creatures move with a standard speed, projectiles move either as fast as creatures or faster. Statues would move far slower. My per-sprite movement speed specification allocated 6 bits for a movement speed multiplier, representing from 1x to 64x. I thought I&#39;d be better off with a 3-bit lookup table. So now I can assign speeds of 0.125x, 0.25x, 0.5x, 1x, 2x, 4x, 8x, 16x. So, the statue can be assigned 0.125x speed, so it can move slowly. Fantastic, that&#39;s sorted.</p>
+<p>Another element was the screenshake. I thought I&#39;d solve that in a generalisable way. I want screenshake when something really really heavy moves, like a statue. Or a giant creature! If that object or creature moves (touching the ground) and it&#39;s close enough to the sensor, then we get screenshake. That&#39;s it really! I only tested it on objects, but it should work with creatures too. Now a small parenthesis: the idea of walking creatures shaking the ground really wants to evolve to giant multi-tile creatures, and I&#39;m trying to keep myself from adding support for those next, just to see a big-ass giant walking towards the player while the entire screen shakes. It&#39;s tempting. But there are two rabbit holes there: dungeon generation supporting wider corridors and spaces, and handling multi-tile creatures. I&#39;ve thought of potential solutions to both, so the problem feels tractable, and this itself is a problem because I&#39;m fighting the temptation.</p>
+<p>So, after all of the above, I can move objects now (programmatically at the moment) and the movement speed and screenshake will happen accordingly.</p>
+<p><strong>Other updates</strong></p>
+<ul>
+<li>Fire objects are now light sources. This was a pending task from last week.</li>
+<li>A little bit of refactoring and bug fixing</li>
+<li>For whoever follows on twitter, I bothered to fix the issue where no audio existed in the typical square videos I share there, so there will be audio in the future (me clicking about frantically, usually. I should disable that microphone input)</li>
+</ul>
+<p>For next time, I&#39;m tackling a bunch of errors/warnings that I&#39;ve been getting (non-critical ones) to clean things up a bit before adding Godot</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/YE0SUVPG_sE" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/YE0SUVPG_sE?autoplay=1><img src=https://img.youtube.com/vi/YE0SUVPG_sE/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Flames are now light sources"></iframe></div>
+<figcaption>Flames are now light sources</figcaption>
+</figure>
