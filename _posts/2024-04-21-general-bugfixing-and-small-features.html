@@ -1,0 +1,38 @@
+---
+layout: post
+title: General bugfixing and small features
+date: 2024-04-21 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+meta:
+author:
+permalink: "/2024/04/21/general-bugfixing-and-small-features/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/6HY_Mg-4U-w" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/6HY_Mg-4U-w?autoplay=1><img src=https://img.youtube.com/vi/6HY_Mg-4U-w/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Level gameplay: tower and goblin boss"></iframe></div>
+<figcaption>Level gameplay: tower and goblin boss</figcaption>
+</figure>
+
+<p>A bunch of things this week, mainly bug fixing, which I&#39;m not going to focus on, so I&#39;ll keep it short. </p>
+<ul>
+<li>Remember that statue pushing last week? Well this time I implemented a proper &quot;creature ability&quot; to push or pull. Character moves with the object. Thankfully that was quite easy to implement.</li>
+<li>At some point I need to start building executables to distribute for testing various bits. Last time I attempted that was several months ago while porting. Tried it again, fixed a bunch of issues (and a few remain), but looks like it&#39;s going to be fine.</li>
+<li>Fireball and other AoE damage effects should destroy cobwebs and other such objects. </li>
+<li>Solved a few more issues related to doors! We all know how doors are PITA :) Examples, also specific to my implementation/visuals:<ul>
+<li>if a secret door is opened (by some monster -- should not happen!), reveal it first, otherwise there&#39;s a graphical glitch</li>
+<li>if a door is secret, creatures should not open it (spoils the fun)</li>
+<li>if a door is locked, creatures should not open it from the other side (players can though)</li>
+<li>when unlocking a wooden door, the sprite was changed to the metal one. I was missing sprites, but fixed all that</li>
+</ul>
+</li>
+<li>Swapping is allowed automatically with neutral creatures. Previously you could swap with friendly creatures only, but it was tedious when encountering neutral creatures in corridors that you didn&#39;t want to kill. Also I removed the GUI that allowed you to swap or attack, and now you swap automatically. You can still attack creatures with an explicit action.</li>
+<li>A little bit of GUI work. This means just slowly following a tutorial really, but I paused that for bug fixing. Will resume!</li>
+</ul>
+<p>More things in the pipeline for next time, so next week&#39;s forecast is fonts, attack animation and GUI. </p>
