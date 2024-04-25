@@ -1,0 +1,47 @@
+---
+layout: post
+title: Fonts, Bumps and GUI
+date: 2024-04-25 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/04/gui_main.png
+meta:
+author:
+permalink: "/2024/04/25/fonts-bumps-and-gui/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/Uj-1N6ETsSk" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/Uj-1N6ETsSk?autoplay=1><img src=https://img.youtube.com/vi/Uj-1N6ETsSk/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Main menu mockup. It has birds!"></iframe></div>
+<figcaption>Main menu mockup. It has birds!</figcaption>
+</figure>
+
+<p>This was a busy and productive week. Besides the always-necessary bug fixing, some other topics below:</p>
+<p><strong>Fonts</strong></p>
+<p>I&#39;m really susceptible to options paralysis. Not a good thing for choosing fonts, as there&#39;s a gazillion out there. So, when some friendly fellow dev pointed out that fonts could be a bit better, it got me thinking. Instead of creating mockups, overlaying different fonts on the game, in order to get the &quot;true&quot; experience and visuals, I added support for multiple fonts in the game. It was only slightly fiddly, and on the plus side, I did make font size parameterisable, as it was not. What was the verdict? Well, still unsure. I don&#39;t want a plain sans serif font, but serif fonts can look chaotic and not as readable when there are loads of floating text around. It shows why professionals are being paid for that stuff I guess. </p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/DnY_1fwsTlU" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/DnY_1fwsTlU?autoplay=1><img src=https://img.youtube.com/vi/DnY_1fwsTlU/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Testing different floating text fonts"></iframe></div>
+<figcaption>Testing different floating text fonts</figcaption>
+</figure>
+
+<p><strong>Bump animation</strong></p>
+<p>My default game speed is ... &quot;ultra snappy&quot;. A bit too much for some. In addition to that, the bump attack animation goes all the way to the target tile and returns. This is so fast that sometimes looks like a glitch. So I thought I&#39;ll try a couple of things. I tested reducing the range to something like 60% towards the target tile, and it works. Also reducing the game speed makes it look slightly better. I did try to use easing functions for the bump attack animation, but I wasn&#39;t happy with any of them, so it&#39;s left to linear there and back (triangle shape). So, this is kinda resolved for now, by reducing the max distance the attacker travels for the &quot;bump&quot;.</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/7ZV04BNl4EA" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/7ZV04BNl4EA?autoplay=1><img src=https://img.youtube.com/vi/7ZV04BNl4EA/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Testing different attack speed and range for bump attacks"></iframe></div>
+<figcaption>Testing different attack speed and range for bump attacks</figcaption>
+</figure>
+
+<p><strong>Decals and footsteps</strong></p>
+<p>Bug fixing and refactoring mostly on that department, but the footstep functionality is finally shown, and integrated a bit better. Now creatures (or creature classifications) can be assigned footstep sprites, and such creatures would leave footprints when walking, that disappear after a bit. I allowed a bit of configuration so that footstep rendering can be a bit more controlled, in case people want to turn this off, as the ground might look trampled in busy areas.</p>
+<p><strong>GUI work</strong></p>
+<p>Yes, I started properly! I tried to watch a couple videos to learn some basics, but as it&#39;s the case with videos, they can be very hit and miss, regardless of the upvotes/downvotes. Godot&#39;s documentation and the occasional guide are great, and some videos to show things in action can be quite helpful. Long story short, I decided to make a proper title screen/game menu. I got some imagery and font that I quite liked, assembled it together, played around a bit with the UI customisation and ... that was it really. I&#39;ve also added some flying birds. I always wanted to find an excuse to put some flying birds in either the trailer or in the title screen. Here it is: gamedev bucket list goal achieved! Now I&#39;m prototyping more screens, and how to integrate that into the game. I feel I should have made GUI prototypes before I started the port, as that might have guided some decisions, but I think it will all be fine, with A Bit More Refactoring as always. By the way, huge kudos to the Godot team for designing such a nice UI system. Unity&#39;s UI made me feel stupid, this one makes me feel empowered, and I enjoy the process, it&#39;s a different challenge: it&#39;s visual and hierarchical. Also huge kudos to whoever put together <a href="https://www.gameuidatabase.com/">gameuidatabase</a> as it&#39;s pure gold.</p>
+<p><strong>Storyboard</strong></p>
+<p>This is really a plan, rather than work, but I&#39;m trying to find excuses to practice a bit of art, which I&#39;ve abandoned a bit since the port started. One of the next game&#39;s trailers will be a narrated slideshow style introduction, which is a perfect opportunity to try and sketch the different images. The number is manageable (6-8) and if I fail at the end, I can always hand over the sketches to somebody who knows what they&#39;re doing, as a reference. Let&#39;s see! </p>
+<p>This is it for now, next week there are going to be more updates on UI and loading/saving.</p>
