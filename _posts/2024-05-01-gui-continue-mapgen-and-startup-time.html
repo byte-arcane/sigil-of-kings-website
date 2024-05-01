@@ -1,0 +1,58 @@
+---
+layout: post
+title: "GUI: Continue, MapGen and Startup Time"
+date: 2024-05-01 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/05/continue.png
+meta:
+author:
+permalink: "/2024/05/01/gui-continue-mapgen-and-startup-time/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/mafreuY6uhA" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/mafreuY6uhA?autoplay=1><img src=https://img.youtube.com/vi/mafreuY6uhA/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Continue screen UI mockup"></iframe></div>
+<figcaption>Continue screen UI mockup</figcaption>
+</figure>
+
+<p>Another busy and productive week, with work on a few different fronts. </p>
+<p><strong>GUI: integration with game</strong></p>
+<p>The previous title screen that I shared last week was a standalone project with everything else turned off. I thought I should integrate things to the game code as soon as possible, and this caused a few headaches, particularly regarding display. Apparently, there are &quot;official&quot; recommendations for Godot apps regarding what&#39;s best for what type of game, pixel art, etc, which can be found <a href="https://docs.godotengine.org/en/stable/tutorials/rendering/multiple_resolutions.html#common-use-case-scenarios">here</a>. I went for the non-pixel-art suggestions, because my shaders typically operate at higher resolution, so I thought I might be limiting myself severely. The other topic, which is startup performance, is discussed further down. </p>
+<p><strong>GUI: Continue screen</strong></p>
+<p>First I tackled the continue screen. Browsing through gameuidatabase, I fixated a bit on <a href="https://www.gameuidatabase.com/uploads/Cyberpunk-207712292020-013432-66053.jpg">this</a>, <a href="https://www.gameuidatabase.com/uploads/Dark-Souls-II-Scholar-of-the-First-Sin07182020-111125-81121.jpg">this</a> and <a href="https://www.gameuidatabase.com/uploads/Dragon-Ball-Z-Kakarot12212020-092841-50050.jpg">this</a> and used them as rough references. The result is shown in the above video. Simple, effective, shows things I think are interesting. Could be more polished, but this can be left for a later stage. What&#39;s important is to figure out how the GUI system works and have something remotely representative.</p>
+<p>To be able to have these nice metadata about each save, I had to implement the relevant functionality, but that was not hard, just a bit of extra work at save time: take a screenshot (and resize it to 512x288) and saving an additional json file (for simplicity). </p>
+<p>Part of this work was also to figure out how to communicate between the different screens. I decided to have <strong>all</strong> UI in the main scene, under a UI node, and toggle things on and off. It&#39;s possibly not great practice, but I wanted to get moving. There&#39;s a helper script that handles the signals to move from one screen to the next and toggle things on and off appropriately. Maybe at some point I&#39;ll test if it&#39;s better to instantiate different scene files/nodes, but generally, instantiating is always more expensive and garbage-y than turning things on and off.</p>
+<p><strong>GUI: Continue screen</strong></p>
+<p>Next thing that was tackled was the overworld map generation screen. My idea/approach for this is to have the settings on the right and the generated map on the left. Of course the awesome thing about it is to play around with the settings and get a new world instantly. That&#39;s work in progress. Another important aspect here is: <strong>which settings should a player control?</strong>. If you, dear reader, have an opinion, I&#39;m happy to hear! I&#39;ve put some placeholder ones for now, like temperature, humidity, landmass style (e.g. continents, islands, etc) and seed, but I can&#39;t think of others that could be very important/desirable. I have about 50 developer-friendly parameters, but I don&#39;t want to expose those. My goal is to have a set of parameters that are intuitive and <strong>always</strong> generate good/playable maps. </p>
+<p>Another goal for this screen is to show the biome distribution, so that the player sees for example how much tundra, swamp, desert etc is in the world, without having to scan the image. </p>
+<p>Part of this work resulted in figuring out the &quot;tiled&quot; mode of nine patch rects, so I used my typical meander pattern. </p>
+
+<figure><img src="{{ site.baseurl }}/assets/2024/05/ovwgen.png" alt="overworld map generation"/><br />
+<figcaption>Overworld map generation, WIP UI</figcaption>
+</figure>
+
+
+<p><strong>Startup optimisation</strong></p>
+<p>After integrating the main menu and continue screens in the game code I realised that development of new UI would be tedious if done using the game&#39;s code. The reason is that the startup performance was not great. Depending on the moon&#39;s phase and Godot&#39;s and .NET&#39;s whims (aka hidden caches), sometimes the game started in the editor within 5 seconds, and sometimes it took 10. <strong>Utterly unacceptable</strong>. Can&#39;t iterate on any work like this. Why so much? Well the profiler gave some info, and I acted on it:</p>
+<ul>
+<li><p><strong>JSON config database</strong>. Biggest hit. At every startup of the application, I loaded 1MB of json configuration data, split in 85 files. So much work, so unnecessary. JSON is nice for human readability, but I want binary blazing speed for when I don&#39;t need the human readability. Solution? Ensure that the entire config database hierarchy can serialise to binary, and that it&#39;s as robust to mistakes as possible. That resulted in tedious annotation for MemoryPack for loads of classes, and the end result is a nice LZ4-comrpessed binary file that loads pretty quickly. So, instead of reading any JSON, I just read that on startup. And what happens if a change is made to a json file? For this, I always check the folder hierarchy where the json data are, and if I detect any file date modified that is newer than my cache file, I rebuild the cache. Simple, and works. <strong>This removed 2.9sec from startup time</strong>.</p>
+</li>
+<li><p><strong>Shader compilation</strong>. Second biggest hit. Every time I startup the application, I end up compiling several shaders to bytecode. Why not just save the bytecode? So, I implemented a similar caching scheme to the above (also fixing a bad bug in the meantime!) and I <strong>removed 2.5sec from startup time</strong>.</p>
+</li>
+<li><p><strong>Fonts</strong>. Last week or so I was testing different fonts, and that means loading a lot of them at startup time. Well, huge mistake for performance. So, while I&#39;m not comparing fonts, I just load a single one. <strong>Removed 0.7sec from startup time</strong>. </p>
+</li>
+</ul>
+<p>Now, I was gloating after all this, thinking &quot;oh my, if these are the editor savings, the exported .exe performance should be great!&quot;. Well, turns out that it&#39;s exactly the same, and I&#39;m not sure if I should be happy with this or not: I&#39;ve optimised the editor performance, but there&#39;s still pending cost. I still need about 4 seconds for startup. </p>
+<p>I started looking at ResourceFormatLoader for loading binaries and other json files more in-line to what Godot works well with, but after a bit of digging I&#39;m not eager to commit to that work yet. If you have any experience on the matter, please let me know! </p>
+<p><strong>Misc</strong></p>
+<p>I&#39;ve created a script to help with expected game publish actions, like for example generating the serialisation tree (this can be used for save compatibility checks) or getting the commit hash for the game&#39;s title screen.</p>
+<p>I&#39;ve added some button sounds, hovering and clicking, just to see how that works. Sounds are not quite fitting at the moment, but I couldn&#39;t find better ones after 30&#39; search. </p>
+<p>I also tinkered a bit with the font. I&#39;ve added a slight grey outline and tried scaling the button text when hovered (for the Begin, Continue, Settings, Quit). I didn&#39;t like the scaling version so that got ditched. </p>
+<p>Phew, that&#39;s this week done! Next few weeks are going to be quite busy IRL so I don&#39;t expect to have as many updates. But, as always, things move forward. </p>
+
