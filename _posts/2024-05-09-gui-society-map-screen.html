@@ -1,0 +1,46 @@
+---
+layout: post
+title: "GUI: Society map screen"
+date: 2024-05-09 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/05/society.png
+meta:
+author:
+permalink: "/2024/05/09/gui-society-map-screen/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/AkenjiGHnuY" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/AkenjiGHnuY?autoplay=1><img src=https://img.youtube.com/vi/AkenjiGHnuY/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Revamped overworld screen UI mockup"></iframe></div>
+<figcaption>Revamped overworld screen UI mockup</figcaption>
+</figure>
+
+<p>Well, another busy week, unfortunately ending the streak (next week there might not even be a post). This GUI experiment just keeps continuing, as I&#39;m trying to create game-worthy mockups for the world generation stage. If there&#39;s interest, when done, I may share a binary for people to play around with. So, topics:</p>
+<p><strong>Overworld map generation improvements</strong></p>
+<p>In my brainstorming for useful parameters for map generation, the obvious one was to have something like &quot;presets&quot;. Borrowing from some great examples that I can&#39;t quite remember (Age of Mythology? Civilisation? HoMM3? who knows), I wanted to have presets like &quot;archipelago&quot; (lots of islands) or &quot;pangaea&quot; (single landmass) and so on. It turns out that my spaghetti shader that was doing the continent generation made that really hard. So I rolled up my sleeves, picked up the digital sledgehammer and started blasting that shader apart and rebuilding it. As usual, when I rebuild things I rebuild them simpler because future me is never in the mood for debugging lots of code. You learn that soon after you harvest the fruits of your overengineering labour in a long-term project. Long story short, after the refactor the code is much better, and allows exactly the customisation that I wanted, so <strong>I got landmass presets!</strong>. Very excited. </p>
+<p>On top of that, I thought the biome colours looked a bit flat. It dawned on me that I could very easily fix the visualisation. I did two things. First, I darkened the coastline (so it looks like it has a bit of profile) and second I added some emboss effect based on elevation. This makes it look more like it has a profile (great!) and now I&#39;ve added a way to actually visualise elevations, as I didn&#39;t have that before! (double-great!).</p>
+<p>Next, I&#39;ve added support for seed phrases, as I&#39;ve seen that in a few places. My constraint was that the total character count should be kept at about 25 characters so that it fits well in the textbox. I found some database of english words (adverbs, adjectives, nouns) and I generate words in that order. Sure, I could have more combos with any order, but I get more hilarious results with a proper order. </p>
+<p>Also, I&#39;ve slightly changed the colours, I&#39;ve added a spinbox for the seed as well, and I&#39;ve added a fugly label that we&#39;re in the &quot;World&quot; generation screen. Mockup done for now, hurrah! Next.</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/MoeEni4AOuo" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/MoeEni4AOuo?autoplay=1><img src=https://img.youtube.com/vi/MoeEni4AOuo/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Society screen UI mockup"></iframe></div>
+<figcaption>Society screen UI mockup</figcaption>
+</figure>
+
+<p><strong>City generation screen</strong></p>
+<p>Ok, I was looking for an excuse to port this one to C++. The C# code was a bit slow, it took about 2 seconds for a small part of the process. During this process, I accumulate and process food and materials for the entire map using an integral image, and I identify suitable locations for cities with a bit of tinkering with that data. So, I ported the code, which for sensibility was broken down to two functions: one for some initial calculations and some other that ran in a loop, once for each city candidate (so, about 256 of them). I ran the code and ... <strong>it took 5 seconds</strong>. Fantastic, twice as slow. Why? Can&#39;t be my C++ code, it&#39;s not doing anything stupid. So, the next culprit was the C#/C++ interface layer. So, it turns out that exported functions with [Out] parameters result in some memory allocation/copying and it&#39;s totally not what I want. Instead, I remembered some alternative method using pointers directly (IntPtr). This requires to make a GCHandle and pin the address memory. So, I did that and ... back to full speed! now it&#39;s at least 4x faster. </p>
+<p>During porting, I noticed some very very stupid thing I&#39;ve done: I have some bit get/set functions in C++ and C#, with a very similar interface, but the order of some parameters were different (e.g. bit offset and value size, both ints). That was a nightmare bug to find, so I fixed it via refactoring the C# functions to match the C++ ones. Amateur hour. </p>
+<p>Now the work done using city generation is a bit much. I can&#39;t make that instant, no matter what. But what I can do is to at least run some tasks asynchronously, based on dependencies. Also, I needed to identify what&#39;s eating most of the time. After investigation, it looks like that factions, relations and territory are all calculated independently, whereas mine allocation depends on territory. Also, I found out that territory was the slowest component, by far. Ok, painted a target, and off we go.</p>
+<p><strong>Territory optimisation</strong></p>
+<p>Now I already have this code in both C# and C++. What the C# code was doing was to call a C++ function once for each city, as a result of quick-and-dirty porting. This function was called ~256 times. So, step #1: make the iteration faster. I used the trick of removing [Out] and replacing with IntPtr, and the per-iteration cost dropped by 1/3 (total of 750ms to 536ms). Great! But still too slow. Step #1 was to call a special C++ function that calculates territories for all cities at once. This was actually already implemented and optimised. Doing that, the time cost for territory calculation reduced further by another 1/3 to 291ms. Great! </p>
+<p>The entire process and all calculations for a city are still too slow, and I&#39;m still optimising</p>
+<p><strong>Visualisation of results</strong></p>
+<p>Ok city simulation is running, now what? We need to see them on the map! So I&#39;ve added some blinky dots and some textbox support (which was rightfully criticized for having bad contrast) so that we can see the results of the generation per city either via combobox selection or by hovering. Finally, the city names before were crap (unshareable really) so I implemented something very quick and dirty which is still subpar, but at least it&#39;s passable. </p>
+<p>And that&#39;s this week done! More work ahead, but also less work due to IRL stuff for a bit. Until next time!</p>
+
