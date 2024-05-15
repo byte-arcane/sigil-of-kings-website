@@ -1,0 +1,41 @@
+---
+layout: post
+title: Society GUI: Better and Faster
+date: 2024-05-15 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/05/society2.png
+meta:
+author:
+permalink: "/2024/05/15/society-gui-better-and-faster/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/io3vsigyW2k " allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/io3vsigyW2k ?autoplay=1><img src=https://img.youtube.com/vi/io3vsigyW2k /hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Revamped society screen UI mockup"></iframe></div>
+<figcaption>Revamped society screen UI mockup</figcaption>
+</figure>
+
+<p>Some more updates this week, focussed on GUI. GUI will be a major focus for a while, and I expect multiple iterations as the first thought/design that comes to mind is not always great... Anyhoo, onwards to this week&#39;s updates. </p>
+<p><strong>Path visualisation</strong></p>
+<p>Part of the overworld generation is simulation of land and sea routes between the cities. Why not show that? So, I&#39;ve added a visualisation that does exactly that. The routes are a bit transparent and a bit flashing to avoid &quot;hiding&quot; map features with the road network, I think it looks fine enough.</p>
+<p><strong>Relations visualisation</strong></p>
+<p>Being a data visualisation fan, I wanted to show the relations of every city to every other one. How to do that? When hovering over a city, I would change the colours of all other city dots to an appropriate colour: green for friendly and red for hostile (and some values in-between). Now unfortunately these colours are also used in biomes, and that would result in poor contrast. So I thought I&#39;d use colorised icons, which I hastily made. I think the visualisation is now clearer (imo!), even though the icons do hide a bit of the map underneath</p>
+<p><strong>Territory visualisation</strong></p>
+<p>Yet another piece of data to visualise. I run a simulation for each city to calculate how much territory it occupies. Because this territory/influence &quot;spread&quot; depends on the landscape (e.g. can&#39;t cross easily mountains) the resulting territory shapes are always interesting, therefore, cool to visualise. I do have yet another flashing red effect on the territory of the selected city to signify territory. Could be better, but it&#39;s serviceable for now I think.</p>
+<p><strong>Tinkering with contrast/colours</strong></p>
+<p>Based on feedback, I tinkered a bit with the contrast of background colour and text, I think it&#39;s better now. Any tips/opinions welcome!</p>
+<p><strong>Performance</strong></p>
+<p>Oh boy, here&#39;s where the fun begins. So, to calculate all 750 routes among all cities (the edges in a delaunay triangulation) using a high-precision A* takes a little more than I&#39;d like, especially considering that this is just a single part of the entire city generation process. So I needed to make it faster. </p>
+<p>I have a custom profiler, but it works in C#, and I don&#39;t have a way to calculate timings of segments of in C++ code (where the paths calculations happen). So I added support of C++ section profiling in my custom C# profiler via bindings, and it works fine, but I ended up just not using that as a simple profiling process in visual studio was enough to point out the &quot;hot&quot; code. Apparently I was doing some quite redundant work, plus I was saving some bitmaps. Oops! Removed all that and the time was massively reduced down to 1.7 seconds. Still quite a lot. The entire simulation now takes about 3 seconds. This is good, but not good enough, and the only way forward is to move that calculation to another thread so we don&#39;t block the poor UI. </p>
+<p>Enter async/await drama. I have little patience for irrelevant information, so while I&#39;m looking at C#&#39;s async/await facilities, I found loads of info but somehow I could not find a few simple guidelines with a few simple examples. So I don&#39;t read in depth any of these resources, I only live once, and I&#39;m not going to waste time learning how to spin asynchronous servers in C# and how does the async/await code generation works under the hood. Focus. I have a task &quot;graph&quot;: territory calculations need city positions, route calculations need city positions, and so on. This can be used to spawn tasks asynchronously with their dependencies set accordingly, so that they can be executed efficiently in other threads. </p>
+<p>So, after a little bit of documentation reading, I wrote some implementation, which wasn&#39;t working well, so I posted <a href="https://www.reddit.com/r/csharp/comments/1cqdu7d/asyncawait_why_does_this_example_block/">a question</a> on /r/csharp which, err, brought me hellfire. Everybody was quick to point out that pretty much everything I was doing and assuming was wrong, some a bit harsher than others. But there was a lot of &quot;you&#39;re wrong, read more!&quot; rather than &quot;you&#39;re wrong, because XYZ, here&#39;s how it should be done&quot;. Long story short, and after stirring heated discussions even among others, I actually figured out what I was doing wrong thanks to some comments, corrected the code and then it worked as I expected. All of this to go from 3000ms to 2700ms. But now I learned how to chain tasks and use async/await better, which is something!</p>
+<p>2700ms is of course still too much, but now it&#39;s run on a different thread. So it&#39;s necessary to have some indication that we&#39;re doing work. I did implement a reusable widget that, when we start a long simulation, we display some text (with callbacks for updating it) and we also disable all input during the simulation, so nobody can presss ok or cancel. Worked like a charm. Results can be seen in the video.</p>
+<p>Finally, I wanted to optimise another process, the calculation of resources (normal and rare) for each tile. I was looking for an algorithm that can iterate over all numbers in a deterministic pseudorandom order without allocations or shuffling, and I tried one but couldn&#39;t get it to work. If you know of such an algorithm, I&#39;d appreciate any tip/link/name.</p>
+<p>That&#39;s all for now, see you next week!</p>
+
