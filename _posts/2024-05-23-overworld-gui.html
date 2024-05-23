@@ -1,0 +1,31 @@
+---
+layout: post
+title: Overworld GUI
+date: 2024-05-23 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/05/ovw_gui.png
+meta:
+author:
+permalink: "/2024/05/23/overworld-gui/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/L-wVBU-kjLM" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/L-wVBU-kjLM?autoplay=1><img src=https://img.youtube.com/vi/L-wVBU-kjLM/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Overworld GUI"></iframe></div>
+<figcaption>Overworld GUI</figcaption>
+</figure>
+
+<p>A few updates this week due to big personal event, and the topic is, as usual now, GUI, and more specifically...</p>
+<p><strong>Overworld GUI</strong></p>
+<p>Ok, we got the overworld biome and society screens working, so next stop is to actually start the game in that world! Of course the functionality is already implemented, but I now need some GUI on top of that. </p>
+<p>The <a href="https://i.imgur.com/8ZJlci0.png">original draft</a> was my attempt to keep a &quot;fair&quot; square game view and occupy the rest with GUI. Then I saw a few examples from other games and I realised that this is not what I want, it&#39;s too much like 90s, in a bad way. E.g. <a href="https://cdn.akamai.steamstatic.com/steam/apps/1904551/ss_21596720208134b344a79f1427a45d71e1acb26d.1920x1080.jpg">Dungeon Hack</a>&#39;s gui takes about 75% of the screen. Oops! So, <strong>problem #1: too much GUI</strong></p>
+<p>My original draft would make use of space with plenty of buttons for menus, journal etc. This is also the case with many PC GUI-heavy games, especially retro RPGs. So, unless all of the GUI is a constant non-interactive info-dump, we might want to interact with various GUI elements. But how do we navigate such a GUI with a controller? <strong>problem #2: GUI-heavy games are incompatible with controllers</strong></p>
+<p>Now, I&#39;ll be honest with you, I avoid controllers like the plague. I would only use controllers when playing with others, or, <em>shudder</em>, when playing on a console at somebody else&#39;s place (because I don&#39;t own one). I still have vivid memories of my gamer&#39;s thumb in the 90s from all-day gaming at my console-owning cousin&#39;s place. Still, I need to make the game controller friendly because it will force some discipline into the design of the GUI (towards simplicity) and allow the game to be played by more people really. And Steam Deck could be a possibility on top of that, and that sounds fun.</p>
+<p>So, what&#39;s the &quot;draft, version 2&quot; design? A few purely-info GUI elements at the corners of the screen, organised by &quot;theme&quot;. Top-left corner is &quot;current environment&quot;, top-right is &quot;character&quot;, bottom-right is &quot;hovered environment&quot; and bottom-left is the log. Again, this is early stage design and won&#39;t win any beauty awards, but it will do for now. As usual, any comments welcome!</p>
+
