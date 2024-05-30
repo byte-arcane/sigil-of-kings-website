@@ -1,0 +1,36 @@
+---
+layout: post
+title: Level GUI
+date: 2024-05-30 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/05/level_gui.png
+meta:
+author:
+permalink: "/2024/05/30/level-gui/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/UlJbvu0xTrs" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/UlJbvu0xTrs?autoplay=1><img src=https://img.youtube.com/vi/UlJbvu0xTrs/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Level GUI"></iframe></div>
+<figcaption>Level GUI</figcaption>
+</figure>
+
+<p>This week&#39;s update is focussed on making the GUI better work with the game.</p>
+<p><strong>Level GUI</strong></p>
+<p>Well, I thought I&#39;d actually just 100% reuse the overworld GUI, as I&#39;m not sure I want different UI as that might be confusing. Sure, the content of some elements is going to change, but the overall placement and style should be identical. You can see the results in the video above. An additional little fun thing was to add tweening support to the HP/MP/XP bars so that they animate towards new values. It&#39;s nicer, and was little effort to add.</p>
+<p><strong>Hovering refactor</strong></p>
+<p>When inside a map, I want to present information about the current tile we&#39;re on (what&#39;s the floor like? Is there liquid? Any items on ground?) and the tile we&#39;re hovering over (same info, but also: is it a blocker tile? are there any creatures or objects?). A bit of refactoring was apparently required, to ensure that we can get some nice presentable bits of info with very little code. I&#39;ve added a bit of special functionality to &quot;lock&quot; on a hovered tile with the press of the middle mouse button, as the hover UI shows some tooltip-enabled elements, which ... need to be hovered over!</p>
+<p><strong>Game log</strong></p>
+<p>Hooked up the game log with the associated GUI element on the bottom left. Works fine, although the actual messages that appear are terrible at the moment and need improvement! </p>
+<p><strong>Melee and serialization</strong></p>
+<p>This was a nasty surprise. I realised that no entity could melee attack anymore. After a deep dive, I realised that there was some semantic serialization error: everything appeared normal but it reall wasn&#39;t. With MemoryPack, if I want to serialize a Foo object which is really a Bar object that inherits from Foo, the only way is to make Foo abstract. If that&#39;s not the case, well, there&#39;s no error, but it will silently serialize the Foo part, and when you deserialize you get a Foo object. And in this case, Foo was a &quot;SingleTileCommand&quot; that did nothing and &quot;MeleeAttack&quot; was the Bar object that never deserialized correctly from the cached configuration. Fun stuff! To prevent such future nonsense, I&#39;ve improved a separate &quot;CodebaseCrawler&quot; project that inspects the code of the game and reporst warnings and errors with regards to serialization. </p>
+<p><strong>Continue</strong> </p>
+<p>If you remember the <a href="https://youtu.be/mafreuY6uhA">Continue screen</a> from an earlier post, well, now it works properly! It&#39;s populated dynamically, and does what it&#39;s supposed to. Loading times are pretty quick too, which is nice. I&#39;ll demonstrate it with a video some other time. </p>
+<p>And that&#39;s all for this week! Next week is going to be busy, so probably low-key updates and design thought exercises, like the looming <a href="https://www.reddit.com/r/roguelikedev/comments/1d2qa3q/defining_items_and_trivial_combinations_how_do/">item refactor</a></p>
+
