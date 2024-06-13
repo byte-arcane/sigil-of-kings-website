@@ -1,0 +1,41 @@
+---
+layout: post
+title: "GUI: Misc updates"
+date: 2024-06-13 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/06/palm_map.png
+meta:
+author:
+permalink: "/2024/06/13/gui-misc-updates/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/Xt1SmM9PlpM" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/Xt1SmM9PlpM?autoplay=1><img src=https://img.youtube.com/vi/Xt1SmM9PlpM/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Better pause screen GUI"></iframe></div>
+<figcaption>Better pause screen GUI</figcaption>
+</figure>
+
+<p>Various little things this week, mostly UI as usual.</p>
+<p><strong>UI</strong></p>
+<p>I&#39;ve implemented a tweening transition between gameplay and the pause menu. So, when the brownish overlay of the pause screen appears, it&#39;s not super sudden.</p>
+<p>I&#39;ve experimented a bit with dynamic UI. My approach so far was to design the max-size UI and scale it down for different presets. This seems to work for now, but conversations online lead me to believe it&#39;s a treacherous path, and I need to go another way. Putting back the dirt in this rabbit hole, and marking it to revisit!</p>
+<p>I&#39;ve implemented a UI stack and optional hiding of GUI when it&#39;s not at the top of the stack. This allows the pause menu to also display the world and its UI underneath.</p>
+<p>I&#39;ve started working on a draft equipment GUI, but that&#39;s coming next week. </p>
+<p><strong>Refactoring</strong></p>
+<p>Several bits of refactoring, but the most shareable is a display of the GPU memory used at runtime. Vulkan provides it, Godot exposes it, and I&#39;m showing it in the GUI. Shortly after I realised some memory leaks. Yay! Got them fixed, so all good. </p>
+<p><strong>Content</strong></p>
+<p>Yeah, so, because I&#39;m a bad cheater, I recolored a palm tree and branded it as jungle vegetation. Better than nothing, and doesn&#39;t look too shabby!</p>
+<p><strong>Meta</strong></p>
+<p>Balancing act: have to work with refactoring (e.g. items) whereas I need/want to share more visual updates and typical bugfixing. Broken stream of work!</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/TLR3iyJlChs" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/TLR3iyJlChs?autoplay=1><img src=https://img.youtube.com/vi/TLR3iyJlChs/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Dynamic UI scale"></iframe></div>
+<figcaption>Dynamic UI scale</figcaption>
+</figure>
+
