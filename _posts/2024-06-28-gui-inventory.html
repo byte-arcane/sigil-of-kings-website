@@ -1,0 +1,41 @@
+---
+layout: post
+title: "GUI: Inventory"
+date: 2024-06-28 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/06/gui_inventory.png
+meta:
+author:
+permalink: "/2024/06/28/gui-inventory/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/zoA48BUpV7A" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/zoA48BUpV7A?autoplay=1><img src=https://img.youtube.com/vi/zoA48BUpV7A/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Inventory GUI WIP"></iframe></div>
+<figcaption>Inventory GUI WIP</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/2HeiXOSK-cU" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/2HeiXOSK-cU?autoplay=1><img src=https://img.youtube.com/vi/2HeiXOSK-cU/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Inventory GUI - better"></iframe></div>
+<figcaption>Inventory GUI - better</figcaption>
+</figure>
+
+<p>Just back from holidays, but that doesn&#39;t mean that there are no updates! This time, on the GUI menu is ...</p>
+<p><strong>Inventory UI</strong></p>
+<p>I&#39;ll keep repeating it: my aim is to be able to use controller, keyboard, or keyboard/mouse, so design of all GUI elements is affected accordingly: pretty much lots of horizontal or vertical lists, which is conveniently simple. </p>
+<p>Also, hot take: <strong>I hate inventory grids</strong>, when they&#39;re dense. I was ok with Diablo 1/2 even playing inventory tetris, but games like <a href="https://preview.redd.it/xn57gvlp6up11.png?width=1024&amp;auto=webp&amp;s=cf764e232bd4c9a34db0530ef4f34051293c88e8">Divinity Original Sin</a>, nope. I actually abandoned that game because of the inventory. If your game supports 1000 items in the inventory, you better have <strong>fantastic</strong> filtering and categorisation options. </p>
+<p>I quite liked Skyrim&#39;s UI, which was a departure from those hard-to-read dense grids. So, I tried to replicate something similar. Features:</p>
+<ul>
+<li>Single vertical list of items, each row containing the icon, name and some useful values</li>
+<li>Filter by text (ok, this will be hard with gamepad, but filtering is indispensable)</li>
+<li>Sorting by any of the columns: name, type, weight, value, etc (WIP)</li>
+<li>Tab categories: equipment, potions, etc (done, but categories themselves are WIP)</li>
+<li>Context menu after you select an item, showing what you can do with it: equip, unequip, use, etc (WIP!)</li>
+</ul>
+
