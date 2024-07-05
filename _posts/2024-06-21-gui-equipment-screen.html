@@ -1,0 +1,37 @@
+---
+layout: post
+title: "GUI: Equipment screen"
+date: 2024-06-21 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/06/gui_equipment.png
+meta:
+author:
+permalink: "/2024/06/21/gui-equipment-screen/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/IuBnX1FT6OM" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/IuBnX1FT6OM?autoplay=1><img src=https://img.youtube.com/vi/IuBnX1FT6OM/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Equipment screen"></iframe></div>
+<figcaption>Equipment screen</figcaption>
+</figure>
+
+<p>Unsurprisingly, more UI this week! In addition to some bug smashing and some other random bits.</p>
+<p><strong>Equipment UI</strong></p>
+<p>Since the basic game UI view is up and running, now it&#39;s the time to start implementing some other &quot;adjacent&quot; screens. The one this week is equipment, and the one that&#39;s coming next week is the inventory. The approach taken is simplicity and compatibility with gamepad navigation (and obviously also mouse and keyboard, but that&#39;s a given). </p>
+<p>The features are as follows:</p>
+<ul>
+<li>Equipment slots are in a vertical list</li>
+<li>Each slot contains the slot icon, the equipment name and the equipment icon</li>
+<li>Each slot is clickable, which brings another context menu with compatible equipment options for that slot</li>
+</ul>
+<p>And that&#39;s it really! Quite simple for now, but works as intended. Due to some limitations, the moment you replace a piece of equipment, the equipment screen and context menu dissapear and game time passes. On the plus side, it&#39;s clear this way that time passes, so better be careful :)</p>
+<p>A bit of a shame that you can&#39;t see the player sprite becoming visually different while you&#39;re changing equipment, but since it doesn&#39;t affect gameplay I thought it doesn&#39;t make much sense to show an overblown 24x24 sprite changing looks, plus it would probably happen after the end of the action (= game time passing).</p>
+<p><strong>C# 12</strong></p>
+<p><a href="https://github.com/pkdawson/imgui-godot">Dear ImGUI for Godot</a> addon had a recent big release, so I thought I&#39;d better update it, and got some errors. Because... it required C# 12! Ok, so that&#39;s a thing now? I&#39;m clearly a bit behind. After setting up the project to now use C# 12, I got a couple of compile errors in my code regarding ... BinaryFormatter. So, it&#39;s done: BinaryFormatter is officially very much ousted. The error was from some forgotten bit of unused code, so after removing it, I pat myself on the back for changing to <a href="https://github.com/Cysharp/MemoryPack">MemoryPack</a>, and continued on other work. Bye bye BinaryFormatter, you were damn convenient though. Oh, and I guess I need to check if there&#39;s any new neat thing with C# 12, but eyeballing the features quickly, nothing stood out.</p>
+<p>Also, currently on holidays, so next update is going to be lite!</p>
