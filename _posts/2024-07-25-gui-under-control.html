@@ -22,19 +22,26 @@ permalink: "/2024/07/25/gui-under-control/"
 </figure>
 
 <p>A bit slow with updates lately due to travelling for all sorts of reasons, and travelling is going to resume. But, here are some updates from the last few weeks:</p>
-<p><strong>Controller navigation</strong>. I&#39;ve added support with purely controller based gameplay and navigation. It works! So far. Quite interesting and needs a bit of work. Godot nicely supports some default behaviours that make life easier too, like pressing left/right etc and moving to the closest interactable node. The need for controller navigation made me finally understand the difference between hover and focus :) Would be more effective if you saw my hands/controller, but ... you&#39;ll live without.</p>
-<p><strong>Tile selection GUI</strong>. This is simply an overlay over the game where selectable tiles (for an action) are highlighted. Simple in theory, but refactoring the previous solution will inadvertently lead to refactor butchery of the old ImGUI-based approach. Plus it&#39;s a case for reusing the same screen multiple times (e.g. an action might require to select 4 targets) which requires a little bit of work to support. </p>
-<p><strong>Choice selection GUI</strong>. This is a simple screen with enumerated options as buttons. Again, ties to above refactoring work.</p>
+<ul>
+<li><p><strong>Controller navigation</strong>. I&#39;ve added support with purely controller based gameplay and navigation. It works! So far. Quite interesting and needs a bit of work. Godot nicely supports some default behaviours that make life easier too, like pressing left/right etc and moving to the closest interactable node. The need for controller navigation made me finally understand the difference between hover and focus :) Would be more effective if you saw my hands/controller, but ... you&#39;ll live without.</p>
+</li>
+<li><p><strong>Tile selection GUI</strong>. This is simply an overlay over the game where selectable tiles (for an action) are highlighted. Simple in theory, but refactoring the previous solution will inadvertently lead to refactor butchery of the old ImGUI-based approach. Plus it&#39;s a case for reusing the same screen multiple times (e.g. an action might require to select 4 targets) which requires a little bit of work to support. </p>
+</li>
+<li><p><strong>Choice selection GUI</strong>. This is a simple screen with enumerated options as buttons. Again, ties to above refactoring work.</p>
+</li>
+</ul>
 <p>So, after a few days of work, both were done, including refactoring the context actions. Now the entire thing works nicely with a controller, keyboard, or keyboard and mouse. I&#39;ve got two context action modes, a &quot;simple&quot;  and a &quot;full&quot;.</p>
 <p>For the simple context action, when pressing a button, we go through the tile and immediate neighbourhood and see what we can interact with: open a door, open a chest, attack somebody, pick up something from ground etc. If it&#39;s just a single thing, we just do it automatically, to reduce unnecessary menus.</p>
 <p>For the full context action, when pressing another button, the tile selection GUI appears with all visible tiles. We choose a tile, and then we figure out what is possible to do on that tile (again, open a door, open a chest, etc) and that&#39;s presented as an option. </p>
-<p><strong>Item context menu</strong>. Clicking on an entry in the inventory screen will now bring a context menu, showing possible actions with that item: throw, drop, use, etc. Some of them are implemented, some are not.
-<strong>Removed &quot;back&quot; buttons</strong> Since a key/button will always be devoted to going &quot;back&quot; a screen, I thought to remove all back buttons. This might make mouse-only play tricky, but I&#39;m not sure that would be a problem that I need to worry about.
-<strong>Active abilities screen</strong>. Simple list of buttons really, that can trigger any active ability.
-<strong>Controller vibration support on screenshake</strong>. Obviously not important, but I&#39;ve been curious on how it works in Godot. Super simple is the answer - added that now.
-<strong>Input refactor</strong>. I used to poll input in the update loop. The proper way is to handle input events as they come. I&#39;ve refactored the code to do that now. 
-<strong>Wait screen</strong>. The game supports arbitrary waiting time, for time-sensitive events, resting etc. To specify how much you want to rest, a simple screen was implemented. 
-<strong>Split stack screen</strong>. That also needs a screen, for when we&#39;re dropping/exchanging items. I don&#39;t have a good use-case yet, so no video! It&#39;s rather simple and functional though.</p>
+<ul>
+<li><strong>Item context menu</strong>. Clicking on an entry in the inventory screen will now bring a context menu, showing possible actions with that item: throw, drop, use, etc. Some of them are implemented, some are not.</li>
+<li><strong>Removed &quot;back&quot; buttons</strong> Since a key/button will always be devoted to going &quot;back&quot; a screen, I thought to remove all back buttons. This might make mouse-only play tricky, but I&#39;m not sure that would be a problem that I need to worry about.</li>
+<li><strong>Active abilities screen</strong>. Simple list of buttons really, that can trigger any active ability.</li>
+<li><strong>Controller vibration support on screenshake</strong>. Obviously not important, but I&#39;ve been curious on how it works in Godot. Super simple is the answer - added that now.</li>
+<li><strong>Input refactor</strong>. I used to poll input in the update loop. The proper way is to handle input events as they come. I&#39;ve refactored the code to do that now. </li>
+<li><strong>Wait screen</strong>. The game supports arbitrary waiting time, for time-sensitive events, resting etc. To specify how much you want to rest, a simple screen was implemented.</li>
+<li><strong>Split stack screen</strong>. That also needs a screen, for when we&#39;re dropping/exchanging items. I don&#39;t have a good use-case yet, so no video! It&#39;s rather simple and functional though.</li>
+</ul>
 
 <figure>
 <div class="video-container"><iframe src="https://www.youtube.com/embed/V9dZ3WJAVp0" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/V9dZ3WJAVp0?autoplay=1><img src=https://img.youtube.com/vi/V9dZ3WJAVp0/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Controller gameplay"></iframe></div>
