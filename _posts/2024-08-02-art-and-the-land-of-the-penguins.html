@@ -1,0 +1,51 @@
+---
+layout: post
+title: "Art, and the land of the Penguins"
+date: 2024-08-02 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/08/newlogo.png
+meta:
+author:
+permalink: "/2024/08/02/art-and-the-land-of-the-penguins/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/wtf_3xfp0as" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/wtf_3xfp0as?autoplay=1><img src=https://img.youtube.com/vi/wtf_3xfp0as/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Running on Linux!"></iframe></div>
+<figcaption>Running on Linux!</figcaption>
+</figure>
+
+<p>Ok, three biggies for this week&#39;s update: Linux port, performance and results of first art commission.</p>
+<p><strong>Linux port</strong></p>
+<p>I&#39;ve wanted for a while to put Linux on one of my home PCs, so after a recent upgrade to my laptop (better/bigger SSD) I decided to add Ubuntu. I must confess the process of setting up dual-booting with Windows pre-installed has become far better since I last tried it (ahem, a while ago). Since Godot exports for Linux and my Native plugin doesn&#39;t use anything windows-specific, why not make the game work on Linux? That&#39;s how that mini-adventure began. The C++ code took a little bit, due to OS-branching CMake preprocessor defines, GCC take-no-prisoners approach to compilation, some missing OS-specific functions for bit-handling etc. But in the end I got a shared library! .NET was thankfully uneventful. The C++/C# glue code needed a bit of an adjustment due to the way dynamic libraries are loaded in Linux. Then I had some &quot;fun&quot; with compute shaders, as windows drivers (both NVIDIA and AMD) were &quot;forgiving&quot; with some shader layout mismatch in my code (declaring an image to have a 8-bit red channel in the shader, but C++ code says it&#39;s RGBA8) so I kept getting no data even though the shaders had no errors. After a bit of headscratching and debugging, found the issue and fixed it. Phew. And now <strong>the code works on linux!</strong> (disclaimer: I just run it in the editor, haven&#39;t exported it yet, but I assume it will be fine ... -ish). This means that I now have grand plans for releasing on Windows, Linux and Steam Deck eventually, whenever that happens. If anybody has a list of gotchas for publishing on Linux/Steam Deck, I&#39;d be happy to hear any tales from the trenches.</p>
+<p><strong>Performance work</strong></p>
+<p>My laptop is from 2018, and it wasn&#39;t high-end back then either, so it&#39;s a bit slow. But, I&#39;ll shortly only have the laptop to work with for 3 weeks, so I can&#39;t have the game crawling. After noticing that the linux version was very very slow in certain cases, I started investigation. The culprit was the fog-of-war ubershader, which:</p>
+<ul>
+<li>applies funky wispy fog of war</li>
+<li>applies heat haze distortion </li>
+<li>displays lightning strikes</li>
+<li>recolors the visible areas based on time-of-day lighting</li>
+<li>applies lighting modification based on light sources</li>
+<li>applies darkvision effect based on light sources and darkvision skill</li>
+<li>recolors explored-but-not-visible areas with a sepia color</li>
+<li>applies fog &quot;clouds&quot; under appropriate conditions</li>
+</ul>
+<p>I think that&#39;s it. So, what was the cause of the performance dip? Apparently, it was mainly the number octaves used for the fBm-based fog cloud. Note to self: try using an fBm noise texture instead of evaluating the whole thing! Anyway, the very heavy performance hit got lifted, but the game still felt laggy. Ok, let&#39;s look for shader optimisation tools out there! From a quick search, apparently there&#39;s NSight Graphics and GPUOpen tools these days, for GLSL/Vulkan stuff. None of them have a simple profiler, so in the future I need to learn how to use them really. Also, to avoid only looking at shader disassembly, I need to specially compile shaders into SPIR-V with a special flag (/Zi), but Godot doesn&#39;t seem to support that. So, future work looks like it&#39;s going to be utilizing an external compiler to build the SPIR-V bytecode (or at least a .PDB) so that NSight has something better to work with. But for now, that looks way too much like a rabbit hole. So, what to do instead? </p>
+<p>To avoid spending too much time on it (I&#39;m in the middle of controller support and GUI, remember? Then there&#39;s item refactor and a bunch of other tangents to the main deliverable), I did the only sensible thing: I created a different shader version which is much simpler but contains the essential visual information (black blocky tiles for fog of war, no weather). And, tada, it&#39;s a LOT faster on my laptop too, so I classify this as grand success while silently biding my time, waiting to optimise the hell out of that shader... One day...</p>
+<p>In the meantime, (un)funnily enough Godot&#39;s profiler didn&#39;t show my performance problem at all, which I wasn&#39;t happy about. So, like any sensible person, I decided to take matters in my own hands. Godot thankfully provides GPU timestamp support via its RenderingDevice, so I wrote a bit of code to be able to identify performance cost of different &quot;render passes&quot;. This works, as in it showed that my fog-of-war shader was terribly slow compared to everything else. If I&#39;m to trust it, currently my entire rendering requires 1ms on the desktop and 10ms on the laptop. In Godot&#39;s source code, the vulkan driver function that gets the timestamp has <a href="https://github.com/godotengine/godot/blob/0e9caa2d9cb20737f8dcf08b75fcf2a78d980569/drivers/vulkan/rendering_device_driver_vulkan.cpp#L4688C2-L4688C15">some documentation starting with &quot;This sucks&quot;</a> complaining about NVIDIA&#39;s parameters and continuing with magic math to deal with some GPU device magic values, so I don&#39;t <em>quite</em> trust it.</p>
+
+<figure><img src="{{ site.baseurl }}/assets/2024/08/newlogo.png" alt=""/><br />
+<figcaption>Apparently, it&#39;s been 10 years</figcaption>
+</figure>
+
+<p><strong>New artwork</strong></p>
+<p>Because of reasons (explained in 1-2 weeks), I needed some game-related art commission, and I went with Fiverr. I am very happy with the results (layers and all), so besides my super-secret reason, I decided to reuse this art as much as possible, and of course the first target is my Steam page! I had a horribly coloured image before, which didn&#39;t quite communicate the game&#39;s style. So, with a bit of crop and zoom, I now got a new placeholder which I think is much better. Not perfect for a capsule image, but a lot better, IMO. </p>
+<p>A little anecdote on this... March 2022, I noticed some beautiful piece of art, probably on Twitter or /r/pixelart. I found an ArtStation profile, made an account and followed the artist. But me being me, I forgot to check ArtStation ever again, and I don&#39;t check that email often. Fast forward two weeks ago, I was looking for this commission on Fiverr. I sent a request to ~5 artists, all were happy to do it and Karina sent me an example ruins-in-the-jungle scene for reference, that I thought was incredible. Without hesitation, I asked her to make the piece. Obvious finale: I went to browse Karina&#39;s <a href="https://www.artstation.com/karinaformanova">ArtStation</a>, and something sparked in that sleepy web of synapses. I log in using the email that I would have used, and ... yep, it was Karina I was following. Moral of the story: trust your gut, and check your emails!</p>
+<p>And that&#39;s all for this week!</p>
+
