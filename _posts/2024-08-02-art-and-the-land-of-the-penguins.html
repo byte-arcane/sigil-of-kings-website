@@ -41,7 +41,7 @@ permalink: "/2024/08/02/art-and-the-land-of-the-penguins/"
 <p>In the meantime, (un)funnily enough Godot&#39;s profiler didn&#39;t show my performance problem at all, which I wasn&#39;t happy about. So, like any sensible person, I decided to take matters in my own hands. Godot thankfully provides GPU timestamp support via its RenderingDevice, so I wrote a bit of code to be able to identify performance cost of different &quot;render passes&quot;. This works, as in it showed that my fog-of-war shader was terribly slow compared to everything else. If I&#39;m to trust it, currently my entire rendering requires 1ms on the desktop and 10ms on the laptop. In Godot&#39;s source code, the vulkan driver function that gets the timestamp has <a href="https://github.com/godotengine/godot/blob/0e9caa2d9cb20737f8dcf08b75fcf2a78d980569/drivers/vulkan/rendering_device_driver_vulkan.cpp#L4688C2-L4688C15">some documentation starting with &quot;This sucks&quot;</a> complaining about NVIDIA&#39;s parameters and continuing with magic math to deal with some GPU device magic values, so I don&#39;t <em>quite</em> trust it.</p>
 
 <figure><img src="{{ site.baseurl }}/assets/2024/08/newlogo.png" alt=""/><br />
-<figcaption>Apparently, it&#39;s been 10 years</figcaption>
+<figcaption>Commissioned image! Must use it as much as possible</figcaption>
 </figure>
 
 <p><strong>New artwork</strong></p>
