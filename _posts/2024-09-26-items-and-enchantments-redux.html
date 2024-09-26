@@ -1,0 +1,46 @@
+---
+layout: post
+title: Items and Enchantments Redux
+date: 2024-09-26 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/09/journal.png
+meta:
+author:
+permalink: "/2024/09/26/items-and-enchantments-redux/"
+---
+
+<p>I&#39;ve been below radar lately partly because of too much work (the paid kind), but also because I&#39;m rearranging some innards in the engine, in particular about items and enchantments. I&#39;m not done yet, but it&#39;s progressing towards a direction where I think I can say that I&#39;m not going to be backtracking. </p>
+<p>Context for everything below: I&#39;m very heavily using JSON for &quot;database&quot; data: anything that can be happily statically defined. One of my main issues thoughout several years is the lack of having a nice, generic and cheap way of specifying some property as either an instance or a database reference - this has led to a lot of special-purpose solutions, incurring technical debt. </p>
+<p>Originally, my entity configuration/instantiation system had a few serious flaws. I had a special database for fully-fledged entity configurations (allowing things like location, etc), and the standard database that stored the more abstract configurations for ... other things, like equipment properties (not the items per se) or &quot;usable item&quot; properties, and so on. The former database ended up being very limiting, naturally. The reason I had provided that was because it was easy to mirror the entity configuration class. Long story short, I never used that entity configuration database effectively ... ever. Also, I added equipment enchantments just before the Unity fiasco, but I did so in a confusing way. So, this summer, I decided it was time for some heavy duty cleaning up.</p>
+<p>I won&#39;t go through the long iterative process, so here are just the &quot;fruits&quot; of the labour (they might still contain a few worms, but that&#39;s going to show up after proper use).</p>
+<ul>
+<li>The fully-fledged entity configuration database is gone - the hassle is not worth the probably zero uses of it. </li>
+<li>Item instantiation is done in three stages: <ul>
+<li>Database prototype (e.g. &quot;sword&quot;, or &quot;potion&quot;)</li>
+<li>Dynamic data  (e.g. &quot;iron&quot; with 2 enchantments, or &quot;minor healing&quot; potion enchantment)</li>
+<li>Entity-specific data (e.g. position, or owner)</li>
+</ul>
+</li>
+<li>As hinted above, Equipment is handled in the same way, conveniently. I can specify a dagger in the static item database: its weight, base value, some pointer to its properties (attack skills etc). The dynamic properties can contain enchantments and the dagger&#39;s material, as the material may give extra properties: could affect weight, how well it can be enchanted, value multipliers, level ranges found in, etc. </li>
+<li>I rewrote some configuration classes that handle enchantments, and this is where things get a bit funky:<ul>
+<li>Equipment enchantments should be generated for any level. I should be able to ask for a lvl32 enchantment for a sword, to get some appropriate effects with appropriate &quot;strength&quot;. So far so good. </li>
+<li>I want potions to be visually distinct and generally stackable, because they&#39;re supposed to be consumed relatively frequently. For this reason, I want them to have fixed enchantment grades, e.g. &quot;minor&quot;, &quot;regular&quot;, &quot;major&quot;. This will place fewer requirements for sprite generation (which will be procedurally augmented anyway) and allow better stackability than say potions of health lvl 1, lvl2, lvl4 etc, all being distinct unstackable items and probably looking identical on the ground.</li>
+<li>Other items will fall in one of those two patterns, depending on requirements (and brain matter allocation when the time and content comes). The result should be the same: I ask for some good enchanted items for e.g. lvl 32, and I get something appropriate: either a granular enchantment in the case of equipment, or the closest-best in case of fixed enchantment grades.</li>
+</ul>
+</li>
+</ul>
+<p>Oof. On top of that, I thought I&#39;d change this 3-tier configuration paradigm to the level objects (torch, door, table) as well, and that caused another massive refactor which has calmed down by now.</p>
+<p><strong>Other updates</strong></p>
+<ul>
+<li><strong>Journal screen</strong>. Because there will be quests, journal notes and text, I need of course a screen where you read some text from a document, plus support for creating such items. Now the interesting challenge will eventually be to add some procedural generation there too, not as much in the way of general exposition/history/lore (that should be more static), but context-sensitive stuff that relate to the current location and state of the world. I know GenAI is the thing to pursue, but I&#39;m more interested in the likes of Tracery where I&#39;m in complete control of the tone and text, plus I like a slight bit of funky repetition and standardisation, it makes it easier to distinguish the &quot;flavour text&quot; from the core info we want highlighted.</li>
+<li><strong>Gold handling</strong>. To be an item, or not to be? Item suits better for roguelikes, so that&#39;s what I&#39;m aiming for. I&#39;ve prepared a few sprites, and some functionality, but to test it, I need...</li>
+<li><strong>Item transfer screen</strong>. This I think is the last of super-essential screns (their lack being game-breaking), it&#39;s in the works</li>
+</ul>
+
