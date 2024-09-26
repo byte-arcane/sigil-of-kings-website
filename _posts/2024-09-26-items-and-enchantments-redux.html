@@ -16,6 +16,11 @@ author:
 permalink: "/2024/09/26/items-and-enchantments-redux/"
 ---
 
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/BJ39M7D_1VQ" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/BJ39M7D_1VQ?autoplay=1><img src=https://img.youtube.com/vi/BJ39M7D_1VQ/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Manuscript reading screen draft"></iframe></div>
+<figcaption>Manuscript reading screen draft</figcaption>
+</figure>
+
 <p>I&#39;ve been below radar lately partly because of too much work (the paid kind), but also because I&#39;m rearranging some innards in the engine, in particular about items and enchantments. I&#39;m not done yet, but it&#39;s progressing towards a direction where I think I can say that I&#39;m not going to be backtracking. </p>
 <p>Context for everything below: I&#39;m very heavily using JSON for &quot;database&quot; data: anything that can be happily statically defined. One of my main issues thoughout several years is the lack of having a nice, generic and cheap way of specifying some property as either an instance or a database reference - this has led to a lot of special-purpose solutions, incurring technical debt. </p>
 <p>Originally, my entity configuration/instantiation system had a few serious flaws. I had a special database for fully-fledged entity configurations (allowing things like location, etc), and the standard database that stored the more abstract configurations for ... other things, like equipment properties (not the items per se) or &quot;usable item&quot; properties, and so on. The former database ended up being very limiting, naturally. The reason I had provided that was because it was easy to mirror the entity configuration class. Long story short, I never used that entity configuration database effectively ... ever. Also, I added equipment enchantments just before the Unity fiasco, but I did so in a confusing way. So, this summer, I decided it was time for some heavy duty cleaning up.</p>
