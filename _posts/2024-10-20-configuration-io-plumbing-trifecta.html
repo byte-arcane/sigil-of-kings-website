@@ -1,0 +1,57 @@
+---
+layout: post
+title: "Configuration I/O Plumbing Trifecta"
+date: 2024-10-20 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/10/plumbing.png
+meta:
+author:
+permalink: "/2024/10/20/configuration-io-plumbing-trifecta/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/bCeMmVG-Dvg" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/bCeMmVG-Dvg?autoplay=1><img src=https://img.youtube.com/vi/bCeMmVG-Dvg/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Manuscript reading screen draft"></iframe></div>
+<figcaption>ImGui configuration in action</figcaption>
+</figure>
+
+<figure><img src="{{ site.baseurl }}/assets/2024/10/plumbing.png" alt=""/><br />
+<figcaption>The plumbing trifecta</figcaption>
+</figure>
+
+<p>Alright, long time no update, because updates have been few and very backend-oriented. I&#39;ll keep visual updates for another post, as I&#39;ll keep this focussed on ... innards and plumbing.</p>
+<p><strong>The Plumbing Trifecta</strong></p>
+<p>You&#39;re making a game, and it uses some configuration database for instantiating entities etc. How do we represent and handle that?</p>
+<ul>
+<li>Just hardcode things, e.g. instantiate a config class in your code: that&#39;s ok for jams and tiny projects</li>
+<li>Load from text file, e.g. have it in some form of JSON/XML/etc: that&#39;s far better, and needs a bit of infrastructure</li>
+</ul>
+<p>But this is where the journey starts really. Now that we have the configuration in the game, many scenarios open up:</p>
+<ul>
+<li>We might want to view and modify our database with in-game/engine GUI: that&#39;s useful if you want to tweak things and see results immediately in-game</li>
+<li>We might want to save our changes back to the text file</li>
+<li>Text files will grow in size, and parsing will be slow: oops, now you need to think if there&#39;s a faster way of reading/writing this database. And there is, using binary! But now you need to support another import/export &quot;path&quot; for this database</li>
+</ul>
+<p>This is the plumbing trifecta, which is very useful for bigger projects at least. If you&#39;re using a proper game engine, chances are this is already supported. In Unity, ScriptableObjects offer <strong>exactly</strong> what I described above. But although using engine-provided solutions is dead convenient, it also comes with gotchas, for example coupling with an engine (what if I want to move engines? I moved from Unity to Godot, not doing that again though) or facing limitations in what types can be serialized (e.g. Unity had trouble with general dictionaries). </p>
+<p>I started with the JSON -&gt; game path (one direction), then I added the binary path bidirectionally (binary blob &lt;-&gt; game) and now I wanted to add the in-game editing part, using Dear ImGui, which I did. The ImGui part was implemented mostly using reflection, which makes it nice and scalable for future types. Of course, we might want to save changes to disk, so naturally saving data back is essential. But this meant I had to implement the game -&gt; json direction too, which means go through all JSON converters (I&#39;m using Newtonsoft Json) and write an export path that matches the input. Finally, I had to validate that everything works, so I set up a test that does the following:</p>
+<ul>
+<li>tests that json roundtrip is correct</li>
+<li>tests that binary roundtrip is correct (that&#39;s via MemoryPack, so I&#39;m more confident)</li>
+<li>tests that (json -&gt; game -&gt; binary) is byte-wise identical to (binary-&gt;game-&gt;binary)</li>
+</ul>
+<p>What work is needed for new types? The ImGui inspector is automatic for classes that are collections of types that are already handled. The JSON import/export is similarly automatic unless I need special behaviour. And for binary serialization I need to decorate the class members. It&#39;s pretty painless!</p>
+<p>That&#39;s it! There were a lot of issues along the way, that eventually got resolved. The weirdest and worst was the ...</p>
+<p><strong>Serialization Heisenbug</strong></p>
+<p>During a sanity check transformation cycle between json and binary, I realised that there was some difference between a particular data structure. After lots of time spent, and almost being convinced that the issue was not with my code, I discovered that ... the issue was with my code. Surprise eh? It was mainly because of some lazy initialization/allocation, and because the debugger forced that initialization to happen, I was getting different results if I was or was not inspecting the code ( ergo: heisenbug). After copious amounts of printing and data dumping and inspecting what happens to data when being serialized, it became obvious that in one version of the data an array was null, and in another version it was initialised to zeroes. That was the megahint for pointing to the lazy initialization code. Anyway, that&#39;s now found and all the data can transform in all directions happily, and if at some point they don&#39;t, some sanity code will start shouting, so all good I suppose.</p>
+<h2 id="object-pools-short-and-long-term">Object pools, short and long term</h2>
+<p>I couldn&#39;t resist and I dealt with some optimisation issue that has been bugging me, GC related. Reason such a refactor is essential because of scalability.
+Issue was that I was using reflection and dynamically built params object[] arrays in C# for creating commands that creatures execute.
+Long story short, performance actually got worse.  Looking a bit more into it, I remembered that I&#39;m actually pressuring the GC quite a bit in the turn management system, which is responsible for setting up an ordered container with actions to be executed by entities.
+All of these were either allocated using an old/limited/context-specific way of doing object reuse, so I put a bit of work to set everything up with my current generic object pool solution.
+After the dust settled, I realised that I know had what looked like &quot;memory leaks&quot; some objects were never freed.. After a bit of debugging and head-scratching, I realised that I was using the object pool with two distinct patterns: &quot;give me something temporary, and I&#39;ll return it ASAP&quot; and &quot;give me an object that I&#39;ve used before - I just don&#39;t want to call new()&quot;. So I put a bit of effort to differentiate into two object pools, one for short-term &quot;rentals&quot; and one for long-term rentals. After this, it became clear that all my memory leaks were because I was actually still using the &quot;leaked&quot; objects, as they were actions that were yet to happen; they were back in the turn manager list.</p>
