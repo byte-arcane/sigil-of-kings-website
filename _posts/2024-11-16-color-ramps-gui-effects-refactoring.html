@@ -21,6 +21,10 @@ permalink: "/2024/11/16/color-ramps-gui-effects-refactoring/"
 <figcaption>Build-summon effect</figcaption>
 </figure>
 
+<figure><img src="{{ site.baseurl }}/assets/2024/11/start_town.jpg" alt=""/><br />
+<figcaption>Example starting town</figcaption>
+</figure>
+
 <p>Long time no updates! I haven't been idling, as IRL stuff have been in the way, mostly working a lot and changing a job. Without further ado, time for Sigil of Kings updates!</p>
 <p><strong>EntityEffect refactored to a system</strong></p>
 <p>While bug fixing, I located yet another small subsystem that ... stank a bit: entity effects. This is logic and data associated to visual effects attached to entities, e.g. when a creature is burning, there are flames overlaid on the creature, or when a creature is frozen, it&#39;s a bit more blue-white. Sometimes the effect needs to use the underlying sprite (e.g. boss aura) and sometimes it doesn&#39;t (e.g. burning effect). Sometimes we need a new pass and sprite to render the effect (boss aura and burning effect) and sometimes we can just apply a modification on the actual sprite (e.g. frozen effect). So, there are a few complications. </p>
