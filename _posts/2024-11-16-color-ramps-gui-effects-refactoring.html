@@ -1,0 +1,41 @@
+---
+layout: post
+title: Color ramps, GUI, effects, refactoring
+date: 2024-11-16 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/11/start_town.jpg
+meta:
+author:
+permalink: "/2024/11/16/color-ramps-gui-effects-refactoring/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/zTjU6Y5oNGg" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/zTjU6Y5oNGg?autoplay=1><img src=https://img.youtube.com/vi/zTjU6Y5oNGg/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Build-summon effect"></iframe></div>
+<figcaption>Build-summon effect</figcaption>
+</figure>
+
+<p>Long time no updates! I haven't been idling, as IRL stuff have been in the way, mostly working a lot and changing a job. Without further ado, time for Sigil of Kings updates!</p>
+<p><strong>EntityEffect refactored to a system</strong></p>
+<p>While bug fixing, I located yet another small subsystem that ... stank a bit: entity effects. This is logic and data associated to visual effects attached to entities, e.g. when a creature is burning, there are flames overlaid on the creature, or when a creature is frozen, it&#39;s a bit more blue-white. Sometimes the effect needs to use the underlying sprite (e.g. boss aura) and sometimes it doesn&#39;t (e.g. burning effect). Sometimes we need a new pass and sprite to render the effect (boss aura and burning effect) and sometimes we can just apply a modification on the actual sprite (e.g. frozen effect). So, there are a few complications. </p>
+<p>Previously, I had decided to have this subsystem embedded within the rendering system, because it&#39;s rendering related. But the rendering system has grown a lot, too much in fact, so it needs trimming. Thus I extracted the functionality to a different system, and refactor the API to something simpler. Code is now clearer, fixed a couple of other bugs along the way, and that&#39;s about it! Of course, nothing visual to demonstrate for this, which is an unfortunate pattern lately. </p>
+<p><strong>Starting town fov/explored, and position</strong></p>
+<p>Previously, player started in the middle of the map with nothing explored. This is not how it&#39;s going to be, so it might as well be improved a bit now. I&#39;ve changed it so that the player now starts at the city tile closest to the center of the map (later on it might even be player choice). But to make things a bit nicer, the territory occupied by the starting city is revealed to the player, as &quot;explored&quot; rather than currently visible (so, slightly darker). This makes it slightly less claustrophobic to begin with, and at the same time it should hopefully incentivize exploration.</p>
+<p><strong>Undeath/build effect</strong></p>
+<p>I have this nifty destruction effect which breaks the sprite into small bits that fly/fade away. Reversing the effect looks like we&#39;re summoning things out of pure air, so I&#39;ve added this for some summoning spells or building activities. No concrete gameplay scenario implemented, I just liked to have it :)</p>
+<p><strong>Inventory and item transfer</strong></p>
+<p>A bit of refactoring so that I&#39;ll be able to reuse quite a bit of code between inventory screen and the various transfer screens. The &quot;inventory pane&quot; has been abstracted out, that includes header and item list (text filter and tab are set &quot;externally&quot;). It will make more sense with an example when it&#39;s ready (e.g. chest or item pile transfer). </p>
+<p><strong>Split stack</strong></p>
+<p>Was clearly untested, a few bugfixes to make it work, like hooking up buttons and showing actual quantities of items in inventory</p>
+<p><strong>Color ramp support</strong></p>
+<p>This whole subquest started from getting a notification about a new free(-ish) tileset on itch.io. Includes lots of effects, and in 9 color variations. It always bugs me to see those specified as different sprites, because it&#39;s such a waste. I like the effects, but I don&#39;t want to have a copy for each different colors. There must be a better way! (and of course, there is). Rabbit hole time!</p>
+<p>The way these variations are typically done, are using color ramps. This is a mapping of all 256 grayscale values to an RGB color, stored as a 1D texture. 1D textures and color ramps may not be popular with indies who tend to keep things simple, and that&#39;s why (I suppose) we don&#39;t get the color ramps. Also, it&#39;s better for the artist to say &quot;1000 sprites!&quot; instead of saying &quot;100 sprites + 10 color ramps&quot;. But I don&#39;t like redundancy, so I want those ramps. </p>
+<p>Getting the ramps is not too hard thankfully, as in this case at least the artist has provided a grayscale version that can be the baseline. So, the process of extracting a color ramp from the grayscale effect sprite and a coloured one is as simple as matching the grayscale value to the corresponding RGB one. Sometimes there is more than one value associated - in that case I use the average. Sometimes there are missing values - in that case I use interpolation based on neighbours. That&#39;s it! </p>
+<p>Doing this work has led me to wonder: why are color ramps not yet first class citizens in my game? Time to fix this! The plan is to make a texture with a predefined set of color ramps (1 per row) and bind that in shaders that need to use it. This means that, for a color ramp texture where we have e.g. 100 different color ramps, the dimensions will be 256 width and 100 height, and the color ramp index needs 7 bits in this case. In reality I&#39;ll set a hard limit of 256 color ramps, and an effect can specify the effect sprite as usual, and the ramp index using 8 bits. </p>
+
