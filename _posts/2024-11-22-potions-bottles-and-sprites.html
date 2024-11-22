@@ -1,0 +1,73 @@
+---
+layout: post
+title: Potions, bottles and sprites
+date: 2024-11-22 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/11/potions.png
+meta:
+author:
+permalink: "/2024/11/22/potions-bottles-and-sprites/"
+---
+
+<p>Ok, weekly update time! It&#39;s not super-expansive, but it will have to do, to get back at the weekly pace. So, the main theme for this week is items, and more specifically potions/bottles.</p>
+
+<figure><img src="{{ site.baseurl }}/assets/2024/11/potions.png" alt=""/><br />
+<figcaption>A few potion types</figcaption>
+</figure>
+
+<p><strong>On potions and bottles</strong></p>
+<p>I&#39;ve implemented a super-flexible enchantment system, and I want to use it! But, when reality kicks in (and basic design intelligence) I realise that it&#39;s not a good idea to have lots of item types that can do everything. So, let&#39;s see what&#39;s going on here - everything in the context of items that can be used. I&#39;ve got:</p>
+<ul>
+<li>Flexibility in effects. Attribute boosts (temporary or permanent), skill boosts (temp/perm), status effect applications/removals, attack speed, attack/defense rating, resistances, etc. Granting skills, changing fov radius and so on. Most can be applied permanently or for a limited time. There&#39;s support for explicitly-coded effects as well, that might not fit into a neat category. </li>
+<li>Different item types: potions, bombs, oils (for equipment), scrolls, tomes, wands, etc</li>
+<li>Potions/oils/bombs come in &quot;grades&quot;, to avoid having &quot;level 22 healing potion&quot; we have &quot;supreme healing potion&quot; (say 5 grades total)</li>
+</ul>
+<p>So, what&#39;s the problem? I need to set constraints, for anything to make sense. E.g. I don&#39;t want a potion that increases your skill in archery - a tome should do that. So my current (WIP) allocation is as follows:</p>
+<ul>
+<li>potions: things that improve self  (e.g. attributes/health/mana/resistances) permanently or temporarily</li>
+<li>bomb: typically negative area effects (e.g. stun/poison/fire)</li>
+<li>oil: effects applicable for equipment only (more temp than perm, to avoid cheesing)</li>
+<li>scroll: magic skills, one-off</li>
+<li>tome: improve skill or learn ability</li>
+<li>wand: magic, one-off (need to think it&#39;s differentiation with scroll - not happy about this)</li>
+<li>special: conjuring statuettes and the like</li>
+</ul>
+<p>Alright! But potions is still a broad category. Also, since this is a graphical roguelike, I need flexible graphics. Questions that need to be answered, is: Can we easily differentiate between...</p>
+<ul>
+<li>a bomb, an oil and a potion bottle?</li>
+<li>a potion of increase intelligence vs a potion of status effect resistance? (different type)</li>
+<li>a potion of increase intelligence vs a potion of increase strength? ( same type different subtye)</li>
+<li>a minor potion of healing vs a major potion of healing? (same type/subtype, different grade)</li>
+</ul>
+<p>Now one solution is to keep it lame and use some potion graphic from an AI pack of 10000 potion sprites, or find/make a procedural potion bottle generator. Guess what I chose :) WARNING: numbers follow</p>
+<p>So, for the procgen potion generator, I&#39;ve decided to pregenerate art rather than compose on the fly, but it&#39;s not huge effort to do the latter. My limitation is 2048 sprites because I keep my sprites in texture arrays, and it&#39;s the maximum array size. For 32x32 pixels of uncompressed RGBA sprites, this means  8MB of VRAM for our potions, plus 2MB for the distance field if needed. It&#39;s fine. </p>
+<p>So, how do we generate combinations? A potion bottle sprite is a function of <strong>bottle shape</strong>, <strong>content color</strong> and <strong>grade</strong>:</p>
+<ul>
+<li>grade: My programmer-art self thought that I can represent the grades by different amounts of fill in a bottle. A minor healing potion would use the same bottle as a major healing potion, but the former will be 10% filled, while the latter would be 90% filled. It&#39;s far easier for me to create different fill versions rather than creating different shapes.</li>
+<li>color: this can be used to differentiate between different subtypes (e.g. potion of intelligence vs potion of strength), but also possibly differentiate between different types of the same category (e.g. a potion that permanently boosts something would use different color depend on the &quot;something&quot;)</li>
+<li>shape: this can be used to differentiate between different types (e.g. potion that increases something permanently vs temporarily) and also would differentiate between bombs, oils and potions that are for player consumption.</li>
+</ul>
+<p>At the moment I have 6 shapes, 3 of which are from DCSS and 3 are mine (altered DCSS versions really), which I call potion, phial, flask and flagon, bomb and oil. If we have 5 grades per bottle, this means that we&#39;re left with 2048/30 colours, which is 68. I&#39;ve decided to use a palette for the colours, more specifically the <a href="https://lospec.com/palette-list/resurrect-64">resurrect64 one from lospec</a>, which means I get a total of 1920 sprites and I have 128 to spare, for example these could be unique bottles for unique items. This leads to a nicely packed 10MB texture atlas for just bottles.</p>
+<p><strong>Gold stacks</strong></p>
+<p>I&#39;ve been debugging gold and stacks, as different gold stack sizes have different sprite. All works fine now, so, video below!</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/0Dq5jPWV5tE" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/0Dq5jPWV5tE?autoplay=1><img src=https://img.youtube.com/vi/0Dq5jPWV5tE/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Throwing coins"></iframe></div>
+<figcaption>Throwing coins</figcaption>
+</figure>
+
+<p><strong>Some unfoggy overworld</strong> to close off the weekly update: walking around with fog of war turned off, just to enjoy nature a bit :)</p>
+<p>Have a nice weekend and see you next time!</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/uj1FDcVjqu0" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/uj1FDcVjqu0?autoplay=1><img src=https://img.youtube.com/vi/uj1FDcVjqu0/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Walking around in the overworld without fog"></iframe></div>
+<figcaption>Walking around in the overworld without fog</figcaption>
+</figure>
+
