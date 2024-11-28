@@ -1,0 +1,56 @@
+---
+layout: post
+title: Procedural dungeon stress test
+date: 2024-11-28 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/11/stress_test.png
+meta:
+author:
+permalink: "/2024/11/28/procedural-dungeon-stress-test/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/hytf6Kxs-V8" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/hytf6Kxs-V8?autoplay=1><img src=https://img.youtube.com/vi/hytf6Kxs-V8/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="A bot visiting all dungeons"></iframe></div>
+<figcaption>A bot visiting all dungeons</figcaption>
+</figure>
+
+<p>Three things this week: oils, select item screen and dungeon generation stress test</p>
+<p><strong>Dungeon generator stress test</strong></p>
+<p>This is an example of a good mini rabbit hole. Every time I created a new game (because some serializable data changed for example) I had to use some interface to spawn a new dungeon. Too tedious - better autogenerate one! Actually, make it 10. I spawned 10 dungeons randomly near the middle of the map where the player would spawn. Great - everything works as expected.</p>
+<p>... Of course the bug kicked in: if 10, why not a 100? More! More! Changed the loop to spawn things in a larger radius. Tested it once - all good. </p>
+<p>... But of course, the moment I ran it and saw it works as expected, I got greedy again. More! More! Might as well spawn dungeons in the entire world map. After doing a few calculations for dungeon density, I decided on 3% chance of spawning a dungeon at a tile, and because the overworld is 512 x 512 tiles and has roughly 50% water coverage, this means about 4000 dungeons. I fired it up, it took one minute to start up the game. I don&#39;t know yet why it takes so long, because I&#39;m not doing actual dungeon generation before we delve into a dungeon, so 60 seconds divided by 4000 dungeons means 15ms per dungeon, which is too much. Oh well, this needs investigation</p>
+<p>Entering a few dungeons is fine and easy, but how do I really test them all and stress the actual dungeon generator? Well, the answer already existed. A while ago I implemented some bot named &quot;MapPhotographer&quot; which teleported into dungeons, captured a screenshot and bailed, destroying the dungeon. Now I wanted to adjust that a bit. First, I want to take a video rather than picture (although should support picture too), I want camera control to move/zoom from player to show the entire dungeon, and I want to keep all dungeons alive and persistent, to see when the system explodes. After a few hours of effort, everything was done -- I got my bot running. I disabled fog of war and hid the UI and recorded a video for a little bit, you can see it above.</p>
+<p>Now, you might be curious for some numbers -- what does it cost to have 4000 lying around? How big is the savefile? Well... It&#39;s actually just 10MB, just a few MB more than having zero dungeons. This is because the 4000 dungeons just contain an instantiation config which will kick in when we enter them; the creation is lazy.</p>
+<p>And now you&#39;ll wonder how big does the savefile get if we visit the dungeons? Based on my fantastic extrapolation capabilities and the power of multiplication (visiting 10 dungeons, recording the delta MB and multiply by 400) a game with 4000 active locations including entities etc will need ... 170MB! Now this might seem like a lot, but remember, we&#39;re talking about 4000 maps in memory, including an estimate of a million entities. Now it&#39;s all theoretical, until the bot runs until it crashes. I disabled the slow zooming and let the bot run a bit more, and at the 400th level it entered a buggy dungeon with no exit, so it got trapped! But at least I got some numbers. Without visiting any dungeon, the savefile is 10MB. With 400 dungeons active and 75000 entities, the performance remains fine and the savefile is 25MB. I think that&#39;s a win! I was worried about scaling (performance, loading times and savefile size) and this test kinda put my fears to rest a bit.</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/dATVU8i2rNM" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/dATVU8i2rNM?autoplay=1><img src=https://img.youtube.com/vi/dATVU8i2rNM/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Playing the 400th dungeon, while all the rest are active"></iframe></div>
+<figcaption>Playing the 400th dungeon, while all the rest are active</figcaption>
+</figure>
+
+<p>I&#39;ll point out that the stress-test here was not aiming for variation, as I&#39;m always using the same &quot;preset&quot;: a 1-level dungeon in the wilderness. The goal is to see at which point will the code start crying bit-tears from this mega-scale create-enter-exit-create-enter-exit dungeon process.</p>
+<p>I&#39;ll close with a nudge to some previous stress test of the dungeon generator in C++ with some placeholder tiles, rather than actual in-game recording (see below video) </p>
+<p>Now I need to go and fix that buggy dungeon, to continue the stress test and see at which point the program has had enough of levels and entities, I somehow doubt I&#39;ll reach 4000, but let&#39;s see.</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/h4a5dIKdHjQ" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/h4a5dIKdHjQ?autoplay=1><img src=https://img.youtube.com/vi/h4a5dIKdHjQ/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="From the archives: 1 hour of procedural dungeons - editor view"></iframe></div>
+<figcaption>From the archives: 1 hour of procedural dungeons - editor view</figcaption>
+</figure>
+
+<p><strong>Oils</strong></p>
+<p>Last time I was working on potion bottles, and oils are one such type of item that uses a potion bottle. The difference is that you can&#39;t just use an oil on yourself, as the purpose is not a bodybuilding competition, but enhancement of equipment (temporary or permanent). I added a little bit of code to support this, because the infrastructure was there but a few bits were missing. The other essential requirement is that, when you try to use an oil, there should be some GUI to allow you to select which piece of compatible equipment you want to apply it to. For this, I had to create the...</p>
+<p><strong>Select item GUI screen</strong></p>
+<p>Nothing spectacular here -- it&#39;s one more GUI screen that is pretty much a list of entries. I saw some commonalities with some other screens so I carved out a base class for these screens. Looking at the GUI from a bird&#39;s eye view, I can see lots of inconsistencies regarding fonts, shadows, effects, sizes, colours etc, it&#39;s chaos really. I will solemnly accept that until the inevitable refactor time comes for GUI screens, where I have to sit down and learn the GUI and theme system a bit better. But that time has not come yet, as other pressing things have priority. Below is a video of this screen in action.</p>
+<p>This is all for this week, enjoy your weekend everybody!</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/ITwu_C4mmQc" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/ITwu_C4mmQc?autoplay=1><img src=https://img.youtube.com/vi/ITwu_C4mmQc/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Throwing coins"></iframe></div>
+<figcaption>Applying oil to equipment</figcaption>
+</figure>
