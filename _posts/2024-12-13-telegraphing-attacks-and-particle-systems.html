@@ -1,0 +1,42 @@
+---
+layout: post
+title: Telegraphing attacks and particle systems
+date: 2024-12-13 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/12/meteor_storm.png
+meta:
+author:
+permalink: "/2024/12/13/telegraphing-attacks-and-particle-systems/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/zavn0-Nz6-w" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/zavn0-Nz6-w?autoplay=1><img src=https://img.youtube.com/vi/zavn0-Nz6-w/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Meteor storm spell"></iframe></div>
+<figcaption>Meteor storm spell</figcaption>
+</figure>
+
+<p>For this week, another useful mini-rabbit hole! It all started after reading some post about...</p>
+
+<p><strong>Telegraphing Abilities</strong></p>
+<p>It seems that I developed a system to support such abilities long before I knew what the term meant (<a href="https://byte-arcane.github.io/sigil-of-kings-website/2017/02/24/commands-and-timing/">blog post from 2017</a>). What I never considered was: how does the player know when enemies are preparing an attack that&#39;s going to strike sooner or later? Here&#39;s where telegraphing came in, 7.5 years later! Since I already have functionality to display affected tiles by an ability (both targets and associated AoE), it wasn&#39;t a stretch to add a bit more functionality to get those affected tiles and highlight them for the duration of preparation. This happens for either player or non-player abilities. Alright! But we need to colorize the highlighted tiles, from a dull white to a warning red. Ok sounds like we need to use some sort of color palette</p>
+<p><strong>Color Names</strong></p>
+<p>Looking at the existing color name sets that I use, I noticed several inconsistencies. There&#39;s Godot colors, there are web colors, there are web colors chosen for their nice-as-unidentified-item name, etc. So there was a bit of cleanup and refactoring to just a single color set as a base (Godot&#39;s, which is web/X11 colors), and draw subsets of that if necessary. Nothing too exciting on this front. After this was done, I see the telegraphed attack, then the meteor storm is supposed to show up and it ... doesn&#39;t! So, somewhere along the lines in the last year or two, the effect got removed and/or stopped working. Ok, back to particle system editing I suppose! But I want to escape caveman-style particle system coding, so I used my new reflective imgui functionality to spin up a GUI in about 10 minutes (ok 10 more with some helper functionality), named ...</p>
+
+<p><strong>Particle System Explorer</strong></p>
+
+<p>So this is yet another tool window (the aim is that these tools are compiled out when making release builds) where I can try and edit particle systems on the fly. I can set up easy targets (center point, focal point, paths, areas) and execute a particle effect from the database. But the database is also modifiable with the reflective gui, and the shader is easily reloaded, so it&#39;s a nice system to quickly iterate on shaders. The only time I need to recompile is when I need to change the type/number of parameters accessible to the shader, which is an ok price to pay. So, after a bit of work on this, I created a particle system type called &quot;drop and splash&quot; which, as the name suggests, dropping several particles and they can play a splash animation. This is what I used to have but apparently I had refactored out, so it&#39;s back in the game, and it&#39;s being used as a based for the meteor storm spell. Other parameters that can be tweaked are: size range of particles, sprites for particles and splash, angle(s) that they&#39;re coming from, drop speed, if we should angle the sprites accordingly, etc etc. And this gets us to ...</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/VlVMYaaphO0" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/VlVMYaaphO0?autoplay=1><img src=https://img.youtube.com/vi/VlVMYaaphO0/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Configuring meteor storm spell"></iframe></div>
+<figcaption>Configuring meteor storm spell</figcaption>
+</figure>
+
+<p><strong>Meteor Storm</strong></p>
+
+<p>And this is the culmination of above efforts - the re-implementation of the &quot;meteor storm&quot; spell. We select a target tile, then AI plays (while telegraphing tiles to be hit) then the particle effect is fired -- actually two of them: the actual &quot;meteor storm&quot; effect where fireballs are coming from north-east and explode on target tiles, and the second effect results in tiles catching fire. Add a bit of screenshake and a bit of timing, and the result looks coherent!</p>
