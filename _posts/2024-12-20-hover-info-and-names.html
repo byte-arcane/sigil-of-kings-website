@@ -1,0 +1,42 @@
+---
+layout: post
+title: Hover Info And Names
+date: 2024-12-20 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2024/12/hover.png
+meta:
+author:
+permalink: "/2024/12/20/hover-info-and-names/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/G0VrEjNmE0I" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/G0VrEjNmE0I?autoplay=1><img src=https://img.youtube.com/vi/G0VrEjNmE0I/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Hover over creature info"></iframe></div>
+<figcaption>Hover over creature info</figcaption>
+</figure>
+
+<p>This week was the last productive week before the holidays, and it&#39;s going to get mental for a while after that, so there&#39;s that. </p>
+<p><strong>Hover over enemies - info</strong></p>
+<p>I read in some reddit post some mention of Brogue&#39;s hover-over-enemies display of hit info and things like that. I played Brogue a long time ago, but I&#39;m not a fan (I know, heretic extraordinaire) so I wasn&#39;t aware of that. I also support hover information, but it would just say &quot;Rat&quot; rather than giving you a blurb regarding hitting who can hit whom and how hard. So I thought &quot;that sounds pretty useful!&quot;. It wasn&#39;t actually very complicated to implement, but now I&#39;ve got my overkill version of hover-over-info. This version shows:</p>
+<ul>
+<li>From the point of view of the enemy<ul>
+<li>If it can perform a melee attack, show stats ( chance to hit, chance to crit, damage per type, crit damage per type)</li>
+<li>If it can perform a ranged attack, show stats</li>
+<li>If it can perform a thrown attack, show stats</li>
+<li>show defender stats, at the moment just resistances (flat and percentage based)</li>
+</ul>
+</li>
+<li>From the point of view of the sensor (I don&#39;t say player because if you&#39;re possessing some other creature, that&#39;s the perspective), show the same data</li>
+</ul>
+<p>Damages are shown as ranges where applicable, due to some RNG values. Also for damage types I dug the game icon database for some relevant ones, so that when displaying damage per type, I&#39;m showing icons rather than writing e.g. &quot;slashing: 14-56&quot;. So, that works well, look at the relevant video for an example of this. It&#39;s not as nice and natural text as Brogue&#39;s, but I&#39;d rather have pure stats -- they are easier to translate too. Also, to note for the future: Depending on the familiarity with the target creature, not all stats will be shown. For unfamiliar creatures you won&#39;t know anything, for a bit more familiar you might know the chance to hit, and so on. This might be an incentive to invest in some particular skills, plus the familiarity will increase the more you encounter such creatures. But this is just theory for now.</p>
+<p><strong>Naming enchanted items</strong></p>
+<p>That&#39;s an ongoing, gruelling bit of work. I want to scale up equipment enchantments, as I&#39;m back on that subsystem now, and it&#39;s of course more complicated the more I look at it. The simplest bit of related work: I&#39;ve added a sprite glow in the inventory for enchanted items. At the moment it&#39;s just a blue colours, but later on, according to various item properties, this can be changed. The glow is some very cheap, cheaty bit of shader code that works well with low-pixel-resolution sprites.</p>
+<p>The more complicated part is architectural (my usual pain!): where do I store relationships of enchantments -&gt; names. My so-far approach has been to store any such name modifications directly in enchantment information, but that quickly gets out of hand. For example, for the purposes of a Damage Percent Increase enchantment (parameter 1), for slashing damage type (parameter 2), for a grade 3 enchantment (parameter 3) that actually causes inverse effect -- reducing your damage -- (parameter 4), store a suffix (parameter 5): in this case the word might be &quot;Dullness&quot;, e.g. you create a longsword of dullness. After some contemplation I decided that I need some global storage for all these versions, and maybe the approach becomes obvious when phrased as above: a single flat dictionary. The dictionary itself stores a key that combines all parameters and matches that to a word. Some examples in this screenshot: <a href="https://i.imgur.com/ZRfGGJF.png">https://i.imgur.com/ZRfGGJF.png</a></p>
+<p>The other woe is finding a way to create all these words without having to do it ultra manually! Oh the joys. I&#39;ve tried ChatGPT, and it came up with a bunch of stuff, but it needed a lot of iterations to remotely attempt to obey some rules, and even then, it&#39;s frankly not great at it. Maybe it&#39;s better if I reduce the scope, rather than &quot;generate 15 variations for each of those 50 parameters&quot;. My newer approach, which is currently failing, is to use some NLP library in python to get synonyms. Now that&#39;s easier said than done. WordNet can do it but it only accepts single words, e.g. can&#39;t handle &quot;very small&quot;. For more advanced NLP supposedly there are libraries like spaCy. I tried using that, and failed, as apparently there must have been a library change lately (?) that renders example code online unusable. ChatGPT and the likes of course can&#39;t help with that as they&#39;re just stealthy old-data-processors. So, this is still work in progress, but I&#39;m probably going to use a combination of everything above except spaCy -- in their documentation website&quot;synonym&quot; did not appear <strong>anywhere</strong> relevant, so I don&#39;t know what to say besides &quot;let&#39;s skip that one&quot;.</p>
+
