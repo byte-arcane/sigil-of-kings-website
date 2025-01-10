@@ -1,0 +1,43 @@
+---
+layout: post
+title: Retrospective, quests, art and more
+date: 2025-01-10 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/01/calendar.png
+meta:
+author:
+permalink: "/2025/01/10/retrospective-quests-art-and-more/"
+---
+
+New year, new things to work on! After quite a bit of dull refactoring towards the end of last year, I need something fresh, which means a few different fronts. 
+
+**2024-2025 Retrospective**
+
+[Here's](https://www.reddit.com/r/roguelikedev/comments/1hy80ke/2025_in_roguelikedev_sigil_of_kings/) the yearly Sigil of Kings retrospective - moving on turtleishly, but in motion nevertheless :)
+
+**Quests**
+
+Started work on quests. Quests are intrinsically tied to another "mechanism" in the game's implementation: world conditions. World conditions are objects that listen to various events for satisfaction of a stated condition. If pressure plate is pressed, then door unlocks. If character reads book in full moon, then genie is summoned. Etc. Quest objectives contain conditions that, if satisfied, the objective completes. A quest is a graph of objectives. When a quest starts, objectives that have no dependencies become active. When all non-optional objectives complete, the quest is complete. The quest overall, and each objective, have optional actions on starting, success and failure.
+
+**Moon phases**
+
+This week I entered (and thankfully exited) some art-programming rabbit hole that I had planned for a while now: a calendar widget that displays day, time, if it's morning or evening, current moon phase. The moon phase thing will make sense eventually. This work requires 1) prototyping the UI 2) getting some sun/moon art 3) writing a shader to make the calendar dynamic 4) implement the widget in-game 5) test and demo of course. Prototyping was quickly done via Figma, but had ideas long lingering anyway. Getting art was a bit trickier, and currently it's a bit of a hodge-podge (and will stay like that, because there are more and other things to do). The shader started being quite trickier because I thought I might find and use some nice atmospheric scattering code to calculate the sky colour based on time of day and altitude, but everything out there was for 3D, and mapping it simply in 2D with externally provided sun was not exactly trivial. So after spending a bit of time trying to implement that, I went the more reasonable approach of getting some 4 example backgrounds for morning, day, evening, night, and ... called it a day. The widget was quite easy to implement, and the test and demo was not far off either. In the linked video I keep using the "wait" function, initially in 30 minute increments, and towards the latter part of the video it's using 48h increments, to demonstrate that the moon sprite *does* actually change based on the moon phase :) I've set up the transitions between dawn/day/evening/night to match the changes of lighting in-game, and I think that works quite well, it's a bit subtle in the video if you just focus on the widget. At the moment the widget is pretty large for demo purposes, and clearly needs a border anyway, but yeah the functionality of all this is pretty much done, phew, time to move on.
+
+**Art/Audio endeavours**  
+
+For practice, I've decided to integrate some more regular art/audio practice, with focus on "make something quickly" rather than make something polished. How does that work? 
+* For art, I have a goal of creating a number of stills for an introduction video (effectively slideshow w/ audio and narration). The goal is one piece per day, ideally 20 days/month minimum. I've got 6 screens planned so far, which means a lot of repeated attempts  (1,2,...,6,1,2,..) in a few months time, and hopefully I'll improve in the meantime! xD
+* For audio, I'm a fan of Spitfire Audio's LABS libraries, which are sometimes instruments and sometimes textures. My self-appointed task is to make 1 short ambient track per library, and by "ambient" here I mean keep it simple harmony-wise, so that it's possible to just spend a couple of hours max on a track, rather than more, to avoid rabbit holes. 
+
+**Tracking tasks instead of time, and enforcing task variety**
+
+For tracking, first of all I'm going to confess I'm jealous of all of you who are able to keep track of time per task - I've tried, I just can't work like that, it creates a layer of admin that really puts me off (and as a hobby solo dev, I can happily play the "scratch that!" card). But I've noticed a huge imbalance in terms of tasks and time spent, which is rabbit-hole-friendly and is definitely not feel-good, more like a continuous stream of "I-just-have-to-finish-this-programming-thingy-first". Also, I'm not a fan of, say, "I'll spend 30' on that", because tasks and task pausing/switching doesn't work like that. As a human being (I think), save/load state is very costly so I'm not going to pretend I'm a multitasking processor who needs to be switching tasks using round-robin and fixed time shares per task. To continue with the terrible paradigm, I'm going to apply the co-operative concurrency pattern of just "yielding" when it makes sense, which is at the end of a task (or at a very nice pausing point). 
+
+To make things a bit clearer, and link to the previous topic of art-audio endeavours, I've decided to start maintaining a spreadsheet of "task types" per day, the types being programming, art, audio, design and writing, where each day I'll try to do at least 2-3. That's the reason why art/audio work will be scoped down to manageable-in-a-day bits, to have some sense of completion with a day's work. Also, I'm explicitly not including social media stuff as part of this categorisation, as all other topics I consider as "personal development" and social media is, ahem, not that. But I'd classify blog writing in writing, but I digress and you probably don't care about such details.
