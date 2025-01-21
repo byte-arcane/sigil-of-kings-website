@@ -27,6 +27,7 @@ url: "https://byte-arcane.github.io" # the base hostname & protocol for your sit
 #baseurl: ""
 #url : ""
 twitter_username: ByteArcane
+bsky_username: byte-arcane.itch.io
 github_username:  byte-arcane
 
 markdown: kramdown
