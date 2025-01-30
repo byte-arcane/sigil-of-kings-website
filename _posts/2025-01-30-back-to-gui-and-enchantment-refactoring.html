@@ -1,0 +1,42 @@
+---
+layout: post
+title: Back to GUI and enchantment refactoring
+date: 2025-01-30 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/01/itempanel.png
+meta:
+author:
+permalink: "/2025/01/30/back-to-gui-and-enchantment-refactoring/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/IC7i5BMqZrQ" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/IC7i5BMqZrQ?autoplay=1><img src=https://img.youtube.com/vi/IC7i5BMqZrQ/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Item Description Panel and Character Sheet"></iframe></div>
+<figcaption>Item Description Panel and Character Sheet</figcaption>
+</figure>
+
+<p>The last couple of weeks I&#39;ve been working a bit more on the C# compilation time, but also with some GUI and associated uncovered bugs and small-medium refactors</p>
+<p><strong>C# compilation time, part 2</strong></p>
+<p>After quite a bit of work, I manage to disentangle the code into a few different libraries, with the project compiling just fine. Alas, if it only were that easy!</p>
+<ul>
+<li><strong>Problem 1:</strong> An autoload Godot node started behaving weirdly. The associated node script was declared in a linked DLL, but Godot refuses to accept that that script represent a Node class (and it most definitely does). I tried to replicate this error with a test project, but lo and behold, there it works alright: the autoload node is loaded just fine without complaints. But running this test highlighted a more serious issue: memory space!</li>
+<li><strong>Problem 2:</strong> Each DLL has its own memory space, and this means that any static variables that are calculated/set in DLL A, will be unset when accessed from DLL B, and there&#39;s no way to tell that this happened, besides lovely runtime errors and incorrect behaviour. Well, you could say that it&#39;s my fault for architecting it like this. Here are the results of some Rider build diagnostics for the two scenarios: <a href="https://i.imgur.com/AvARyhc.png">several</a> vs <a href="https://i.imgur.com/1DPDe59.png">single</a> library. There&#39;s clear overhead in the use of several libraries, but it should be better if changes happen at the higher-layer libraries, so the core ones don&#39;t have to be recompiled. Also, to note, different libraries referencing the same DLLs actually costs I/O time (and we end up with multiple copies), which is not great.</li>
+</ul>
+<p>By the way, at some point during the refactor, I thought I&#39;d use Rider&#39;s C# &quot;remove unused using directives&quot; well that was a <em>mistake</em>... It created chaos and problems everywhere, and many became visible ... in a delayed sort of way. Do <em>not</em> recommend for complex projects. </p>
+<p>At this time, this goes back to a halt, but not back to where I started. There has been some partial refactor on the project structure, that still needs a bit more work, to organize it better in multiple conceptual layers at the very minimum.</p>
+<p><strong>Item Description Panel Enchantments</strong></p>
+<p>Ok that was some tedious bit of work to make enchantment descriptions look reasonable in the panel. There&#39;s not much to say for the work: handling percentage enchantments vs absolute value ones, manipulating and mapping names, etc. You can see some examples in the images/videos. Showing what&#39;s going on via the UI also has the nice side-effect of easily uncovering bugs, as you don&#39;t have to step into the debugger to check values :)</p>
+<p><strong>UI color accessibility improvement</strong></p>
+<p>For more than 6 months now people occasionally complain about the contrast between font color (white) and background color in menus (orange). There are sites out there that automatilly tell you if the contrast is ok or not, depending on size of text. So I went <a href="https://webaim.org/resources/contrastchecker/">here</a> and tried to find something along the lines of what I had, but darker, that passes most tests. I ended up with some variation of brown. I was fearing turd-brown but looking at it, I could imagine it being wood-brown, so maybe with a bit of texture (eventually) this can work. Still, I&#39;d love to find (or write) a tool that constrains colors based on a few input text colors. Because for example, when displaying enchantments, I want the font to change to green or red (for bonuses/penalties). So I&#39;d need to pick some background color which has good accessibility based on all these 3, and that&#39;s easier said than done. The constrast checker website does talk about contrast ratios (e.g. 4:1 or 3:1), which is not hard to check via code, but I need to find out if linear/sRGB colorspace matters.</p>
+<p><strong>Enchantment refactoring</strong></p>
+<p>Adding more UI displaying more info about enchantments did uncover some bugs, e.g. item level related, or where are enchantments applied, etc. It&#39;s much better now, but probably not over until I also test thoroughly things like potions and charms, which is to come.</p>
+<p><strong>Inventory performance and item description work</strong></p>
+<p>I had some trouble with the inventory performance when testing. I&#39;m building the list dynamically, which means dealing with several hundreds of nodes every time an inventory-related action happens (e.g. open inventory, close item description panel, adjust item filters, etc). The solution was to basically assume the code of Node.GetChild(int) is blazing fast, so I&#39;m now storing a node&#39;s position in a subtree (relative to a parent node) as a set of child positions, using a single 64-bit integer via bitwise ops (supporting a subtree depth of 8, with up to 255 nodes per subtree &quot;level&quot;). Better than finding a node at runtime, and better than finding a node at runtime once and caching the result. The difficulty lies in that instead of having a dedicated node subtree per inventory item (my inventory is a vertical list), I do the association of inventory item to node subtree at runtime, to have a fully clear separation of view/data. But with large inventories, this means updating a lot of nodes every time a change happens. Still need to check if after the latest changes it&#39;s still too slow on the laptop.</p>
+<p>Until next time!</p>
+
