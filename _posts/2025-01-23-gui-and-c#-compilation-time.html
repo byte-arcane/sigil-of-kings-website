@@ -1,0 +1,40 @@
+---
+layout: post
+title: GUI and C# compilation time
+date: 2025-01-23 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/01/calendar2.png
+meta:
+author:
+permalink: "/2025/01/23/gui-and-c#-compilation-time/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/n77IF7EW1C8" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/n77IF7EW1C8?autoplay=1><img src=https://img.youtube.com/vi/n77IF7EW1C8/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Item Description Panel"></iframe></div>
+<figcaption>Item Description Panel</figcaption>
+</figure>
+
+<p>This week, little bit of work, towards the following GUI elements and C# code reorganisation</p>
+<p><strong>GUI: Item Description Panel</strong></p>
+<p>Previously, when moving over different inventory items, all you got was a context menu: drop, equip, use, etc, depending on the item. Of course that&#39;s not enough -- an item description panel is pretty much essential, in addition to all that! So I started working on that, although some mini refactor &quot;opportunity&quot; promptly appeared, with regards to enchantments. Previously, an enchantment could be for e.g. attack rating (chance to hit) which would specify a scale/bias factor that could be applied to a base value ( e.g. a*x+b, where x is base value, a is scale factor and b is bias). This ended up being a bit annoying as for some effects, one of the two values would be default, e.g. for an armor that gives you 50 health, you&#39;d need a bias value, and for a weapon that does 10% more damage you&#39;d just need a scale value, so it was a one-stop-shop kind of abstraction with too much waste. So now it has been split so that there are separate enchantments for percentage-based quantities or absolute quantities. This means there are more enchantments (.e.g AttackRating and AttackRatingPct for absolute and percentage-based modifications) but the extra granularity is worth it</p>
+<p><strong>GUI: Calendar rework</strong></p>
+<p>Changed the widget size and shown details. Smaller fonts, split date to separate day/month/year, hour/minute/second and millisecond/microsecond (ludicrous I know, but it&#39;s for resolving turns close to each other, and is greyed out a bit as it&#39;s mostly unnecessary). Time-of-day image has reduced in size, so that it overall looks a bit more appropriate, still not perfect, as I thought it needs a nicer border. I tried a quick shader-based parchment-style look, but still not great, I thin it needs a border texture actually.</p>
+<p><strong>C# compilation time</strong></p>
+<p>This is a laptop problem mainly, but desktop isn&#39;t great either. The project has grown enough so that making a single C# change, which causes recompilation of the entire project, is <strong>slow</strong>. For the desktop is several seconds (yeah maybe I&#39;m lacking patience) and for the laptop is about 10-20 seconds iirc, which is really annoying to me. Now, problem no1 is that when working on the laptop, I&#39;m now actively avoiding compilation of code often, it&#39;s not ideal. Problem no2 is that even on desktop I can feel the tumbleweed during compilation, and every second is an additional opportunity to distract myself for 5 minutes &quot;oh let me check this while it&#39;s compiling&quot;. Problem no3 is that in the summer I&#39;ll be away for a month, with just my laptop, and while I don&#39;t plan to code often, well it&#39;s going to be slow. So I&#39;ve been cautiously looking for ways to improve the speed. </p>
+<p>In Unity, this is possible with <a href="https://docs.unity3d.com/6000.0/Documentation/Manual/assembly-definition-files.html">assembly definitions</a>. Godot does not support such a thing as far as I&#39;m aware, so the process is manual. After experimenting a bit, here&#39;s a setup that looks like it&#39;s working:</p>
+<ul>
+<li>Add a class library in the C# solution</li>
+<li>Explicitly reference the folders in the codebase that this library will use</li>
+<li>Explicitly remove the folders from the being scanned in the &quot;main&quot; project, using <a href="https://stackoverflow.com/a/55647048">this</a></li>
+<li>Add a reference of the new library in the main project</li>
+<li>Add a reference to GodotSharp.dll in the new library if Godot code is needed, and of course references to any other libraries</li>
+</ul>
+<p>This so far seems to work, and the goal is to organize the code into 4-5 libraries (core, game, ui, tools, maybe break game to a few). This means, that I can work on UI from the laptop, and every change means recompiling 45 files rather than 590 files (as of now). To be continued.</p>
+
