@@ -1,0 +1,41 @@
+---
+layout: post
+title: "Stackin' hell"
+date: 2025-02-15 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/02/plate.png
+meta:
+author:
+permalink: "/2025/02/15/stackin-hell/"
+---
+
+<p>Work is still revolving around UI, the item description panel and the character sheet.</p>
+<p><strong>Stacking</strong></p>
+<p>I&#39;ve been fixing some broken stacking code, as the recent (since November!) item refactor makes stacking checks a bit easier. Because items are synthesized dynamically (especially enchanted ones), the checks quickly devolve to &quot;check every variable to see if it&#39;s the same&quot;. Well, to save myself the effort for certain objects, I just serialize them to a buffer and compare the buffer contents. Score points for MemoryPack again: no file I/O, and just reusing a bunch of preallocated byte buffers. Works better now, and will be keeping an eye for the occasional case that&#39;s not covered.</p>
+<p><strong>Enchanted item descriptions: Potion/oil and equipment</strong></p>
+<p>I did some work to generate simple procedural descriptions for potions. The aim is to also use those descriptions to double-up as how we&#39;d describe the object if it&#39;s unidentified (this is still conceptual, not in game yet). The template, for the current use-cases, is this</p>
+<p>&quot;A $grade $enchantment $subtype $item&quot; where</p>
+<ul>
+<li>Grade: how strong the item&#39;s enchantment is - this is on a scale of typically 1-5</li>
+<li>Enchantment: what is the enchantment type? E.g. could be a &quot;bar increase&quot; e.g. the superset of max health or max mana modification enchantments</li>
+<li>Subtype: If applicable, the subtype of the enchantment, e.g. health or mana</li>
+<li>Item: the item&#39;s name</li>
+</ul>
+<p>For example, this can be instantiated to:</p>
+<p>&quot;A potent bubbling red potion&quot;</p>
+<p>I&#39;m using the resurrect-64 lospect palette, and I used <a href="https://colors.artyclick.com/color-name-finder/">this website</a> to match colors to names. Tedious without a way to automate, but ok for now at least.</p>
+<p>Equipment is much simpler: if we have enchantments, we add a suffix appropriate to the total enchantment level, e.g. &quot;A longsword brimming with magical forces&quot;</p>
+<p><strong>Attract mode</strong> <a href="https://bsky.app/profile/byte-arcane.itch.io/post/3lhyuo4iqn22z">video</a></p>
+<p>One thing I noticed when I visited GamesCom last summer was that very few if any games at all had an attract mode set up. As I was walking around, I noticed a lot of indie games stuck in the title screens, nothing much happening. But how does the game play? Arcades solved that problem ages ago, with the &quot;attract mode&quot; which is a game mode while the game is not being played, showing excerpts of the game (some introduction, some gameplay, etc). It&#39;s extremely easy to do something like that with Godot (or any other game engine) as long as you keep things simple: just play a video when idle! So, my little test this week was exactly that: if you stay in the main menu without any input for 10 seconds, we play ... the trailer (that was an easy one that I have already), and we flash a &quot;DEMO&quot; indicator at the bottom right of the screen. That&#39;s it! Minor setback is that I get some weird behaviour when I re-enter the attract mode as the video doesn&#39;t play anymore, but that looks like a Godot VideoStreamPlayer bug. Another minor setback is that video playback in Godot sucks, and it&#39;s work in progress; hopefully by the time I actually need to use this attract mode the main problems will be gone, otherwise I&#39;ll have to wing it (again).</p>
+<p><strong>Traps and AoE</strong></p>
+<p>The refactor hammer was again swung, this time made contact with a AoE effects and switches. Last week I noticed some bug in an AoE effect for a thrown bomb, so I revisited that bit, and, well there&#39;s a bit of dysfunctional ugliness that needed to be fixed. But this also showcased some problem with how traps and switches are handled, so I revisited that too. Dust is settling a bit, and I&#39;m looking forward to test things out with some new content! </p>
+<p><strong>Procedural Pressure Plates</strong> <a href="https://bsky.app/profile/byte-arcane.itch.io/post/3li5y33gups27">gif</a></p>
+<p>Adjusted the code a bit so that the perspective makes a bit more sense. Still unhappy with the shading, but At Some Point I need to iterate more seriously over the look in an image editing program, rather than straight to code, as the plate textures are generated dynamically based on the tile they&#39;re on. </p>
+
