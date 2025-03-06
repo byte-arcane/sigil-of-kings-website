@@ -1,0 +1,72 @@
+---
+layout: post
+title: "Enchantments, GUI, Charms"
+date: 2025-03-06 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/03/latest_invpanel.png
+meta:
+author:
+permalink: "/2025/03/06/enchantments-gui-charms/"
+---
+
+<p>I&#39;ve been naughty and I&#39;ve been refactoring again, but it was important. The pattern is the same: I&#39;m working in some area (e.g. traps, skills, effects, etc) and I notice some problematic behaviour, and sometimes that problem is ... systemic. So, I get my shovel and start digging. That&#39;s how the last several weeks have been! But for a good reason, as upon emergence, it&#39;s not like the code is cleaner, but more things are supported, in a better way. Lots of generic talk and little action, so here we go.</p>
+<p><strong>Leap skill</strong> (<a href="https://youtu.be/LOyjAFxjsI4">video</a>)</p>
+<p>Just a bit of content, something that dawned on me. In a typical roguelike you have narrow corridors and the occasional trap there, which makes things tricky as you can&#39;t avoid it. How to deal with it? Many ways, apparently, most implemented. Disarm trap, teleport over trap, throw a hook and pull yourself over trap, throw item on trap to trigger it. And now, you can leap over the trap. This is a skill suitable for the more martial and agile characters, so that they have ways of dealing with such situations too. Here&#39;s a video</p>
+<p><strong>Core values and disposition</strong></p>
+<p>Cities specify a percentage for each core value - these could be things like prestige, prosperity, technology, might etc. Cities and sentient races also specify a percentage for each type of disposition, that are a number of axes slightly more granular than the law/chaos good/evil of DnD. Based on these, a city will contain a composition of races compatible to its disposition. All this is for overworld-level work, which is not player facing right now during dungeoneering, but it&#39;s going to matter later. I went hunting for some icons for core values and dispositions, they&#39;ll be seen at some point in the near future. This was one of my treats for doing too much refactoring :)</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/LOyjAFxjsI4" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/LOyjAFxjsI4?autoplay=1><img src=https://img.youtube.com/vi/LOyjAFxjsI4/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Leap over trap"></iframe></div>
+<figcaption>Leap over trap</figcaption>
+</figure>
+
+<p><strong>Traps</strong></p>
+<p>I revisited the trap code, and it was ... bad, due to some bad/inconvenient abstractions. Long story short, did a bit of refactoring, and added a couple more traps. Traps can fire any sort of spell/ability, so one can get really creative. For my examples, I was not really creative, so I just added a trap that shoots a fireball, one that shoots a magic missile, another that pushes the player into a random direction, another that pushes player towards the direction of movement (or against), some trap that fires homing throwing axes (because, why not?), you get the point. Extra fun is chaining traps, so you can fall on a &quot;push&quot; trap, which pushes you to the &quot;push to random direction&quot; trap, which pushes you to a fireball trap&#39;s pressure plate. Maybe I should add a pinball easter egg level in the game, it&#39;s totally possible. So, the chained traps uncovered some bug in timing, so ... bug hunting time!</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/SYBvA25HLBA" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/SYBvA25HLBA?autoplay=1><img src=https://img.youtube.com/vi/SYBvA25HLBA/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Trap chain"></iframe></div>
+<figcaption>Trap chain</figcaption>
+</figure>
+
+<p><strong>Debugging graphics</strong></p>
+
+<p>I almost fell into a rabbit hole for this one. When implementing traps, I noticed some errors regarding animation/timing. The rendering code has become more and more complicated, and testing is not great (I mean, how do you even test a complex turn-based rendering pipeline? I didn&#39;t stay long enough in professional gamedev to let that sink in...). The problem was exacerbated by the fact that when I enabled more granular logging, I ... understood nothing about the error, so I despaired. Does my pipeline need rewrite? I mean, it would benefit. Do I have the energy/motivation to do that? Hell no! What do I do? Well, the bloody obvious... Improve logging! And so I did, and lo and behold, after 1h of extra logging code and 1h of debugging, I solved not one but two mystery graphics bugs. Changes need to be tested more thoroughly, but that was bloody promising. Which means, I can move on to different things, which are not refactoring! Yay.</p>
+<p><strong>Music</strong></p>
+<p>I felt like dabbling with music last Saturday, so I dusted off the guitar and MIDI keyboard, fired Reaper and started messing around. I usually fool around with the guitar because it&#39;s far harder to record something that is good enough and suitable for video game music (at least for my game). But I did end up recording something on the MIDI keyboard, a few layers of a melancholic simple piano lines. Have a listen <a href="https://soundcloud.com/byte-arcane/uncertain-focus?si=16bdb9ba95d14f8694f367d1ba65e9ed&amp;utm_source=clipboard&amp;utm_medium=text&amp;utm_campaign=social_sharing">here</a>!</p>
+
+<p><strong>GUI Item Description Panel</strong></p>
+<p>After the above side-work, back to this panel, more iteration. One of the most visible changes is the font, previous one was nice and cool but not suitable for numbers. While I believe this is an improvement, I still would like a good small caps, but I haven&#39;t found a suitable one. After about 15-20 mini tasks related to that (bugs, prettifying, etc), I think ... it&#39;s ok for now! I&#39;m not sick of it, it&#39;s just diminishing returns. Time to move on to (or, better, resume) the next topic... almost! I need to carry on with iteams/enchantments, just for a little bit more.</p>
+<p><strong>Carry, equipped, native, non-native enchantments: I&#39;m not charmed</strong></p>
+<p>Last bit of craziness I&#39;m trying to deal with, but it just doesn&#39;t click yet. So, let&#39;s rubber duck a bit:</p>
+<ul>
+<li>Enchantments in equipment can be &quot;native&quot; or &quot;non-native&quot;. Native enchantments are ones that make sense, e.g. an enchantment on boots can provide movement speed, whereas an enchantment in a sword can improve damage. Counter examples are a shield that improves damage and a sword that improves evasion. This property is pre-defined for each enchantment type.</li>
+<li>Enchantments can apply to the item or the owner (or both). Item enchantments can be e.g. improving attack speed for a weapon, or the defence rating of a shield. Owner enchantments would be movement speed, attribute/skill boosts, but <strong>also</strong> attack speed, defence rating and others. This property is pre-defined for each enchantment type.</li>
+<li>Enchantments can activate when the player equips some equipment item, but some other enchantments can be always active if you have the item in the inventory (&quot;on carry&quot; - think of charms in diablo 2). It&#39;s a &quot;dangerous&quot; thing to support such charms, but I have a few things in mind where they make sense.</li>
+</ul>
+<p>Given a set of enchantment groups (e.g. attribute boost, skill boost, movement speed boost, etc) I&#39;m trying to figure out a way to support the following scenarios:</p>
+<ul>
+<li>Regular equipment enchantments, requiring native enchantments. The bonus should apply to the item by default if possible, otherwise to the owner</li>
+<li>Rare equipment enchantments, preferring native enchantments but allowing others too. Otherwise as above</li>
+<li>&quot;On carry&quot; enchantments for charms. All enchantments that are applicable to the owner should be possible here</li>
+</ul>
+<p>The reason for the above, is because I&#39;ve been trying to add nice support for &quot;charms&quot;. Charms are items that provide bonuses (and/or penalties) <em>passively</em> by just having the item at your inventory. This is an idea from Diablo of course, but that&#39;s where the similarity ends. Due to potentially large inventories in roguelikes/RPGs, you&#39;d just end up hoarding/grinding for charms, which is not a great idea, as they would eventually diminish the value of swapping equipment. After a bit of brainstorming, I came up with some legit and interesting modifications and use-cases, and the one that&#39;s implemented right now is simply this: every charm is generated with two enchantments: a positive and a negative one. This means that you don&#39;t want to just hoard them in your inventory, but be quite selective about them really. Eventually, you would possibly be able to hoard them in some static chest and occasionally revisit and pick ones for the occasion (e.g. fire resistance bonus charm if you go to a volcanic area), but of course that has time/effort cost, so it&#39;s not a lucrative approach to apply all the time.</p>
+<p><strong>Text contrast</strong></p>
+
+<figure><img src="{{ site.baseurl }}/assets/2025/03/wcag.png" alt=""/><br />
+<figcaption>My little fugly WCAG helper</figcaption>
+</figure>
+
+<p>Originally, I wanted some orange/brown-ish background colour for menus and GUI. But I also wanted white font. Apparently, these don&#39;t go well together. So, over the course of several months I darkened the background enough, so that it <a href="https://webaim.org/resources/contrastchecker/">passes some accessibility tests</a>. All good, right? No. As in typical RPG GUI fashion, I want to have color in fonts, for different circumstances. E.g. in the item inventory panel, when showing bonuses/penalties of items, I can colorise with green/red. Green is fine, but bright red (255,0,0) is definitely not fine, with my brown background. Now here&#39;s the fun bit. How do I find a red color that passes the contrast check? I looked around for any tools to do that, I couldn&#39;t find any. Some kind folks shared their approach, which is manual, testing colours individually. So I thought I&#39;d try some sort of automation. I had a look at what formula is being used to evaluate text contrast, implemented it in python and made it fast enough (~2-3sec) to generate contrast of a colour to all possible colours in the colour cube, and more importantly, highlight the colours that pass the required contrast test. I made a GUI version using tkinter, which looks fugly but does the job as well, and I can use a slider to see the different RGB slices (slider controls the red component). Long story short, this tool tells me that there&#39;s no chance I&#39;m going to get a good contrast with a red font colour, not even with a purple one. What does this mean? Other tricks are necessary. I got a few opinions, e.g. adding a dark outline or a dark background panel to the text rather than the entire UI, but I fear the latter is much work to make it look nice. So verdict currently is to eventually revisit the game UI&#39;s backgrounds and make them an even darker shade of brown. But this time I&#39;ll be prepared - I&#39;ll use the tool in advance to generate font colours and a background colour that all work well together. More to come on this front</p>
+<p><strong>String to StringName</strong></p>
+<p>I read <a href="https://github.com/godotengine/godot-proposals/issues/7842#issuecomment-2689041727">a nice proposal comment</a> in my godot digest, about GC spikes because of use of strings in functions like Input.IsActionPressed(), because if you provide a string, it converts it to a StringName each time apparently, doing heap allocation. I went and revisited my code, and I saw that I call that function a lot of times each frame. Hmm! So I wrote a python script to 1) visit the entire codebase and figure out what pure strings I&#39;m passing in that function 2) create static class that contains the equivalent stringnames, statically constructed and readonly 3) revisit all the original occurences and replace the pure strings with StringName. Done! </p>
+<p><strong>Upgrade to Godot 4.4</strong></p>
+<p>This went mostly uneventfully. I get lots of weird errors in 4.3 that don&#39;t seem to have a direct effect on the game, and I only get more with 4.4, but things work, so I&#39;m cautious. </p>
+<p>That&#39;s it for now!</p>
+
