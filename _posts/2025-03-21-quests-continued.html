@@ -1,0 +1,48 @@
+---
+layout: post
+title: Quests Continued
+date: 2025-03-21 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/03/quest_ring.png
+meta:
+author:
+permalink: "/2025/03/21/quests-continued/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/miz4wlYQVlw" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/miz4wlYQVlw?autoplay=1><img src=https://img.youtube.com/vi/miz4wlYQVlw/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Quest GUI: multiple targets and approximate locations"></iframe></div>
+<figcaption>Quest GUI: multiple targets and approximate locations</figcaption>
+</figure>
+
+<p>More quests! Hurray! I&#39;m having quite a bit of fun, even with the GUI. The challenge is to make something that looks reasonably normal in terms of polish. Latest iteration is, imo, good enough, but you can judge yourselves (and, as always, comments welcome!). Features:</p>
+<ul>
+<li><strong>Quest tracking</strong>: You can select a quest to track. <ul>
+<li>The tracked quest will now show map markers for different objectives that support and expose location data. </li>
+<li>Different objectives are associated with different colours, and each objective can contain multiple target locations (e.g. &quot;Find all XYZ elements&quot;). </li>
+<li>Tracking can be toggled on and off. </li>
+<li>There are different tracking modes. One is &quot;exact&quot; which exactly pinpoints to a target location. Another is &quot;Radius&quot;, which highlights a radius where the target can be anywhere inside. There are more, but need better demos :)</li>
+<li>If an objective has multiple tracked locations and you satisfy some of them partially, they will stop being displayed (makes sense, but there&#39;s extra bookkeeping to have this)</li>
+</ul>
+</li>
+<li><strong>HUD info box:</strong> This displays a number of quests, the tracked one first and all untracked afterwards. The tracked quest, if there&#39;s one, is always visible. The untracked ones appear if an objective/quest status changes, they stay for a few seconds, and they disappear. </li>
+<li><strong>Journal screen:</strong> You can see in the video for yourself! Basically I&#39;m trying to get something like avowed with 0 art budget. I must say unicode icons and Godot&#39;s BBCode support in RichTextLabel have been extremely useful and have made my life easier. Still barebones and work in progress, but I like the organisation. This screen also shows rewards or other things that can happen upon failure, that could be per-quest or per objective</li>
+</ul>
+<p>From here, the most important thing that needs to be done is to add more example quest types and quests! No excuse, it&#39;s content time, and not art. A simple one for example is &quot;Kill 10 spiders&quot; which is really an instance of &quot;kill N of a set of creatures filtered by some conditions, including location, species, etc&quot;</p>
+<p><strong>Other</strong></p>
+<p>Too much of a good thing is still too much, so I&#39;ve been working on a few other things.</p>
+<ul>
+<li><strong>Overworld visibility</strong>. Line of sight is increased, to make overworld exploration a bit more claustrophobic. Also added some dithering in the explored areas, to retroify it a bit. </li>
+<li><strong>XP for discovering new areas</strong>. A level is comprised of lots of different zones, organically blended. To give incentive for exploration, every time sentient characters discover a new such zone, they gain XP, showing a nice popup if it&#39;s the player. This also gives an indication of &quot;we just discovered a new area, something interesting might be around here&quot;.</li>
+</ul>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/zViHDTlp1f0" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/zViHDTlp1f0?autoplay=1><img src=https://img.youtube.com/vi/zViHDTlp1f0/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="XP for discovering new areas"></iframe></div>
+<figcaption>XP for discovering new areas</figcaption>
+</figure>
