@@ -1,0 +1,47 @@
+---
+layout: post
+title: The Bunny Quest
+date: 2025-03-28 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/03/bunny_quest.png
+meta:
+author:
+permalink: "/2025/03/28/the-bunny-quest/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/miz4wlYQVlw" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/miz4wlYQVlw?autoplay=1><img src=https://img.youtube.com/vi/miz4wlYQVlw/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Quest GUI: multiple targets and approximate locations"></iframe></div>
+<figcaption>Quest GUI: multiple targets and approximate locations</figcaption>
+</figure>
+
+<p>The theme of this week was mostly quests again, and in particular, facilitating a specific generalizable scenario: the ... Bunny Quest! or, more boringly, a dynamic escort quest</p>
+<p><strong>Dynamic escort quests</strong></p>
+<p>This is a staple RPG quest, so how do we implement that? A static scenario, where everything is known in advance, it&#39;s easy: pick the entity, adjust the AI to go somewhere specific, and form the quest around that. However, what if we don&#39;t know the entity yet? What if the chosen entity is picked based on particular conditions? What if the quest should start only after you&#39;ve seen the person? So, I did a bit of ground work on that, that led to a proof of concept, and several improvements overall:</p>
+<ul>
+<li>There&#39;s a &quot;blackboard&quot; per questing entity for quest-related data, for example we can set up:<ul>
+<li>a condition that &quot;if we see an entity that matches a given filter, then write sth to blackboard&quot;</li>
+<li>on success, we fire up a &quot;creature-based&quot; quest generator, e.g. this could be a &quot;escort creature to safety&quot;</li>
+<li>when the quest generator runs (after the condition gets satisfied and blackboard has been updated), we look up the blackboard for a given value to instantiate the quest</li>
+</ul>
+</li>
+<li>Location markers can be dynamic! E.g. we can track the bunny and the position that it&#39;s aiming for. Some extra functionality was needed for this</li>
+<li>Create an effect to &quot;remove from game&quot; or &quot;send to limbo&quot; to run upon quest success (e.g. bunny reaching an exit)</li>
+<li>Creature AI now supports some additional high-priority targets, so that a creature can run its AI in addition to extra temporary goals, like &quot;go to that place&quot;. Targets at the moment can be static, and I haven&#39;t really tested it in conjunction with more complex behaviours. Some future work here is to add a moving target, and to follow that target up to a certain provided distance.</li>
+<li>Some quests can be secret, and revealed only if you complete some particular objective. Also, some objectives can remain hidden. All this can assist narrative, setting up objective chains/dependencies but only sharing with the player some parts.</li>
+</ul>
+<p><strong>Non-determinism</strong></p>
+<p>I spent a day or two (well, a few hours each) trying to solve some non-deterministic bug. And here I thought I was done with the rng work! So, long story short, there were two bugs that both caused non-deterministic behaviour. The first was in the temporary object pool, for which I rewrote the core more simply. The second was extreme silliness that&#39;s hard to catch. After a savefile has been loaded, I call a post-load function on all systems. Well, some of those functions used the game RNG, which means by the time the savefile is loaded, the RNG is in a different state. Yay! Anyway that&#39;s fixed, back to deterministic behaviour, even with a bit extra functionality to force all realtime-based code to work in a repeatable way.</p>
+<p><strong>A bit of GUI</strong></p>
+<p>I changed the GUI a little bit, yet again. I&#39;ve added a hourglass icon for time, changed some fonts, and added an icon for the moon phase. </p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/miz4wlYQVlw" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/miz4wlYQVlw?autoplay=1><img src=https://img.youtube.com/vi/miz4wlYQVlw/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Secret quests and objectives"></iframe></div>
+<figcaption>Secret quests and objectives</figcaption>
+</figure>
