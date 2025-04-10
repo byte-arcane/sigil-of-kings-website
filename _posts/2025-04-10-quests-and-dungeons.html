@@ -1,0 +1,58 @@
+---
+layout: post
+title: Quests and Dungeons
+date: 2025-04-10 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/04/undead.png
+meta:
+author:
+permalink: "/2025/04/10/quests-and-dungeons/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/1d9g7y5p4I0" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/1d9g7y5p4I0?autoplay=1><img src=https://img.youtube.com/vi/1d9g7y5p4I0/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Bunny quest with telegraphing logic change"></iframe></div>
+<figcaption>Bunny quest with telegraphing logic change</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/lv9v0Ynn1F4" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/lv9v0Ynn1F4?autoplay=1><img src=https://img.youtube.com/vi/lv9v0Ynn1F4/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="The quest for bone broth"></iframe></div>
+<figcaption>The quest for bone broth</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/tFmzuWXhEOk" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/tFmzuWXhEOk?autoplay=1><img src=https://img.youtube.com/vi/tFmzuWXhEOk/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="The Quest to eradicate the undead infestation"></iframe></div>
+<figcaption>The Quest to eradicate the undead infestation</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/A3av-afW2ik" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/A3av-afW2ik?autoplay=1><img src=https://img.youtube.com/vi/A3av-afW2ik/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Exploring a level: cabins, altars, caves, ruins and ... clubbing"></iframe></div>
+<figcaption>Exploring a level: cabins, altars, caves, ruins and ... clubbing</figcaption>
+</figure>
+
+<p>A few things these past 2 weeks:</p>
+<p><strong>Adding complexity in quest behaviour</strong></p>
+<p>Entire day spent on enabling this scenario, which is really a mod on an escort quest. Previously, an entity aims towards a destination, and you need to protect. The new scenario allows this: the entity follows you, until it spots an exit, at which point it sets its new goal as the exit. It might sound obscure, but this expands the scenarios that can be portrayed in the game, so ... I like it. Also, to telegraph this &quot;switch&quot; from following the character to aiming for the exit, an exclamation mark pops up at the following creature. But no, that was not enough. </p>
+<p><strong>Telegraphing and cutscene animations</strong></p>
+<p>That exclamation mark on the bunny was not enough. I remember games like Shining Force 2, which used simple sprite transformations to communicate some actions and emotions, like surprise, looking around, and so on. So I thought that might be useful for cutscene animations as well as telegraphing a few things. For example, in the aforementioned quest, the bunny follows the player and when it discovers an exit, plays but the looking around (looking left and right) and the double jump (surprise) animations, then proceeds normally to that exit. I&#39;ll confess my approach to rendering has resulted in a really <em>weird</em> way required to achieve this, using shader code for all such animations and an integer per sprite to figure how to animate the sprite given its position and other standard rendering parameters.</p>
+<p><strong>More quest types/examples</strong></p>
+<p>I&#39;m slowly trying to build up to a framework for procedural quests. There are some key &quot;blueprints&quot; that are missing:</p>
+<ul>
+<li>Kill a boss or some other unique creature at some location: for this, I need to &quot;edit&quot; the location to include that boss/creature organically</li>
+<li>Clear an area from some group of creatures, e.g. undead: for this, I need to &quot;edit&quot; the location to include that creature group as well</li>
+<li>Find an item, e.g. some journal note or some relic. Similarly, need to edit the location specification to include that</li>
+</ul>
+<p>Besides making the above happen, I also need to proceed onto quest brainstorming, which means reading a few RPG books : adventures, settings, adventure writing guides, etc. </p>
+<p><strong>Dungeons, prefabs and AI</strong></p>
+<p>So, basically I have a list of quest types I want to implement. Top of the list, is &quot;kill some boss&quot; and &quot;find some treasure&quot;. Pretty simple, right? Ok, here&#39;s the question: how do we &quot;augment&quot; a map to contain a boss and treasure? That&#39;s a bit tricky when one dances the procedural dance. I&#39;ve already done some work on that (surprise surprise) before the port to Godot. In particular, I had a class of prefabs that are purely boss lairs. Some info in the related blog post <a href="">here</a>. But what if a boss doesn&#39;t live in a lair?</p>
+<p>At this point, I&#39;ll reiterate that Sigil of Kings uses for its maps: procedural generation, prefabs, connecting prefabs procedurally, procedurally generating prefabs, procedurally generating prefab features, procedurally generating general features, and a few other things. You get the idea. Duct tape, RNG, and lots of happy hours spent on that ... thing, made mostly of C++ and C# glue code. E.g. in a wilderness cabin we have a chair, a bed and a table that have rules for placing procedurally. In that same vein, I can use some special &quot;boss&quot; and &quot;treasure&quot; rules for creating placement spots for bosses and treasure (e.g. by a wall, etc). For prefab lairs, I&#39;m including this boss/treasure info in the definition of the entire &quot;zone&quot; (the area specification). The prefab element placement rules are all stored in a database and I just use references for that. </p>
+<p>Now going back to bosses/treasure in random areas that don&#39;t naturally support them, that&#39;s the bit I worked on. Effectively the zone specification allows some prefab element rules to be specified dynamically, in addition to the databased-provided ones. There is a bit of work for merging the rules both in the C++ side and in the C# side (the joys of this little plugin idea), but the result is that I can inject some boss/treasure rules (and any other rules really) at any existing ruleset that is applied to any zone. The reason for all this work is that I want the benefits of using lightweight references and the benefits of being able to dynamically extend them. It&#39;s a common &quot;pattern&quot; throughout the codebase really, and it&#39;s ... a bit of work to deal with. </p>
+<p>Another bit I worked on was AI-related. The moment you entered a level, AI started doing stuff. But imagine everything being carefully placed in the dungeon generation process, only for the AI to start creating a mess the moment they start playing! E.g. creatures killing each other (when you don&#39;t want to <em>just yet</em>) or bosses taking walks away from their lairs, spoiling the discovery moments when you find them in their &quot;natural&quot; environment. The solution to this was simple: I already maintain a list of what zones the player has ever visited, and unless the player has been to a zone or they see the entity&#39;s position, the entity will not run its AI. This possibly needs some tweaking, but it does the trick. </p>
+<p>That&#39;s it for now. Now more quest types to do. Until next time!</p>
+
