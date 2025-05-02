@@ -1,0 +1,38 @@
+---
+layout: post
+title: Quest Miscellany
+date: 2025-04-18 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/04/qmisc.png
+meta:
+author:
+permalink: "/2025/04/18/quest-miscellany/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/KUgxbn82D0w" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/KUgxbn82D0w?autoplay=1><img src=https://img.youtube.com/vi/KUgxbn82D0w/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Militia vs undead at ruins"></iframe></div>
+<figcaption>Militia vs undead at ruins</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/YR2KiCFIX0g" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/YR2KiCFIX0g?autoplay=1><img src=https://img.youtube.com/vi/YR2KiCFIX0g/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Lich, phylactery and wander"></iframe></div>
+<figcaption>Lich, phylactery and wander</figcaption>
+</figure>
+
+<p>For this week, still on the &quot;Quest&quot; theme, but focussing more in the capabilities of the level generation to support more complex quests. This is going to be a short entry as I&#39;m on holidays!</p>
+<ul>
+<li><strong>Custom items</strong>. We can now put custom items in containers. E.g. when you think you killed the evil lich, you open the treasure chest and you find a journal paper (not academic style, or peer reviewed, tsk tsk) talking about the location of the lich phylactery. Oh no! You must find it and destroy it otherwise the lich will return. This journal paper can be created in advance and put as a &quot;request&quot; of sorts in the dungeon generation process: we give it a tag and request a position to be generated for it (subject to constraints). After the dungeon generation finishes we get (among other things) a mapping of tags to generated positions, so we know where to place the item.</li>
+<li><strong>Limbo</strong>. This is a concept that is required for &quot;forward planning&quot; of quests etc, at least in my codebase. There is a special pseudolocation called &quot;Limbo&quot; so that we can instantiate entities and put them there, but they&#39;re inactive for all intents and purposes. Why/where is this useful? When I want to spawn a quest line of evil necromancer, phylactery, etc, I can create all these in advance and place them in Limbo. They can then be &quot;moved&quot; to appropriate locations at appropriate times. This is helpful when you have a quest to e.g. kill the necromancer but the necromancer is not in any location yet, or they are in a location which has not been instantiated yet. Another use-case is for relics and quest items that get &quot;lost&quot;. Say you drop a relic in a level, you clear the level and a lot of time passes. The level should reset, but what happens to the relic? The relic goes to Limbo, and can be put in some other location later on, &quot;simulating&quot; that after enough time passes, things ... get displaced (e.g. bandits got hold of them, etc)</li>
+<li><strong>Teams</strong>. I have some half-baked team functionality that kinda works. So, time to test it again, 2 years (minimum) after the implementation :D The example is putting a team of humans against an undead infestation. Some &quot;relationship&quot; presets detect that humans are not aggressive to each other by default, and undead are not aggressive to each other by default, but humans vs undead is (by default) not a happy relation. So, with a couple of edits in the dungeon specification, I can say things like: in this dungeon, put a &quot;ruins&quot; zone, make it haunted, add a lich boss (grab from Limbo), add a treasure chest with a custom journal note, and also add a bunch of human militia. The rest is done automatically. This results in the expected outcome of humans vs undead, so all good there! Of course, in the unpublished blooper section, when I used a mix of playable races (humans, dwarves, gnomes) they started fighting each other while getting pummeled by the undead, so there&#39;s ... team work to be done xD</li>
+<li><strong>Building creatures</strong>. The ways I instantiate creatures are many, and the problem is that new scenarios might pop up that instantiate creatures in different ways. So I had to do some refactoring to add some super flexible class for generating creatures, with customisable algorithms for every aspect of a creature: ai role, starting equipment, level, name, extra traits, allegiances and so on. Garbage collector won&#39;t be happy, but let&#39;s see. </li>
+<li><strong>Bug fixing in the dungeon generation</strong>. There&#39;s always some of this to be done. I realised for example some json bugs that were introduced ... at least 6 months ago, but it was missing content (not crashes) so it was on the back burner. Until now, where the content mattered, so I had to do a bit of digging, json diffs, json data transfer from old files and so on, (un)fun stuff! It&#39;s ok now, but it does make me think of creating a test suite for dungeons using my limited AAA testing experience and the data I have at hand. But that&#39;s a future task! </li>
+</ul>
+<p>That&#39;s all, have a great weekend!</p>
+
