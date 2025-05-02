@@ -1,0 +1,38 @@
+---
+layout: post
+title: Conversation System
+date: 2025-05-02 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/05/convo.png
+meta:
+author:
+permalink: "/2025/05/02/conversation-system/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/x1MfRjvlhIM" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/x1MfRjvlhIM?autoplay=1><img src=https://img.youtube.com/vi/x1MfRjvlhIM/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Conversation basics"></iframe></div>
+<figcaption>Conversation basics</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/xUusBdGHG-w" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/xUusBdGHG-w?autoplay=1><img src=https://img.youtube.com/vi/xUusBdGHG-w/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Combined demo of recent work: conversation and quest chain"></iframe></div>
+<figcaption>Combined demo of recent work: conversation and quest chain</figcaption>
+</figure>
+
+<p>Alright, belated updates again! Several days AFK plus being occasionally busy plus not always having a cohesive set of updates can result in this. In any case, moving forward to the interesting bits - the updates!</p>
+<p><strong>Conversation system</strong> (For some reason, I don&#39;t want to call it dialogue)</p>
+<p>A natural &quot;relative&quot; to a quest system -- somebody needs to give the quests, and that&#39;s typically done through a conversation! Of course not all conversations contain quest information. And, on top of that, a nice robust system should support dynamic composition of a conversation tree that includes standard/prefab and quest-specific/dynamic information. Finally, to interface with such a system, with need an in-game GUI and ideally some authoring tool to assist development of said conversations. This is a long-winded way to describe the work that had to be done to put a system like this in place. All except the authoring tool, which is WIP. What I want, is to be AFK (well, away from IDE really), and be able to write quests trees in some sensible format that is not pure JSON; I love JSON but not for writing it from scratch. I did have a quick look at solutions like Ink and Twine, but I didn&#39;t really like them as they would probably interfere with the dynamic and semi-random dialogue composition, and associated game-specific functionality like effects, conversation unlocking etc. So, obviously, I wrote my own system. The system is configured from JSON excerpts, and I&#39;m working on a tool that converts regular formatted text to this JSON format.</p>
+<p><strong>Awareness state machine messages</strong></p>
+<p>Creatures have an awareness state machine with these states: neutral, curious, alert, detectedThreats. Of course, if I never told you, you might have never guessed. It&#39;s always a bit of a shame when work done is not visible to the player. So, let&#39;s fix this with some popup text telegraphing! So, the easiest fix is to hook up awareness state changes to some messages. E.g. when from higher alertness we go to &quot;neutral&quot; a character might say &quot;Hmm... nothing after all&quot;, or  if the change to &quot;curious&quot; they say &quot;I thought I saw something&quot;. These messages pop up as floating text above the characters. So far, it works fine, although it can get a bit much with groups of monsters that might simultaneously flood the screen with text, so tweaking is required. </p>
+<p><strong>Refactor of console to a command-line processor variant</strong></p>
+<p>I&#39;ve had a developer console for a while, for testing parameterised commands. That&#39;s nice and useful, except the fact that the implementation was bad: I could not support optional arguments. I kinda worked around this for a while, but finally I got fed up, ripped the parser apart and replaced it with a new one that supports optional variables and defaults. For example, whereas previously I&#39;d do &quot;advloc settlement&quot; to create an adventure location from a preset called settlement, now I&#39;d do &quot;advloc -p=settlement -n=Inverglen&quot; which allows me to set parameters in any order (here: preset and resulting location name) but also I can specify in the code defaults for each if I want, so that I could write something as simple as &quot;advloc&quot; and have the command executed. Refactor was slightly tedious as I had about 50 commands for which I couldn&#39;t really automate the refactor.</p>
+<p><strong>Stolen bike</strong></p>
+<p>I&#39;m just venting here, but my bike was stolen, from a communal staircase on the 3rd floor where the thief passed through other bikes (some unsecured as well) which made me feel targetted and pretty pissed off :( </p>
+<p>Have a nice weekend all, and until next time!</p>
