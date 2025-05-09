@@ -1,0 +1,58 @@
+---
+layout: post
+title: Dynamic Quest Topics
+date: 2025-05-09 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/05/dynquest.png
+meta:
+author:
+permalink: "/2025/05/09/dynamic-quest-topics/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/Dw1EaXvIibI" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/Dw1EaXvIibI?autoplay=1><img src=https://img.youtube.com/vi/Dw1EaXvIibI/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Town banter"></iframe></div>
+<figcaption>Town banter</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/5Bv80_C8hnU" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/5Bv80_C8hnU?autoplay=1><img src=https://img.youtube.com/vi/5Bv80_C8hnU/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Multiple procedural quests"></iframe></div>
+<figcaption>Multiple procedural quests</figcaption>
+</figure>
+
+<p>Plenty of work this week! The output is similar to last week: conversations and quests. Here are a few more details.</p>
+<p><strong>Conversations and Quests</strong></p>
+<p>First of all, the GUI changed a bit, and got a bit fancier. Now you can see the person you talk to (the sprite, rather than a 8x8 pixel &quot;profile&quot; pic), the text is revealed progressively (accounting for punctuation) and augmented with some simple sound effect.</p>
+<p>Conversations are currently implemented in JSON, in the form of a &quot;flattened&quot; graph: a list of nodes, each node having an ID and some child/option IDs. Authoring text in that form is not great of course, a tool is needed! I wrote a simple tool in python to convert indented/annotated text to these dialogues, and it&#39;s ok, but everytime I shift the format a bit, it&#39;s a PITA to adjust. I might end up using an annotated graphviz dot format, so that I have less things to maintain.</p>
+<p>The problems with dialogues are that a lot of the text is not static, and there should be a lot of interchangeable options to avoid things being robotic. A simple example: we have a village chief having quests about some enemy lairs nearby. We don&#39;t want all player questions to be &quot;Tell me more about Vivec the Horrible&quot;, &quot;Tell me more about Mehrunes the Chaos-Bearer&quot;, etc. So we can create a random sampler to choose one of many. But we want the chosen option to sometimes or always persist for the same person/topic combination otherwise in the same conversation we&#39;ll keep changing wording for the same options, which can get confusing. Also, if we use a random sampler, we need to ensure that if possible we don&#39;t sample the same value twice, and that can be ensured with something like a shuffle bag.</p>
+<p>Other things to consider:</p>
+<ul>
+<li>We might have a bunch of static topics, and one of them can lead to dynamic topics. E.g. villagers can always talk about themselves and their jobs, but we can dynamically add quest topics.</li>
+<li>Quest topic text would need to change depending on the status of the quest</li>
+</ul>
+<p>Finally, added a quest aura visual effect to NPCs that contain options that could start quests. The aura goes away when you talk to them, so better take notes!</p>
+<p><strong>Mission generation</strong></p>
+<p>A <em>mission</em> is the higher level concept of a quest, since I can&#39;t overload the name. For example, let&#39;s say we have a mission type to eliminate a threat that manifests a nearby location. To generate such a mission we need:</p>
+<ul>
+<li>The location in question, e.g. a 3-level dungeon</li>
+<li>The threat in question, let&#39;s say a human wizard</li>
+<li>We might want to put the wizard either free-roaming in the 3rd level, or in a special lair, e.g. a library, and this library should be inserted in the 3rd level of the dungeon</li>
+<li>We now need to generate the quest to kill this enemy</li>
+<li>We also need to generate the conversation that starts this quest. For example, we can get the chief/elder of the nearest village, and insert a conversation topic that unlocks this quest</li>
+</ul>
+<p>And that&#39;s it - we now have a procedural mission! A result is shown in the second video above.</p>
+<p><strong>Misc</strong></p>
+<ul>
+<li>Added a new music track for towns, you can hear it in the video, it&#39;s a relaxed tune at a 5/8 sig.</li>
+<li>Typical bug squashing, made apparent when generating several lair-augmented dungeons and multilevel dungeons</li>
+<li>Refactoring and bug-squashing of team functionality a little bit. The major change is that each entity supports being a member of multiple &quot;teams&quot; which is sensible, but leads to some other bugs, e.g. if villagers and beasts are in the &quot;current level&quot; team, they&#39;re not hostile to each other by default.</li>
+</ul>
+<p>Still not done with procedural missions, as rewards are still WIP, plus there has to be an option to only complete quest after speaking to the quest giver (although that&#39;s not a necessity)
+Next: Start &quot;wrapping up&quot; with a few more quest types, maybe another mission type, and a better tool to just author dialogue or anything else. In a month I&#39;ll need lightweight content generators, as coding will probably pause a bit. This means that city functionality will probably start materializing towards the end of July I hope.</p>
+
