@@ -1,0 +1,40 @@
+---
+layout: post
+title: Live sprite updates and more
+date: 2025-05-16 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/05/sprites.png
+meta:
+author:
+permalink: "/2025/05/16/live-sprite-updates-and-more/"
+---
+
+<figure><img src="{{ site.baseurl }}/assets/2025/05/sprites.png" alt="Some new sprites: city, ruins, wizard tower, lighthouse, camp"/><br />
+<figcaption>Some new sprites: city, ruins, wizard tower, lighthouse, camp</figcaption>
+</figure>
+
+<p>A bit more varied work this week, including some art! So here we go:</p>
+<p><strong>Prefab area testing</strong></p>
+<p>I have made a bunch of prefab areas previously, using some DIY editor, but I hadn&#39;t tested them after the port to Godot, and in the meantime a few things changed in the data formats, so naturally, they were mostly broken. So I did a cleanup and bug-fixing round to sort these out. Such areas can be used for e.g. boss lairs, and it&#39;s of course a nice way to mesh handcrafted with procedural content. I&#39;m not showing any now, but if you&#39;re curious, <a href="https://byte-arcane.github.io/sigil-of-kings-website/2023/08/17/lairs-graphs-and-music/">in this blog post</a> and <a href="https://byte-arcane.github.io/sigil-of-kings-website/2023/08/24/boss-sites-and-websites/">this one</a> several of them are shown. </p>
+<p><strong>Sprite work</strong> </p>
+<p>Well, I don&#39;t have icons for overworld locations, and I&#39;ve been using so far some terrible sprites - the &quot;dungeon&quot; ones look like a blurry mess and the city ones are from a book &quot;learn how to draw castles&quot; xD So, I thought, why not try to draw some? Look, they&#39;re not going to be great, but they&#39;re mine, so no copyright issues, AI-free and ... unique. So, everybody better get used to DIY sprites until I hire somebody or I magically become good, because I can&#39;t hold back content because I can&#39;t find art. Polish be damned (not the people/language!). So, for now, you may ... admire (right? right?) new sprites for wizard tower, lighthouse, ruins, campsite and city. A few more overworld locations to go, and at some point I need to create separate biome variants and improve the palettes a bit.</p>
+<p><strong>Live sprite updates</strong></p>
+<p>Creating sprites is nice and all, but how can we see them in game? Well, that&#39;s non-trivial. Being in the DIY low level caves, I can&#39;t just swap sprites and see changes in the editor. Now that I&#39;m writing this, I realise could make a DIY overlay to put the sprite somewhere on the screen on top of a desired background, but where&#39;s the fun in that? So what I did was to add a filewatcher for changes in the folder tree where I keep all sprites, and take actions based on the sprites added. Now, there are two tricky bits:</p>
+<ul>
+<li>First, you might think that when you &quot;save&quot; a file from an image application, you modify the file, write? Well, wrong! It could be a number of things, based on the application. They might delete the original and rename a cached copy to the target file. Or delete and create a file. Also, when I discard changes from git, again, it&#39;s not modified but some combo of create/delete. Fun stuff to discover!</li>
+<li><p>Another fun fact is that I don&#39;t use individual sprites in most of the game, but I used pre-baked texture atlases, each of which contains up to 2048 sprites. So, every time a sprite is changed, I need to go and edit a JSON file that stores the mapping between sprites and where they are in the texture atlas, in addition to re-baking that texture atlas, in addition to flushing everything to use the new data. Fun stuff I&#39;m telling you!</p>
+</li>
+</ul>
+<p>Anyway several operations work now, even though I haven&#39;t tested extensively. Here&#39;s a proof of concept - happy bunny, as things work ok.</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/LrnQlNayQ4c" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/LrnQlNayQ4c?autoplay=1><img src=https://img.youtube.com/vi/LrnQlNayQ4c/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Live sprite updates"></iframe></div>
+<figcaption>Live sprite updates</figcaption>
+</figure>
