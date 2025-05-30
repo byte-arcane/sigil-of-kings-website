@@ -1,0 +1,38 @@
+---
+layout: post
+title: Art Is Mine
+date: 2025-05-30 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/05/mine.png
+meta:
+author:
+permalink: "/2025/05/30/art-is-mine/"
+---
+
+<p>This week was slow, but the journal must go on. It&#39;s mostly art really, and a bit of bug fixes to support this art.</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/2Gnd4xipOOo" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/2Gnd4xipOOo?autoplay=1><img src=https://img.youtube.com/vi/2Gnd4xipOOo/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Mines"></iframe></div>
+<figcaption>Mines</figcaption>
+</figure>
+
+<h1 id="mines">Mines</h1>
+<p>For a long time (2 years actually, <a href="https://byte-arcane.github.io/sigil-of-kings-website/2023/04/06/mines-maps-and-rooms/">here&#39;s the blog post</a>), I had some code lying around that was able to generate mine tracks in levels. But I didn&#39;t have any sprites to go with it. I made a 5&#39; attempt then, but was rather lame, so I abandoned it. This week I felt like re-trying that, and I&#39;m extremely happy with the results. I think I got a bit better. But this required a few more things. Working mines should be well lit as people are working in them. My mines are based on &quot;Cavern&quot;-type maps, which include some but not many torches, and generally torches are sometimes off for variability. So, I added another type of object to spawn, which is a &quot;mine torch&quot;, that generates a torch but with different conditions and frequency, where the condition is &quot;are we in a mine?&quot;. Thus, my quick dirty thoughts of &quot;should I make another map type called mine?&quot; were quickly dissolved and the problem was solved swiftly and elegantly. When spawning switches (like a torch) we detect tags and if it&#39;s a mine we turn them all on. That, until I realise that some switches should not be set to on in working mines.</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/C70Y6PKhlBw" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/C70Y6PKhlBw?autoplay=1><img src=https://img.youtube.com/vi/C70Y6PKhlBw/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Cats"></iframe></div>
+<figcaption>Cats</figcaption>
+</figure>
+
+<h1 id="animal-sprites">Animal sprites</h1>
+<p>Eventually I need to add a bunch of creatures, that as I understand I&#39;ll probably have to make myself. So, prepare for amateur hour pixel art. Starting with ... cats! Partly because I was prompted to do it, and partly because I did want to start introducing several simple animals that can populate levels (especially wilderness) to make them a bit more alive and &quot;natural&quot;. I think this touches on a core aspect of this game: animals and obstacles and everything that you see in the game is not strategically placed for a well-designed combat or exploration encounter, but they are organically placed to achieve &quot;sandbox immersion&quot; without the game being primarily sandbox. &quot;Organically&quot; mean plenty-of-rules-based random here.</p>
+<h1 id="quests-conversations-">Quests? Conversations?</h1>
+<p>I&#39;ve been working on these two and the work is nowhere near over. A bit of reflection: I&#39;m at the typically most difficult stage, which is how to generalize to something bigger that covers current cases and future ones where future ones might be a bit more complex too. My typical unsuccessful MO is to cover/implement a few cases, design blueprints for the rest, and make the abstraction that covers everything. The reason is the prevention of duplication and avoidance of future refactoring to the abstractions, but that doesn&#39;t work well. The abstraction doesn&#39;t always match the blueprints well. So what needs to be done is actually go and tediously implement manually/ad-hoc a LOT of mission types in a way that the resulting duplicated mess is contained, and after that is said and done, the abstractions should be made and the tedious refactoring has to take place. So, TLDR more mission types incoming, before I probably go hide, and tearfully refactor the mess.</p>
+
