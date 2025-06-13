@@ -1,0 +1,59 @@
+---
+layout: post
+title: Mines and Sprites
+date: 2025-06-06 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/06/crab.png
+meta:
+author:
+permalink: "/2025/06/06/mines-and-sprites/"
+---
+
+<p>A variety of things this week, with very little coding. </p>
+<p><strong>Mine improvements</strong></p>
+<ul>
+<li><strong>Minecart tracks</strong>. A few bug-fixes in the code to ensure there are no unnecessary loops in the minecart tracks. I did start with an attempt for a grid-specific MST implementation, but kinda gave up on it after a while, as it was taking a few hours plus I was not confident I wanted to have an MST for the minecart tracks. The code is still a bit ad-hoc, but works well enough, so done and over.  </li>
+<li><strong>Miners</strong>. Working mines now include miners. The race composition follows the weighted distribution of the city the mine belongs to. </li>
+<li><strong>Ore</strong>. Mines now have lots of ore lying around, and the type of ore is dependent on the type of the mine. </li>
+<li><strong>Abandoned mines vs working mines</strong>. These are now different presets, as abandoned mines include enemies and working mines include miners, as simple as that. A multi-level mine dungeon can of course contain a mix of these.</li>
+</ul>
+<p><strong>New sprites</strong></p>
+<p>I had a bit more fun with sprites this week, mostly about inconsequential animals, to add flavour to the world. So now we have penguins (I was super pleased with this one, based on how easy it was), crabs (also super pleased as I had a lot of failed prototypes before) and fire elementals (that&#39;s just oryx recoloring). I&#39;ve also re-shaded the bunny and scaled it down a bit, to make it appear less gigantic. I wanted to do gorillas, but ... it&#39;s not working out. 2h failing to draw a bloody gorilla is not fun. I repurposed it to a wererat instead (that&#39;s how bad it was) but that was unsatisfactory as well, mainly because of scale issues (looks like a child wererat). So I&#39;m showing you none of these and going back to overworld locations.</p>
+<p>So far, for mines I&#39;ve been using the resource icon (it&#39;s from some itch.io pack). So I repurposed the cave sprite, removing the eyes and adding some tracks, and pasting the resource icon, and lo and behold, resource-specific mine icon! It Will Do. But for mines that should be in water (I have a fascination with underwater maps) I need a different icon. So after a bit of googling for ideas, I ended up making something that resembles what I&#39;d say is a medieval oil rig / well, from a useful reference. I find pixel art shading magic, and I shouldn&#39;t, as I&#39;ve done <em>a lot</em> of work on 3D shading for years. But the effect of changing a few pixel colours and getting such a different feel never fails to impress me. </p>
+<p><strong>Youtube shorts</strong></p>
+<p>I&#39;m posting short videos on youtube anyway, so I thought why not repurpose for shorts? I had some old code from some tiktokification experiment, which I reused to automatically process a video for usage with shorts. What&#39;s even better, is that when uploading to youtube you get an option to copy-paste details from another video, so the process of making the short is really, <strong>really</strong> easy, so it&#39;s a crime not to do that. So that&#39;s integrated now, and every youtube video will be accompanied by a short, unless I post something which showcases UI at the right/left edges of the screen, as that&#39;s cropped out. Examples of the same video: <a href="https://youtu.be/ou3Odtq1OT8">regular</a> and <a href="https://youtube.com/shorts/efhVjsev-k0?feature=share">shorts</a></p>
+<p><strong>&quot;New&quot; trailer for PitchYaGame</strong></p>
+<p>To avoid posting yet again the same exact video that is now 2 years old, and to avoid redoing it from scratch, I just chose a bunch of videos from the last year, chose a second from each, added them altogether with a bit of audio before the beginning of the trailer. Lo and behold, <a href="https://youtu.be/KTy-d3X-ZPg">&quot;new&quot; trailer</a></p>
+<p>That&#39;s all, have a nice weekend!</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/zwcDGMLbs9E" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/zwcDGMLbs9E?autoplay=1><img src=https://img.youtube.com/vi/zwcDGMLbs9E/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Crabs"></iframe></div>
+<figcaption>Crabs</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/Ozp703XpnvY" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/Ozp703XpnvY?autoplay=1><img src=https://img.youtube.com/vi/Ozp703XpnvY/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Crabs WIP..."></iframe></div>
+<figcaption>Crabs WIP...</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/BoOaoq7JSfE" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/BoOaoq7JSfE?autoplay=1><img src=https://img.youtube.com/vi/BoOaoq7JSfE/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Penguins"></iframe></div>
+<figcaption>Penguins</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/ou3Odtq1OT8" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/ou3Odtq1OT8?autoplay=1><img src=https://img.youtube.com/vi/ou3Odtq1OT8/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Owl"></iframe></div>
+<figcaption>Owl</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/DvTunFCnlbs" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/DvTunFCnlbs?autoplay=1><img src=https://img.youtube.com/vi/DvTunFCnlbs/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Mines"></iframe></div>
+<figcaption>Mines</figcaption>
+</figure>

@@ -1,0 +1,53 @@
+---
+layout: post
+title: Quest for the Mine Portal
+date: 2025-06-13 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/06/mine_portal.png
+meta:
+author:
+permalink: "/2025/06/13/quest-for-the-mine-portal/"
+---
+
+<p>This week a few things, focussed on getting something slightly more coherent together. The objective for this week was to have a quest that takes place in a mine. And not just any quest, but a portal summoning quest. So here we go.</p>
+<p><strong>Quest setup</strong></p>
+<p>Alas! There are fire elementals coming out of a portal in a mine. To keep things nice and neat, the first level of the mine is a working mine, with miners and without enemies or traps. The wilderness outside of the mine is still dangerous though. The second level of the mine will contain the portal, and it&#39;s overall a dangerous place - any enemy can be found here. </p>
+<p>The quest to deactivate the portal is given by a village chief. At the moment, I spawn villages on top of city locations, but this is temporary until I get a city screen going (yes, breaking the non-modal roguelike rule)</p>
+<p><strong>Miners and ore</strong></p>
+<p>So, the first level contains lots of miners working in their mine. So how do we do that? Well, the C++ placement algorithm includes instructions for &quot;miners&quot; and &quot;mined ore&quot;, but they are not matched to entities or even entity configuration, but to factory methods that are clever enough to detect what type of mine it is, to spawn appropriate ore, and that we should be creating miners that wear suitable mining equipment, namely a pickaxe and a leather cap. For these I had to make some extra composable sprites, which are mini-sprites that are used in a dynamic sprite composition process. So, the miner sprites are regular human sprites with some bolt-on cap sprite, a bolt-on pickaxe sprite, and so on. </p>
+<p><strong>Portal wave spawner</strong></p>
+<p>This is something essential I guess (well at least to my standards) - the support for spawning waves of monsters, in regular (or not) intervals. To achieve this I&#39;m using some special &quot;wave spawner&quot; logic attached to an object. Objects with some kind of logic also take turns like creatures do, but unlike creatures, objects take their turns very regularly, at a custom specified rate. Creature turns depend on how long their last action took. So, long story short, the wave spawner logic spawns creatures, then waits until spawned creatures are all dead, then starts a timer, and when timer elapses spawns next wave and so on. When all waves are complete, it deactivates itself. And with a bit of custom code, we can have increasing number of creatures, different creatures, including bosses into the mix, etc. Here, we&#39;re keeping it simple and just use fire elementals.</p>
+<p><strong>Performance woes</strong></p>
+<p>At some point I had some horrible performance issue, which ended up being two issues really, both fixed. I was creating a settlement while in overworld, then tried to move in the overworld, and it was taking several seconds. Bad! This happened because all created turn-taking entities (villagers, 14 of them) got immediately into the time manager queue and could not be &quot;frozen&quot;. Given that moving to another tile in the overworld tool 30 game hours, and a simple entity turn is 6 seconds, and I had 14 such villager entities, apparently in the time that it took for the player to move from one tile of the overworld to another adjacent one, <strong>the game had simulated 207,000 turns</strong>. Oops. This worked out at 0.17ms/turn, so performance per turn was not that horrible, but there were so many of them. Solution? Whenever I instantiate a level, every entity in that level immediately becomes frozen.</p>
+<p>Second performance problem (and it was the one I encountered first) was every time an entity took a turn, the game time progressed, and the UI listens to game time changes and updates the calendar widget. Another oops, as in a single frame we might process 100 entities, which means 100 UI updates, replacing the exact same widget. No point whatsoever in doing that. What&#39;s worse, the GUI update was setting text in BBCode labels in Godot, and that process is notoriously slow. Anyway, fixed that too, all well</p>
+<p><strong>Month break</strong></p>
+<p>I&#39;ll be away for a bit more than a month for a special sort of summer break, at places where I might not be able to be online, and I possibly don&#39;t want to anyway. But I must try not to forget how to gamedev. So, see you all in July!</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/-PWvX4bjqII" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/-PWvX4bjqII?autoplay=1><img src=https://img.youtube.com/vi/-PWvX4bjqII/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Animated overworld mines"></iframe></div>
+<figcaption>Animated overworld mines</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/nN9am2dUQ3o" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/nN9am2dUQ3o?autoplay=1><img src=https://img.youtube.com/vi/nN9am2dUQ3o/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Animated cavern sprite"></iframe></div>
+<figcaption>Animated cavern sprite</figcaption>
+</figure>
+
+https://youtu.be/uOQnGddS7mg
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/uOQnGddS7mg" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/uOQnGddS7mg?autoplay=1><img src=https://img.youtube.com/vi/uOQnGddS7mg/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Tales from the scorching portal - preview"></iframe></div>
+<figcaption>Tales from the scorching portal</figcaption>
+</figure>
+
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/pyzqUiMFDw8" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/pyzqUiMFDw8?autoplay=1><img src=https://img.youtube.com/vi/pyzqUiMFDw8/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Tales from the scorching portal"></iframe></div>
+<figcaption>Tales from the scorching portal</figcaption>
+</figure>
