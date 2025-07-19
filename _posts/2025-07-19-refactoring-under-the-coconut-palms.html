@@ -1,0 +1,30 @@
+---
+layout: post
+title: Refactoring under the coconut palms
+date: 2025-07-19 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/07/palm.jpg
+meta:
+author:
+permalink: "/2025/07/19/refactoring-under-the-coconut-palms/"
+---
+
+<p>Alas, holidays are over, and now slowly getting back to reality, playing catchup with work, gamedev and post-holiday photo post-processing. Of course, I didn&#39;t manage to keep out of gamedev the entire time, and I ended up sneaking in some refactoring work on a few things that bothered me a lot.  It&#39;s all about ...</p>
+<p><strong>Items</strong></p>
+<p>I had a bunch of classes for specifying item lists for various purposes, e.g. for chests, for starting equipment, other containers etc. Organic code growth had resulted in a few classes, doing similar work, duplicating some code and not even covering all use-cases that eventually surface. This is now changed. There is an ItemProvider class that can be specialised to provide items either explicitly (e.g. by Id), or using filters (e.g. pick a random item of type X), or using more complicated filters, based on context. This last bit is important. </p>
+<p>Context is important when randomly choosing things in a game with loads of procgen. The simple example that I wanted &quot;cold iron ore&quot; to appear as treasure in cold iron mines. How to do that? I suppose there are multiple ways, so my descent into this solution space led me to using context. I can have a specialised item provider particular to ore. When using this provider to generate an ore chunk, we can use the context to identify where we are, which might inform what ore should we use. My current simple code does &quot;if we&#39;re in a mine, choose the ore that corresponds to the mine&quot;. This provider can be put in a list of providers for generating contents for a crate in the mine. </p>
+<p>Another cool (imo) result of this work was the ability to generate items tailored to players, in a classless system, like what I&#39;m using. As a reminder, my system is skill-based: you choose which skills to master, and that defines what you can do, as skills give you passive bonuses and enable abilities. It&#39;s somewhat like a mix of latter Might &amp; Magic games (the first person ones) and Elder Scrolls games. So, you finish a quest and get some treasure from the quest giver. Let&#39;s say that treasure is a magic piece of equipment. What equipment should it be? Here&#39;s when the rng fun begins: each skill has it&#39;s own rng-powered item provider, e.g. a dual-wielding skill would be associated with a provider that can generate weapons that can be dual-wielded. Or even a piece of jewelry that can give bonus to that skill. Given the player&#39;s skills, we can assign weights to each of these providers based on the skill value to pick a provider, then generate the item using that provider, given the situational context (which is mostly related to where we are). This is not put into practice yet, and some probable kinks into this plan are that some skills don&#39;t match well to items. But let&#39;s see.</p>
+<p><strong>Item containers</strong></p>
+<p>Another bit of complexity here. So, here&#39;s part of the conundrum. In a game like Diablo, when you break a barrel or a jug, the contents drop on the floor. There are no generic containers that we can put in and retrieve objects from, except the stash. Of course this is not simulationist, but gamey (these days you also automatically pick up things like gold, because &quot;why would you not&quot;). On the other side of the spectrum we have a game like Skyrim, which opts for the more simulationist approach of interacting with containers to add/remove items. I like both approaches for different reasons. The first approach makes associated gameplay &quot;faster&quot;, there&#39;s no fussing with containers and the player is not allowed to add/remove items as it would encourage pointless behaviours. The second approach allows for more emergent gameplay, where you can do all sorts of weird things, and manipulating containers for some obscure reason is a part of the game&#39;s action vocabulary. Currently I support both approaches. A weapon/armor rack or a jug would use the first approach, whereas a crate, barrel or chest would use the second.</p>
+<p>Now, we have a few general containers: crate, chest and barrel. How to assign contents? The current approach is to separate container and contents into different presets (containers are object presets, contents are lists of item providers) but also have presets of containers-with-contents... Confused yet? What&#39;s the rationale for this level of overengineering? I like contents being presets, because they can be assigned to different containers: &quot;food&quot; as a content preset could be assigned to a villager, a crate, a barrel, a sack, etc. Containers-with-contents are useful when used with the procedural placement system. I can create a preset of &quot;ore crate&quot;, which is effectively a crate object with the ore contents preset. This can for example be assigned to procedural placement rules so that I can generate ore crates in a mine level. </p>
+<p><strong>Natural attacks</strong></p>
+<p>Through some previous refactoring effort, natural attacks were specified as ... items. Yes, I know, absolute horror. The reason are murky and from organic growth of the code over the years, but it was a clearly terrible state of things that needed changing. The end result is that now natural attacks are declared as &quot;active&quot; abilities, like a spell or other explicit actions that an actor can perform. As such, they have their own requirements (e.g. have nothing equipped if we&#39;re using a punch attack), cooldowns (e.g. some special natural attack) etc. Natural attack ammo is still classified as an item, but as a &quot;transient&quot; one, e.g. an acid spit blob.</p>
+<p>That&#39;s all for now, see you next week!</p>
+
