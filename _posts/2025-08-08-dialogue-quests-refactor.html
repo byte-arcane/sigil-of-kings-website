@@ -1,0 +1,34 @@
+---
+layout: post
+title: Dialogue, Quests, Refactor
+date: 2025-08-08 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/08/quest_dot.png
+meta:
+author:
+permalink: "/2025/08/08/dialogue-quests-refactor/"
+---
+
+<p>For the last few weeks I&#39;ve been working mainly on dialogue and quests, as it&#39;s definitely a tricky one to solve, for procedurally generated quests. </p>
+<p><strong>Dialogue - supporting shared dynamic topics</strong></p>
+<p>In a previous quest scenario, we have a mine overrun by fire elementals. The quest giver (e.g. nearby village chief) gets some text, but everybody else, miners included, don&#39;t seem to care/know about it! So let&#39;s fix that. The simplest approach is to edit the dialogue tree and add some relevant mines to entities of interest. But it&#39;s extremely important that this is lazily evaluated, as imagine for example the following scenario: We have the main quest being completed, say the world is saved, and everybody celebrates in some way. &quot;Everybody&quot; might mean ten thousand entities. Do we go and edit each one when we decide on the dialogue? No. We use a shared dynamic conversation topic with an associated entity filter, which basically dictates if an entity is able to chat about that topic. We go through a global list of these topic/filter pairs each time we start a conversation, to see what needs adding (or removing) to the conversation topics. That&#39;s about it! Implementation-wise things get a bit more complicated with several corner cases. For example, sometimes, this &quot;quest is over, thanks pal!&quot; message should appear only once, instead of repeatedly. Also, we should be able to remove the entity filter and topic after a while, for keeping the list of dynamic topics under control. Currently this is done by assigning a timeout (e.g. 1 game year), after which people &quot;forget&quot; to make such comments as life goes back to normal. </p>
+<p><strong>Dialogue tool</strong></p>
+<p>At some point I need to write more dialogues. At the moment, the dialogue tree structure is of course some complicated json format, that supports a number of things like exiting conversations, jumping back to previous topics, show topics conditionally, execute actions with certain choices, etc etc. </p>
+<p>But of course, some times, or as a starting point, we just want to write a simple dialogue! And very importantly, to visualise it. For any sort of tree visualisation, I usually gravitate towards graphviz dot, as it does the job with nice simple text input. I did write a bunch of prototype tools to edit dialogues, but in the end I reverted to an in-game Dear ImGui-powered tool, added to the arsenal of other such tools. The extra interesting bit there is that I can quickly generate and visualize a dialogue tree, but editing the tree is still painful, so that might need work at some point.</p>
+<p><strong>Questing</strong></p>
+<p>A few bits of work here. First of all, some debug console commands for quest or objective progression and completion (successful or not). Pretty sensible and essential really for any non-trivial quest. Some other work involved fixing a bug related to when a quest reward was given, e.g. for the mine scenario I need to add an objective e.g. &quot;Return to the Village Chief&quot; which becomes successful when we interact with the village chief, at which point the reward is provided (e.g. treasure, gold, XP, etc)</p>
+<p><strong>Game Log</strong></p>
+<ul>
+<li>The more I look at other game GUIs, the more I realize how huge my fonts are for a lot of cases. I targetted the game log this time, made it smaller and added some alpha grading for older entries. The reason I ended up working on that was because I wanted to show information in the log for items received or lost, e.g. when completing the quest and the player receives the items, there should be some indicator that this happened.</li>
+</ul>
+<p><strong>WIP: items of ability execution</strong></p>
+<p>This is a tricky one, as it&#39;s work in progress and required quite a bit of refactoring. The game will contain magic scrolls as items, where the scroll will allow you to execute an ability once, at a specified level. Now there are a couple of issues: executing an ability to a given level required a little bit of refactoring, and the other problem is that using the scroll is an ability by itself, so in the middle of an ability execution we need to schedule another ability to happen immediately after. It&#39;s not too terrible in theory, but I&#39;m still in the middle of this. The end result of this is that we can have potions, scrolls and wands being able to execute different abilities at fixed levels, so we can have something like a Greater Potion of Blur which would cast a &quot;blur&quot; spell at a fixed high level, that improves evasion.</p>
+<p>That&#39;s all for now, have a nice weekend!</p>
+
