@@ -1,0 +1,24 @@
+---
+layout: post
+title: Items of Ability Execution
+date: 2025-08-15 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/08/inv_scroll_aa.png
+meta:
+author:
+permalink: "/2025/08/15/items-of-ability-execution/"
+---
+
+<p>This week was a continuation of last week&#39;s work on items that are able to execute wholesale an ability. </p>
+<p>Abilities are active actions that entities can perform: they could be innate actions (use item, throw item, speak), combat actions (melee attack, charge, lunge), spells (fireball, etc) or special abilities (&quot;subdividing self&quot; for oozes, &quot;unarmed strike&quot;, &quot;acid spit&quot; for some creatures, &quot;sting&quot; for others, etc). My goal is to have different item categories being useful in different ways, e.g. scrolls can exist for certain types of abilities, potion effects are limited to self effects, wands always need targets, etc. Additionally, these items are levelled, and have fixed levels (this was a requirement for dealing with graphics in a sane way). For example you might find scrolls level 5,10,15,20, and if they contain some low level spell, the spell is executed as if it was level 5, 10, 15 or 20. This needed a bit of work to support. Finally, the items execute these abilities without incurring mana or life costs, which makes these items valuable</p>
+<p>The other tricky bit was to support the &quot;chain&quot; where ability that is being executed (e.g. &quot;use item&quot;) is able to schedule immediately another ability (e.g. &quot;fireball&quot; if the item used is a wand of fireball). This works by scheduling a different action immediately after the current one, and the current one ends up having zero recovery time. And a bit of duct tape to hold things together.</p>
+<p>The good thing about this is that I can add a definition of an active ability (e.g. a new spell) and suddenly a new scroll or wand or potion might be able to be generated that is able to activate this ability. The system is far from polished or complete, as I need to test that the AI can use such items successfully too, plus support for level or attribute or skill requirements need to be added, and communicated via GUI.</p>
+<p>On top of that, plenty of refactoring and bug fixing. And started next week&#39;s work, which is ... belts and quickslots! But more of that next week, so have a nice weekend and stay tuned!</p>
+
