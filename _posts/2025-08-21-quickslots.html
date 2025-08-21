@@ -1,0 +1,55 @@
+---
+layout: post
+title: Quickslots
+date: 2025-08-21 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/08/quickslots.png
+meta:
+author:
+permalink: "/2025/08/21/quickslots/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/2l4F0hxdPw8" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/2l4F0hxdPw8?autoplay=1><img src=https://img.youtube.com/vi/2l4F0hxdPw8/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Quickslots"></iframe></div>
+<figcaption>Quickslots</figcaption>
+</figure>
+
+<p>Ok full speed development (well, part-time anyway) for this week, and the focus was belts and quickslots.</p>
+<p><strong>Quickslots</strong></p>
+<p>This was the bulk of work for the week, and it happened in the latter part, but I have to start with this. </p>
+<p>In the game I have a lot of &quot;usable&quot; items: potions, scrolls, etc. So far you can open the inventory, select one such item and click &quot;Use&quot; from a context menu. Now this has two problems: </p>
+<ul>
+<li>In the heat of battle (ok it&#39;s turn-based, but still) you don&#39;t want to open menus and scroll over pages of items. You want something quicker and more streamlined</li>
+<li>Ok you might say &quot;use the hotbar at the bottom of the screen, duh&quot; (that&#39;s the area where we have ability shortcuts, for those who don&#39;t know, which is probably 99% of you). Sure but there&#39;s another problem.</li>
+<li>It&#39;s a bit nonsensical game-wise to have quick access to anything you might be carrying, for instant use, without penalties. </li>
+</ul>
+<p>So, the answer is obvious - use &quot;quickslots&quot;! These are a few slots where we can place items we can use or throw, and we can execute that command quickly. You can still use/throw items straight from the inventory, but it costs more time (actually the time to transfer an item from backpack to quickslot: 1 turn) and is less desirable. 
+Now for this I had to make some GUI like the ability hotbar, but to support game sprites rather than icons (sounds the same to you but there be dragons under the hood), and some other paraphernalia that needs to be implemented for &quot;proper support&quot;, like being able to clear a slot, updating the slots when using items, and so on and so forth. </p>
+<p>After some sweat and tears, this works pretty well it seems. And there&#39;s more! AI can use quickslots too. How?</p>
+<ul>
+<li>Adding an item to a quickslot is an innate ability. The &quot;utility&quot; value of this action is high if we have empty quickslots and usable items. Basically this means that it will be prioritised if quickslots can be filled.</li>
+<li>Using an item can prioritise quickslot items. Actually we can ignore other items if we have items in the quickslots. Additional benefit: AI is ever slightly faster.</li>
+<li>As above with throwing items, although some AI for that is yet to be implemented</li>
+</ul>
+<p>Overall I&#39;m pretty happy with this choice, as it adds another strategic layer in the game, as clearly I&#39;m going for the &quot;depth by a million features&quot; approach. I&#39;m also happy that it didn&#39;t really take that long to implement. </p>
+<p>But now you&#39;re left with the burning question: &quot;How many quickslots does a creature have?&quot; And the answer, as <em>always</em>, is ... it depends! To have some flexibility for builds/strategies, the number of quickslots is dependent, among other factors by ...</p>
+<p><strong>Belts</strong></p>
+<p>This is a new item type, and a new equipment slot type. It doesn&#39;t affect the in-game character sprite (yet). The reason for adding yet another equipment slot was purely for supporting quickslots in a sensible way. You can&#39;t have &quot;potion belt&quot; without a belt, can you? So, different belts can provide different number of quickslots, and we can support quickslots as an enchantment type (e.g. &quot;belt of carrying&quot; could boost quickslots even more, at some reasonable max of currently 10). </p>
+<p>Now there were two challenges for this:</p>
+<ul>
+<li><strong>Finding sprites</strong>: I didn&#39;t think twice about this, just got an asset pack with 50 belts and just used a few as variants. Done.</li>
+<li><strong>In-game support for a new equipment slot type</strong>: that was barely any work really, just a couple of enums and edits in a json file, it was extremely easy. Belts are armor, so they get spawned wherever armor spawns, and get armor-like enchantments. At some point I need to add some clause to increase their chances of getting a ...</li>
+<li><strong>Quickslot enchantment:</strong> Still not complicated, slightly longer than adding the new slot type (go figure)</li>
+</ul>
+<p>And that&#39;s about it with the belts!</p>
+<p><strong>Misc</strong></p>
+<p>Some other work that was done: above the spot that I wanted to place the quickslots (middle-right) there was this half-baked display of what you&#39;re carrying in main/off-hand. I thought that was pretty useless, so I changed that. Now it says what types of default melee/ranged attacks you have available based on equipment; iterative improvement, but still.</p>
+<p>That&#39;s it for this week, have a nice weekend!</p>
+
