@@ -1,0 +1,77 @@
+---
+layout: post
+title: Mushroom harvest
+date: 2025-08-28 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/08/mushrooms.png
+meta:
+author:
+permalink: "/2025/08/28/mushroom-harvest/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/4LWmxJLbPmc" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/4LWmxJLbPmc?autoplay=1><img src=https://img.youtube.com/vi/4LWmxJLbPmc/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Harvesting mushrooms"></iframe></div>
+<figcaption>Harvesting mushrooms</figcaption>
+</figure>
+
+<p>A variety of things this week, mostly related to content. I decided to get some big asset pack, with lots of mediocre assets and some good ones, so I&#39;m very slowly combing through.
+This brought up one of the main ever-looking challenges for projects of such scale. Which is ... how to scale effectively :)
+First of all, a bit of math. I&#39;m pulling some numbers out of my behind, but bear with me.</p>
+<p>Given some rough calculations, I might need around 20,000 different sprites. For 32x32 sprites, where I have the regular sprite and a distance field representation, this means 5KB/sprite, for a total of 100MB, which is peanuts. Good!</p>
+<p>I store sprites in texture arrays, and the fixed limit of each array is 2048 elements. For 20,000 sprites I need about 10 texture arrays, which is also peanuts. As long as the same shader using just a single texture array, instead of having to repeat for several ones, it&#39;s optimal. </p>
+<p>In some areas in the code I&#39;ve been using arrays with a number of elements fixed to the number of elements of some database type. For example an attribute array will always have a size of 6. That&#39;s nice and low. This could be used with bools, to make an attritube mask, to define for example what attributes does a skill get bonuses from. But another example is the item or active ability database type, which both can contain hundreds of elements later on, so in that case creating an array of 500 just to set 1 item is rather wasteful. So, care needs to be taken to not utilise these types inappropriately for data that are likely to scale up quite a bit in terms of numbers. </p>
+<p>Another scaling issue which is more or less dealt with is the inevitable explosion of JSON data. At the moment, my JSON configuration data are about 220 files/4MB, and content will only be increasing at ... increasing rates. Adding an object, like a a table, does not just increase the sprite count, but adds several lines of json. For abilities, far more so. And because all the data is primarily json, I don&#39;t have facilities for variant specification, although it&#39;s something that I&#39;m looking at. The problem of loading JSON data is already solved by having a binary serialization format alongside json, so that data can be loaded at game startup really really fast, without parsing a single line of json.</p>
+<p><strong>It&#39;s mushroom season</strong></p>
+<p>Alright the rest of the work was due to me choosing to fixate in a single contained and mostly ok-ish asset pack with mushrooms - 47 in total. Several bits of work had to be done. </p>
+<ul>
+<li><strong>Color palette:</strong> The color palette was not exactly quite compatible, so that needed fixing. I chose AAP64 and extended it with about 1000 more colors, to have good enough set of colors to map the originals to. </li>
+<li><strong>Re-palettising:</strong> I just go through all the pixels of the image and find the closest ones from the palette, in Lab space. This doesn&#39;t work too well with small palettes, that&#39;s why the above by-a-thousand expansion</li>
+<li><strong>Adding silhouette</strong>: I keep my objects with a silhouette of (38,38,38,255). These assets didn&#39;t have that silhouette, so I wrote a script to add it.</li>
+</ul>
+<p>So, with the above, I get some more reasonable 32x32 mushroom sprites. Cue the question...</p>
+<p>... Where on earth do we <em>find</em> those mushrooms??? ...</p>
+<p>Houston, we&#39;ve got a new <del>problem</del> task! Create 32x32 sprites that contain a multitude of mushrooms. How many? Let&#39;s say 1,2,3 or 4. So, this is the approach I took:</p>
+<ul>
+<li><strong>Downscale mushroom to 24x24</strong> with Lanczos</li>
+<li><strong>Re-palettise with above approach</strong></li>
+<li><strong>MANUALLY</strong> add some DIY ambient occlusion around the roots (hate doing things manually), as (0,0,0,64)</li>
+<li>Crop sprite to its bounding box</li>
+<li>Create 1-, 2-, 3- and 4-mushroom patches by pasting the cropped sprite to random positions. A few gotchas:<ul>
+<li>Pasting needs to happen from top to bottom, to simulate background/foreground</li>
+<li>Points are chosen using Poisson disc sampling</li>
+</ul>
+</li>
+</ul>
+<p>That&#39;s it! Result? 47 single-mushroom sprites and 188 patch sprites. That 20,000 sprites figure won&#39;t be hard to reach like this. </p>
+<p>Are we done? <strong>Nope</strong>. Now we need to put them in the game! How to do that? Here are the steps:</p>
+<ul>
+<li>JSON: Add a new entry in the &quot;standard features to spawn in a dungeon&quot; JSON file. Let&#39;s call that a &quot;plant patch&quot;. We specify position requirements (basically, anywhere on land), environment types (biome, a bit in cavern and settlements) etc. We also reference some &quot;collection&quot; preset...</li>
+<li>JSON: Add a new entry in some &quot;collection preset&quot; database json file. Here &quot;plant patch&quot; maps to all 47 mushroom patches, equally likely. </li>
+<li>JSON: Add mushroom patch objects, all 47 of them. They all specify some &quot;harvestable&quot; tag and specify all the patch variants. </li>
+<li>JSON: Add single mushroom objects, all 47 of them. </li>
+<li>JSON: Add &quot;harvest&quot; active ability, that is like &quot;use level object&quot; but might take a bit more time eventually. In code, based on the patch we can infer the single mushroom</li>
+<li>C#: Some support code for some of the above, probably about 100 lines total</li>
+</ul>
+<p>So, basically what happens is:</p>
+<ul>
+<li>When spawning a patch based on the json rules, we randomly pick how dense the patch is: 1,2,3 or 4 elements max, with corresponding sprite.</li>
+<li>In the context menu for object interactions, we now check if an object near/under us can be harvested</li>
+<li>When harvesting, we infer the type of mushroom from the sprite (hacky!), create a number of them, transfer to player and destroy the patch</li>
+</ul>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/Bmn99xf_nkU" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/Bmn99xf_nkU?autoplay=1><img src=https://img.youtube.com/vi/Bmn99xf_nkU/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Killing villagers won't make you popular in the village"></iframe></div>
+<figcaption>Killing villagers won't make you popular in the village</figcaption>
+</figure>
+
+<p><strong>Teams and stealth</strong></p>
+<p>Some miscellaneous fixes on teams and stealth earlier in the week. When we kill a villager, the rest of the villagers should be angry with us. </p>
+<p>That&#39;s all for now, have a nice weekend!</p>
+
