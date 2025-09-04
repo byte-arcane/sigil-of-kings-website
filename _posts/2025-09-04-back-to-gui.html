@@ -1,0 +1,57 @@
+---
+layout: post
+title: Back to GUI
+date: 2025-09-04 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/09/gameselect.png
+meta:
+author:
+permalink: "/2025/09/04/back-to-gui/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/pRIqxk2_smg" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/pRIqxk2_smg?autoplay=1><img src=https://img.youtube.com/vi/pRIqxk2_smg/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Customising looks GUI"></iframe></div>
+<figcaption>Customising looks GUI</figcaption>
+</figure>
+
+<p>Plenty of work this week, shifting gears bit. First part was a mix of things from last week, and then I shifted over to GUI.</p>
+<p><strong>Various changes</strong></p>
+<ul>
+<li><strong>Minor foraging updates.</strong> <ul>
+<li>When you&#39;re foraging, floating text shows the acquired items, so that you don&#39;t have to squint at the log (which also shows that information). </li>
+<li>Slightly better patch distributions so that they don&#39;t look as clumpy</li>
+</ul>
+</li>
+<li><strong>No more &quot;footstep village&quot;</strong>. Previously, every creature was able to leave footprints. I don&#39;t know what I&#39;d use them for, I just wanted to add them. Maybe for some sort of locating tracks of creatures. But of course when we go to a village with lots of villagers, it&#39;s footsteps all the way down - the entire map is flooded. This clearly needed fixing. After some contemplation, I&#39;ve decided to enable footsteps only on &quot;significant&quot; creatures: these would be elite monsters or bosses, but also people with unique dialog. Basically, if you see footsteps, there&#39;s some interesting encounter very near...</li>
+<li>I did some theoretical sprite breakdown, and maybe it might be more in the realm of 10k sprites rather than 20k I originally thought. This doesn&#39;t really change much though.</li>
+</ul>
+
+<figure><img src="{{ site.baseurl }}/assets/2025/09/gameselect.png" alt="Game mode select screen"/><br />
+<figcaption>Game mode select screen</figcaption>
+</figure>
+
+<p><strong>Back to GUI screens</strong></p>
+<p>I have a rough goal to share the game in some form by end of next summer. How to get to there from here? Well, there are a few things that need to be done. One of them is GUI. At the moment, in terms of GUI, there are some big problems/omissions, e.g. character creation screens are missing, and generally icons and GUI look overall needs mega improvement. </p>
+<p>Another bit that I&#39;ve been doing as part of this work, is to use multiple scene files and instantiate accordingly, which is as I understand the preferred approach in Godot; so far I&#39;ve been maintaining a single big tree, with hiding/showing things appropriately. For example the listing of skills and attributes that you can assign to your character can be reused in both the character sheet and the character creation screen: same &quot;widgets&quot; different screens. A good side-effect is this forces you to write more decoupled code, as scenes should be testable and standalone outside the main game. A bad side-effect is that I&#39;m pretty sure my .NET build time has gone up and I don&#39;t understand why ...  But anyway, let&#39;s have a look at the new screens so far</p>
+<p><strong>Game mode selection screen</strong>  (<a href="">image</a>)</p>
+<p>One of my big problems with GUI is that frequenly I can&#39;t imagine a good solution to work towards, as I don&#39;t think I have an eye for user interfaces. For example, I thought I had a good idea for this screen, which is supposed to be an entry point for the main game, tutorial, or other modes. I have some asset pack backgrounds but they don&#39;t look ideal, so I had the great idea to blur them and get away with hiding the details. Well, <a href="https://www.reddit.com/r/IndieDev/comments/1n3zu68/does_a_blurry_background_work_here/">I posted</a> out of curiosity to /r/indiedev for some feedback, and I was called out for inconsistency with art styles. For me the blurred background looked good. I did some python work to process the images and pixelate them a bit, and the result is indeed a bit better, maybe. </p>
+
+<figure><img src="{{ site.baseurl }}/assets/2025/09/chargen_people.png" alt="Choose your people screen"/><br />
+<figcaption>"Choose your people" screen</figcaption>
+</figure>
+
+<p> <strong>&quot;Choose your people&quot; screen</strong> (<a href="">image</a>)</p>
+<p>This is one of the three (so far) screens for character creation. Here you choose between humans and a bunch of other ancestries. You get a preview of what the characters will look like, plus some description</p>
+<p><strong>Looks customisation screen</strong> (<a href="">video</a>)</p>
+<p>This was a bit more complicated, for a few reasons. First, I need some good non-default, fantasy-friendly sliders. The default sliders are unsuitable (you can see them in my other biome generation videos), so there was a bit of pain to make some weird slider that you can see here. I thought I&#39;d try to create the art, well, it&#39;s funky alright, can&#39;t deny that :D Another element that I wanted here was a color picker that would only sample from a color palette. </p>
+<p>The end result is that you can select, for your given creature type (humans only so far), what hairstyle you like, what beard, and colours of different elements: eyes, mouth, skin, hair, beard. I do need to add some more presets, but I think it&#39;s pretty funky as is.</p>
+<p><strong>A little cursor!</strong></p>
+<p>You might notice in the previous video that there&#39;s now a custom cursor! I don&#39;t know why, it dawned on me one morning &quot;I want an old school cursor&quot; and that was it. Got one as reference and roughly redid it in aseprite with the AAP64 color palette. I&#39;m quite happy with it, so it stays!</p>
+<p>Next is the &quot;Attributes and skills&quot; screen and who knows what else the future will bring! Have a nice weekend.</p>
