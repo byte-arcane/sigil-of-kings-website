@@ -40,16 +40,16 @@ permalink: "/2025/09/04/back-to-gui/"
 <p><strong>Back to GUI screens</strong></p>
 <p>I have a rough goal to share the game in some form by end of next summer. How to get to there from here? Well, there are a few things that need to be done. One of them is GUI. At the moment, in terms of GUI, there are some big problems/omissions, e.g. character creation screens are missing, and generally icons and GUI look overall needs mega improvement. </p>
 <p>Another bit that I&#39;ve been doing as part of this work, is to use multiple scene files and instantiate accordingly, which is as I understand the preferred approach in Godot; so far I&#39;ve been maintaining a single big tree, with hiding/showing things appropriately. For example the listing of skills and attributes that you can assign to your character can be reused in both the character sheet and the character creation screen: same &quot;widgets&quot; different screens. A good side-effect is this forces you to write more decoupled code, as scenes should be testable and standalone outside the main game. A bad side-effect is that I&#39;m pretty sure my .NET build time has gone up and I don&#39;t understand why ...  But anyway, let&#39;s have a look at the new screens so far</p>
-<p><strong>Game mode selection screen</strong>  (<a href="">image</a>)</p>
+<p><strong>Game mode selection screen</strong>  </p>
 <p>One of my big problems with GUI is that frequenly I can&#39;t imagine a good solution to work towards, as I don&#39;t think I have an eye for user interfaces. For example, I thought I had a good idea for this screen, which is supposed to be an entry point for the main game, tutorial, or other modes. I have some asset pack backgrounds but they don&#39;t look ideal, so I had the great idea to blur them and get away with hiding the details. Well, <a href="https://www.reddit.com/r/IndieDev/comments/1n3zu68/does_a_blurry_background_work_here/">I posted</a> out of curiosity to /r/indiedev for some feedback, and I was called out for inconsistency with art styles. For me the blurred background looked good. I did some python work to process the images and pixelate them a bit, and the result is indeed a bit better, maybe. </p>
 
 <figure><img src="{{ site.baseurl }}/assets/2025/09/chargen_people.png" alt="Choose your people screen"/><br />
 <figcaption>"Choose your people" screen</figcaption>
 </figure>
 
-<p> <strong>&quot;Choose your people&quot; screen</strong> (<a href="">image</a>)</p>
+<p> <strong>&quot;Choose your people&quot; screen</strong></p>
 <p>This is one of the three (so far) screens for character creation. Here you choose between humans and a bunch of other ancestries. You get a preview of what the characters will look like, plus some description</p>
-<p><strong>Looks customisation screen</strong> (<a href="">video</a>)</p>
+<p><strong>Looks customisation screen</strong> </p>
 <p>This was a bit more complicated, for a few reasons. First, I need some good non-default, fantasy-friendly sliders. The default sliders are unsuitable (you can see them in my other biome generation videos), so there was a bit of pain to make some weird slider that you can see here. I thought I&#39;d try to create the art, well, it&#39;s funky alright, can&#39;t deny that :D Another element that I wanted here was a color picker that would only sample from a color palette. </p>
 <p>The end result is that you can select, for your given creature type (humans only so far), what hairstyle you like, what beard, and colours of different elements: eyes, mouth, skin, hair, beard. I do need to add some more presets, but I think it&#39;s pretty funky as is.</p>
 <p><strong>A little cursor!</strong></p>
