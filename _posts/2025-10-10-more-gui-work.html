@@ -1,0 +1,34 @@
+---
+layout: post
+title: More GUI work
+date: 2025-10-10 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/10/architect.png
+meta:
+author:
+permalink: "/2025/10/10/more-gui-work/"
+---
+
+<figure><img src="{{ site.baseurl }}/assets/2025/10/architect.png" alt="Dungeon Architect screen"/><br />
+<figcaption>Dungeon Architect screen</figcaption>
+</figure>
+
+<p>It&#39;s been a while! Plenty of work, GUI mainly:</p>
+<ul>
+<li><strong>Archetypes</strong>. The skills screen now includes optional archetype selection. The game is classless, but you can still &quot;direct&quot; your character to some specialisations. You can select an archetype if you want to quickly setup a character without choosing attribute/skill distribution, plus you get some starting items. Ok, players probably won&#39;t want to give up control, but hey, archetypes are great for setting up NPCs :D</li>
+<li><strong>GUI redesign</strong> . For the character creator screens, which are now done, I&#39;ve been trying to be a bit more consistent and ... &quot;good&quot; about what style to use. This style, which I think is now fine, was in stark contrast with the rest of the game. So I revisited the rest of the game GUI and changed things to align them to the new style. Panels, scrollbars, buttons, and more. I&#39;m pretty happy with the result, and this gets into &quot;done for now&quot; territory. Gone is the &quot;wholegrain mustard&quot; colour, good riddance I suppose!</li>
+<li><strong>Quickstart</strong>. The creation screens are now too many. I need a way to jump straight into the overworld. There&#39;s now an option in the main menu which uses the last cached generated world and the last cached created player, to throw you straight into the fray!</li>
+<li><strong>Overworld heights</strong>. So far, I&#39;ve been using 4 bands for height in overworld tiles. I use some height-aware algorithm to calculate FoV, but the problem was that visually, I only show &quot;flat land&quot;  or &quot;mountains&quot;. After some failed search for acceptable solutions, I decided that only two bands will be used for height calculation, and they should match the visuals: if you&#39;re on a mountain tile, you can see further, otherwise you will get blocked by mountain tiles.</li>
+<li><strong>Dungeon Architect</strong>. Ok, fancy name to describe a new GUI screen available to players, for making a simple custom prefab level. One of the reasons I made it was so that I could try an alternative tile rendering pipeline using Godot&#39;s multimesh instancing, rather than the RenderingDevice low level stuff. You can place background, blockers, items, creatures, objects, and some floor cover (just carpets for now). I&#39;ve also added a &quot;Play&quot; button, so that you can immediately play that map. The goal for this tool is for me to be able to generate some test scenarios easily to play, when playtesting combat comes. Also for some simple prefabs too, as generated data can be used as part of a bigger dungeon generation process, e.g. you create a prefab area that&#39;s placed in a bigger area.</li>
+<li><strong>Fade text screen</strong>.  Effectively a fade-to-black screen, with typewriter-text appearing, to convey some information, for scripted story sequences.</li>
+</ul>
+<p>On non-work topics, I&#39;ve been watching (well, listening) some videos from Chris Zukowski, mainly about demos and new Steam changes. I find that content generally useful, and gives me ideas of what to add in a demo. For example, he was saying regarding duration that up to 2-3 hours is great, especially for longer form games. Funnily enough, this week, I&#39;ve played two new demos, Lessaria and Olden era, and I was happy with how much I played in the session. Apparently, in both cases, it was 2.2 and 2.3 hours. Spot on! It felt right. So, I&#39;ll aim for something like that, among other bits of advice.</p>
+<p>That&#39;s it for now, have a nice weekend!</p>
+
