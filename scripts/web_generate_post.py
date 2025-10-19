@@ -1,5 +1,14 @@
 import argparse
 import os
+import sys
+import subprocess
+
+def open_file(filename):
+    if sys.platform == "win32":
+        os.startfile(filename)
+    else:
+        opener = "open" if sys.platform == "darwin" else "kate"
+        subprocess.call([opener, filename])
 
 fmt = """---
 layout: post
@@ -59,7 +68,7 @@ fmt = fmt.replace('$TITLE',args.title)
 fname =  os.path.dirname(__file__) + f'/../_posts/{year}-{month}-{day}-{title_dash}.html'
 with open( fname, 'wt') as fp:
     fp.write(fmt)
-os.startfile(fname)
+open_file(fname)
 
 
 
