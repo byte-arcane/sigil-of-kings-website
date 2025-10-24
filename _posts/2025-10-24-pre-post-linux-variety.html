@@ -1,0 +1,46 @@
+---
+layout: post
+title: Pre Post Linux Variety
+date: 2025-10-24 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/10/perf2.png
+meta:
+author:
+permalink: "/2025/10/24/pre-post-linux-variety/"
+---
+
+<p>A variety of things lately, lots of it being maintenance of some form, so not super exciting to write about. </p>
+<p><strong>Animations</strong>. In the begiining of the project, I envisioned potentially multiple hand-drawn animations for different creatures, e.g. dying, attack etc. This never materialised, but the abstractions to support it have been requiring maintenance and are unnecessarily complex, so I removed that. All animations besides &quot;idle&quot; will be procedural and shader-driven.</p>
+<p><strong>Sensor swapping</strong> . One of the areas I&#39;m looking at now requires swapping of playable creatures to work well (for tutorial purposes), so I&#39;ve been looking at that code and associated bugs. Since I implemented the ability to &quot;possess&quot; other creatures a few years ago, I&#39;ve written a lot of code that doesn&#39;t take that possibility into account, and e.g. I&#39;m checking against the player in a lot of cases where I should be checking against the currently controlled unit, the &quot;sensor&quot;. Now, with the new and improved (and possibly incomplete) fixes, you can take over a character, move around, take appropriate actions and even inspect the character sheet, </p>
+<p><strong>Setting up Linux</strong>. Has taken some time, but it&#39;s kinda done now, so all good. All development workflows more or less functional w/ Rider, CLion, SmartGit. More context <a href="https://byte-arcane.github.io/sigil-of-kings-website/2025/10/19/the-end-of-an-era/">here</a>.</p>
+<p><strong>Graphics performance</strong>.  My laptop suffers a bit performance-wise when running the game, and because I was stuck with the laptop for a few days, I thought I&#39;d investigate out of curiosity. After running JetBrains dotTrace, it did find a bunch of things:  some dynamic string allocation I can&#39;t control (Godot&#39;s code), some memory casting code that allocated memory for conversion, which was swapped to some unsafe casting code, and a few other bits, but nothing major. So, what&#39;s the other culprit? It seems like it&#39;s graphics! </p>
+<p>A while ago I had added some profiling for GPU passes, and I realised again that they are very nicely presented in the Godot Visual Profiler! Beautiful. Here&#39;s the output in the overworld:</p>
+
+<p>
+<figure><img src="{{ site.baseurl }}/assets/2025/10/perf.png" alt="Pass timings"/><br />
+<figcaption>Pass timings</figcaption>
+</figure>
+</p>
+
+<p>Now the above shows some expensive passes, like &quot;river&quot;, &quot;plant&quot;, &quot;mtn&quot; and especially &quot;fog-of-war&quot;. Why so expensive?
+I went to the river pass, because it&#39;s pretty simple. Just a few matrix transformations, some indexing, some texture sampling and ... simplex noise calculation. Hmm. Commenting that out, the cost dropped to &lt; 1ms, so about 7 times faster. Oops! </p>
+<p>Test No 2: fake simplex noise with some passthrough value to see the cost in all passes. Results here!</p>
+
+
+<p>
+<figure><img src="{{ site.baseurl }}/assets/2025/05/perf2.png" alt="Pass timings w/o 3D fBm noise"/><br />
+<figcaption>Pass timings w/o 3D fBm noise</figcaption>
+</figure>
+</p>
+
+
+<p>Ok, so we see that there are a few passes affected: &quot;river&quot;, &quot;mtn&quot; and very importantly &quot;fog-of-war&quot;. This means that the noise needs to be optimised heavily, and this can result in a lot of savings. The other performance culprits are &quot;tree&quot;, &quot;tree-shadow&quot;, &quot;plant&quot;, etc. All these, ~3-5ms, are way too expensive. Why so much? Because I&#39;m not really doing anything too clever, and I&#39;m rendering all of them without any culling whatsoever. I have ideas and past implementations for this, but this is not the time now to deep dive. Knowing the problems and knowing how to solve them, and how much effort would that entail, is good enough at this stage.</p>
+<p>That&#39;s all for now, slow days because of the Linux stuff plus teaching, but it feels like things are going to start moving again soon. </p>
+
