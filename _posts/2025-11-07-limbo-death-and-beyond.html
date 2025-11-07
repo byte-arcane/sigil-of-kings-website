@@ -1,0 +1,67 @@
+---
+layout: post
+title: Limbo, Death and Beyond
+date: 2025-11-07 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/11/ghost.png
+meta:
+author:
+permalink: "/2025/11/07/limbo-death-and-beyond/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/1mBPndy-O_c" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/1mBPndy-O_c?autoplay=1><img src=https://img.youtube.com/vi/1mBPndy-O_c/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Death, Limbo and Resurrection"></iframe></div>
+<figcaption>Death, Limbo and Resurrection</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/mfn82pzW7bM" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/mfn82pzW7bM?autoplay=1><img src=https://img.youtube.com/vi/mfn82pzW7bM/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Soul binding and phylacteries"></iframe></div>
+<figcaption>Soul binding and phylacteries</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/TmmJmNBIn8g" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/TmmJmNBIn8g?autoplay=1><img src=https://img.youtube.com/vi/TmmJmNBIn8g/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Ghost effect"></iframe></div>
+<figcaption>Ghost effect</figcaption>
+</figure>
+
+
+<p>Here&#39;s a little rabbit hole I ended up in, but I believe it&#39;s one of those better ones. It&#39;s about handling death - not just the player&#39;s, but others too.</p>
+<p><strong>Limbo</strong></p>
+<p>Previously, I added the concept of &quot;Limbo&quot; in the game. It&#39;s an extremely useful concept: it&#39;s a &quot;place&quot; where entities go when they should be part of the game, but nowhere in particular. Here&#39;s an example of where the concept is useful. Say you have a quest item that, due to emergent gameplay mechanics, gets indirectly destroyed, e.g. it resides in a level that gets completely destroyed.  What happens to the item? Well, it can go to Limbo, and it can reappear somewhere in the world after a while. Same with important NPCs. </p>
+<p><strong>Death</strong></p>
+<p>My design goals for player death is not just &quot;game over&quot; - after having played for a few hours, I want the player to be able to invest in some sort of life preservation/resurrection, within the game&#39;s lore. This will be fleshed out more when cities are implemented. But what about other creatures, especially sentient ones?</p>
+<p><strong>Souls, Phylacteries and Resurrection</strong></p>
+<p>While on a flight, it struck me that the concept of Limbo works very very well with death and resurrection. And that&#39;s what I&#39;ve been dealing with, slowly, for a month or a bit more. Here&#39;s the current design of death/resurrection, that just works:</p>
+<ul>
+<li>Pets, sentient creatures and quest creatures have a soul. The soul is basically the actual entity, with all temporary effects removed and all items dropped. </li>
+<li>When creatures-with-soul die, they create a corpse item with the soul attached. The soul goes to Limbo. The </li>
+<li>The creature can be resurrected via the corpse, if a spell is cast before the corpse decays or gets destroyed.</li>
+<li>The process of resurrection is effectively to just move the soul from Limbo back to the world, and destroy the corpse</li>
+</ul>
+<p>Now we can go slightly further and introduce phylacteries: special items that can store souls:</p>
+<ul>
+<li>With an ability, we can attach a soul to an empty phylactery</li>
+<li>When the creature gets killed, if its soul is not bound to a phylactery, a corpse with a soul attached is generated, as described above</li>
+<li>When the creature gets killed and its soul is safeguarded in a phylactery, no corpse is generated, and the creature gets automatically resurrected after 24h at the phylactery.</li>
+<li>The phylactery can be stored in a safe location, as usual, and therefore make the entity practically forever-living</li>
+<li>Constraint: We can&#39;t have more than one phylactery (so, no seven horcruxes)</li>
+</ul>
+<p>This just works, and besides being just another feature, it adds loads of questing/adventure possibilities:</p>
+<ul>
+<li>Destroy the lich. Oh - the lich had a phylactery! New quest: find and destroy the phylactery.</li>
+<li>A villager or pet died - go find a scroll of resurrection before the corpse decays, to resurrect them. Alternatively, bring a healer from a nearby village to perform the rite. </li>
+<li>A villager/pet was lost near some ruins. Go find them. When you arrive, you find a corpse - race against time to resurrect it.</li>
+<li>Necromancer&#39;s guild quests: bind creature souls to phylacteries, kill them, and bring the items back to the guild.</li>
+<li>etc</li>
+</ul>
+<p>As an extra tidbit, I&#39;ve also made a visual effect to show that a soul is leaving a body, or returning to a body. It looks exactly as I envisioned it, which is nice, but other effects are playing at the same time so it&#39;s very hard to see. So here it is, in a slowed down video.</p>
+<p><strong>Game Stats</strong></p>
+<p>I&#39;d like to include some game play info, displayed upon death but probably elsewhere too. Basically some fun, useless numbers, like places explored, distance travelled, total hits, total misses, etc. This is super-easy when messages fly around the program about every single thing - just set up a system with a bunch of listeners, listen, and record.</p>
+
