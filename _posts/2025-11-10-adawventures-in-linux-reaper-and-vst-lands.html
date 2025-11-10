@@ -1,0 +1,26 @@
+---
+layout: post
+title: aDAWventures in Linux, Reaper and VST lands
+date: 2025-11-10 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/11/reaper.png
+meta:
+author:
+permalink: "/2025/11/10/adawventures-in-linux-reaper-and-vst-lands/"
+---
+
+<p>Linux setup is not over yet (is it ever?). I&#39;ve been trying to set up Reaper on the side. I have a pedal board, a MIDI keyboard and a bunch of Spitfire Audio libraries that I need to be able to use. On Windows, achieving a low-latency setup was not trivial, and having read about Linux audio, I&#39;ve been expecting the worst -- either have dual-boot Windows for just audio things, or just not use whatever doesn&#39;t work on linux. </p>
+<p>Reaper has binaries for Linux - but I knew that already, that&#39;s partly why I originally bought it! When opening Reaper, by default, there was an error with the audio device. That was a bit of a bummer. There were options for ALSA (didn&#39;t work), Jack (didn&#39;t work), PulseAudio (bad latency) and I&#39;ve heard about the mystery PipeWire that I&#39;m supposed to be using for low-latency, but it was not there. After a bit of searching the web and learning some commands, like &quot;inxi -A&quot; or &quot;pactl info&quot;, from other tortured souls, I realised that PipeWire is used through ALSA, and to fix ALSA I had to ... double-click some combo boxes with options, and type <code>default</code> there. What on earth??? After doing that, ALSA works, and MIDI keyboard worked, with very low latency. Hurray!! </p>
+<p>Now it&#39;s turn for the pedal board. It&#39;s a BOSS GT-10 - it has USB output, and was nicely recognised by Linux. To make this one work, I had to go to the audio devices again and change the input from <code>default</code> to the GT-10, which was recognized. Tada, that worked!! What&#39;s awesome is that the latency is also quite low, so I&#39;m super happy! I must say that on Windows I always spent far more time trying to get things to work. Here what I had to do was quite stupid, but was just a single thing in the end, and it seems to be a limitation of Reaper. </p>
+<p>Next step: Windows VSTs! That&#39;s a bit harder, as Spitfire is not quite Linux friendly. After a bit of reading, I used Bottles to install the Spitfire Audio application, and everything downloaded just fine from inside the application. Next step was to install winehq and yabridge, and set up some environment variables. Super-helpful post <a href="https://www.reddit.com/r/linuxaudio/comments/vj9gmw/how_to_run_spitfire_labs_on_linux/j7t08p0/">here</a>.  This worked for the Felt Piano, and I was super happy! However, Albion ONE needs Kontakt Player, which was another can of worms...</p>
+<p>Kontakt Player needs Native Access. Apparently NA2 (the current version and installer) have been giving Linux users grief, and NA1 is not available for download through the standard links. After some searching, found an installer through some <a href="https://support.native-instruments.com/hc/en-us/articles/4748946468497-How-to-Downgrade-Native-Access-2-to-Native-Access-1">downgrade instructions</a>... Weird! Anyway, this worked, sort of.</p>
+<p>Originally created a bottle for Spitfire, then installed Native Access 2, which wouldn&#39;t work. But apparently I can&#39;t uninstall it either. And installing Native Access 1 to the same bottle would not work. So I created a new bottle for Native Access 1. This worked! So I installed Kontakt Player, and ran Reaper. It ... well, didn&#39;t work! I saw the VST plugin, but it would crash upon loading. This happened because the WINEPREFIX env var was pointing to Spitfire Audio&#39;s bottle. Oh dammit. So, I moved over the Spitfire samples to the Native Access 1 bottle, and installed the Spitfire Audio app there. This works! And ... everything works! Except the LABS VSTs...</p>
+<p>LABS apparently have moved to some new platform called &quot;Splice&quot;. Ok new application that might misbehave. Lo and behold - it does not install in the bottle that contains NA and Spitfire. I created yet another bottle, the installer runs and fails because of &quot;disk space&quot;. But apparently Spitfire still offers a LABS installer, that does run in the NA/Spitfire bottle. Hope on the horizon! ... That hope died swiftly though, as the LABS installer&#39;s window does not show anything. It&#39;s <a href="https://www.reddit.com/r/linuxaudio/comments/vj9gmw/how_to_run_spitfire_labs_on_linux/lqm2scy/">this issue here</a> so I&#39;m not the only one. Oh well.  Tried even to change the <a href="https://www.reddit.com/r/spitfireaudio/comments/1felyfv/guide_how_to_downgradefix_the_spitfire_labs/">Spitfire Audio app with a hex editor</a> but also to no avail... Well, sounds like LABS is a goner.</p>
+
