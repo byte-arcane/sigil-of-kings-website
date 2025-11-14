@@ -1,0 +1,34 @@
+---
+layout: post
+title: Resurrection, scripting and websockets
+date: 2025-11-14 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/11/zoom.png
+meta:
+author:
+permalink: "/2025/11/14/resurrection-scripting-and-websockets/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/ps0Bc9hFxgg" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/ps0Bc9hFxgg?autoplay=1><img src=https://img.youtube.com/vi/ps0Bc9hFxgg/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Zooming modes"></iframe></div>
+<figcaption>Zooming modes</figcaption>
+</figure>
+
+<p>A few bits this week:</p>
+<p><strong>Resurrection in nearest town</strong></p>
+<p>When the player dies, there&#39;s an option to wait for resurrection. Later, this process will be subject to ... a few things, but for now, the player gets resurrected in the nearest town after some time has passed. The player still has all their inventory items intact, although all equipment has been unequipped.</p>
+<p><strong>Info box</strong></p>
+<p>Currently, the dialogue screen needs some special conversation object to work well, and, well, it requires options. But frequently there&#39;s some info screen that should just show some text, but not necessarily be part of a dialogue. One approach would be to reuse the Dialogue screen and edit it until it supports both scenarios, and the other was to have a separate screen. I opted for the latter.</p>
+<p><strong>OBS Studio recording via websocket</strong></p>
+<p>I want to be able to trigger video recording from the game. Because Godot does not do video well <strong>at all</strong>, the solution has to be external. After some digging, I realised that with OBS Studio that is possible, via websockets. Effectively we&#39;re establishing a connection with a local &quot;OBS Server&quot; in a running instance of OBS, and send a bunch of messages, like start and stop recording. So, if it&#39;s already set up to capture the game window, it&#39;s easy to start/stop recording from the application. Kludgy but works!</p>
+<p><strong>Scripting camera and recordings</strong></p>
+<p>I have some camera commands that are useful for scripting and &quot;cutscenes&quot;, and they support a number of easing functions. I wanted to identify which easing function works well in which scenario: level or overworld, panning or zooming. After running some tests, I identified a few nice-looking ones, to be used in the future</p>
+<p>That&#39;s all for today, have a nice weekend!</p>
+
