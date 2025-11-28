@@ -1,0 +1,41 @@
+---
+layout: post
+title: Spring Cleaning
+date: 2025-11-28 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/11/arena.png
+meta:
+author:
+permalink: "/2025/11/28/spring-cleaning/"
+---
+
+<p>Spring cleaning time! Well it&#39;s not spring, but still. A number of things lately, nothing particularly share-worthy, visually at least.</p>
+<p><strong>Combat simulation</strong></p>
+<p>This started as a desire to add some functionality for 1v1 battles, basically monster vs monster. The reason is to see how creatures play - what&#39;s their AI use and who gets killed when. Then it hit me, that I could use something like this to also do balancing. Typical balancing work uses spreadsheets for laying out formulas and see value progression against different parameters. This is nice for simple formulas, but evaluating a fully fledged combat is not easy. So why not just create some combat scenarios, test them a number of times and calculate some quantities? Here are the components:</p>
+<ul>
+<li><strong>Arena</strong>. I made a small prefab arena with some simple wall configuration, to provide a natural environment for a 1v1 battle. Whent he battle starts, the player is teleported in this arena at some corner, and we execute an infinite-wait command.</li>
+<li><strong>Creature setup</strong>. This can be a standard monster, with optional level override, with optional elite/boss modifier. Standard monsters have predefined roles, but there&#39;s an option to choose a playable creature with some pre-set level and behavioural/inventory archetype. Another option is to clone the current player and use them as one of the two adversaries</li>
+<li><strong>Simulation</strong>. This part is simple - I simply run the time management system, but first disable some rendering events. The time management system will process the two adversaries, and whatever else comes up (e.g spawned creatures etc). At the end of the simulation, we record some data and dump to log.</li>
+<li><strong>Logging</strong>. At the moment I&#39;m recording action sequences per combatant, plus if they&#39;re dead or alive by the end of each run. There&#39;s plenty more that can be captured, and will be interesting: hit/miss rates, etc. One bit that was direly missing was to add some information of what action does the AI choose and why. The granularity is very coarse, but it could be edited in the future to optionally provide more verbosity.</li>
+</ul>
+<p>This is work in progress, but it has at least pointed out a few behavioural bugs already, so it&#39;s a win so far :D</p>
+<p><strong>C++ applications</strong></p>
+<p>When I moved to Linux, I made sure the shared library works and nothing else. This time I did a more thorough check for all projects, especially some executable ones, which led to some good cleanup re use of OpenCV, CMake setups, OpenGL extensions, use of Dear ImGui, etc. </p>
+<p><strong>Configuration refactor</strong></p>
+<p>My &quot;configuration data&quot; system has been an organic mess for a while, because it started back in 2019 I think, and was never refactored. It ended up being 4 different configuration systems: a global game settings, some user-targetted settings, some database for game object things, and a bunch of bespoke ECS system configurations. There&#39;s actually more, but let&#39;s keep it simple here. The system configurations were refactored to be more like the game object database, so now they 1) have a triple form of binary/json/runtime-editable 2) are not managed by the systems anymore, but they&#39;re in an aggregate system config object 3) use reflective code for editing their values in GUI, which makes it far easier to work with and edit.</p>
+<p><strong>IDE performance woes</strong></p>
+<p>Since I moved to Linux, I&#39;ve been using JetBrains Rider with Godot .NET. Works perfectly, except for a couple of snags, that slow me down a bit, literally. </p>
+<p><strong>Misc</strong></p>
+<ul>
+<li>Bug fixing: Torches were occasionally not lighting up the environment</li>
+<li>I&#39;ve added an expression evaluator for math formulas, but not using it yet. The plan is to use it for runtime balancing of combat formulas, e.g. attack/defense rating, their effects on hit rate, and the effects of different levels and associated progression of rating.</li>
+</ul>
+<p>That&#39;s all for now, have a nice weekend!</p>
+
