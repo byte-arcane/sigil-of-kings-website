@@ -1,0 +1,43 @@
+---
+layout: post
+title: Combat, Abilities, Logging and Noise
+date: 2025-12-19 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/12/ability_purchase.png
+meta:
+author:
+permalink: "/2025/12/19/combat-abilities-logging-and-noise/"
+---
+
+<p>
+<figure><img src="{{ site.baseurl }}/assets/2025/12/ability_purchase.png" alt="Ability purchase screen"/><br />
+<figcaption>Ability purchase screen</figcaption>
+</figure>
+</p>
+
+<p>A bunch of things since last time, due to holiday interference and some good ol&#39; gaming (Heroes Chronicles and Baldur&#39;s Gate 3) and still on too many fronts.  </p>
+<p><strong>Auto-combat combinations</strong></p>
+<p>For testing combat scenarios, I&#39;ve implemented some generic iterator functionality so that I can easily write nested for-loop scenarios with less hardcoding, e.g. try a scenario with different level variations of a creature, different roles, different race, etc. This uncovered a few bugs in AI logic, but somehow I got distracted so need to revisit that.</p>
+<p><strong>Ability types and subtypes</strong></p>
+<p>I keep revisiting this, but I think the dust is settling on it now. To avoid blabbering about delta work on this, currently the abilities are split into Innate, Martial and Spell. Each of those has several subcategories. Martial abilities are split into offense, defense, command, utility and movement. Spell abilities are split into two orthogonal subcategories: spell schools and domain. The schools follow the DnD approach: evocation, conjuration, etc. The domains follow the Might &amp; Magic approach of Fire/Earth/Air/Water/Light/Dark. The reason for this dual split is that I really like DnD&#39;s split (it&#39;s a bit much, but ok) but I hate how in DnD if you want to specialise, you&#39;re a boring mage with a lot of redundant approaches to blasting (in my opinion). So, creatures can specialise in one or many domains, and enjoy a variety of spells for each, e.g. fire domain might have a few more evocation spells, but it will include abjuration, conjuration, etc, so you can still be a well-rounded magical individual. And there&#39;s still an option to provide items/passives/etc that provide bonuses to individual schools, e.g. casting at +1 level.  One of the reasons for having these categories and subcategories, besides just flair, is also filtering abilities for other creatures and guilds: e.g. a necromancer only knows spells from the Dark domain, a fire mage knows only spells from the Fire domain, an archmage knows spells from multiple domains but not the latest for his/her level, etc.  Martial skills will be slightly different as many will require particular weapons, weapon categories or even things in your quickslot! E.g. I have two abilities involving some sort of lasso/whip, and if it doesn&#39;t make it as a weapon, these skills will have a requirement that you have a rope or a whip at your quickslot.</p>
+<p><strong>Custom Godot Logger</strong></p>
+<p>I realised that now we can extend from Godot&#39;s logger class for some custom logging functionality. While I already have custom logging functionality implemented, this was incredibly useful as I can have access to the callstack for some errors I had been getting that didn&#39;t include a callstack previously. So, fixed a bunch of bugs with that, so that&#39;s cool. </p>
+<p><strong>Ability purchase screen</strong></p>
+<p>The player will be acquiring abilities in the game, probably paying for several of them in guilds or other people who offer such training services. So, obviously, we need a screen for that! Above&#39;s how it looks like for now: pretty simple but functional, and with descriptions and some icons missing of course. This highlighted two things: I&#39;m still missing lots of icons, and gameicons.net&#39;s icons are not the solution anyway, and I need a separate &quot;card&quot;/UI screen for each ability which includes all information. The latter is going to be a challenge for another day, because abilities have a LOT of associated data. Regarding the icons, that leads to the next topic</p>
+<p><strong>Ability icons: **** it, I&#39;m doing my own</strong></p>
+<p>So currently I have some processing pipeline to generate ability icons from gameicons.net, but of course in the end that&#39;s all going to be for nought, because all the icons will be replaced. And I&#39;ve been thinking of some other to-do processing pipelines for icons that are semi-suitable from other sources (some craftpix stuff), and I&#39;m thinking all the time spent working on processing pipelines with dubious inputs and of course dubious outputs that all might be thrown away in the end. So it happens that a good friend of mine lent me his Wacom tablet again for indefinite amount of time, and I&#39;m lazy with art and I shouldn&#39;t be. So I decided that I&#39;m going to create a LOT of crappy quick and dirty ability icons, to make the art part not be a problem when thinking of new abilities. The art is of course going to be placeholder, but it&#39;s going to be better than a question mark placeholder icons, and I&#39;m going to replace it later (tm). The icons will look like placeholders without mistake, because they&#39;re basically going to be rough sketches (with Krita) - no processing besides putting them in a frame, which is yet to be designed. Done about 12 out of 80, and each takes on average 5&#39; - it&#39;s going to be daily chillout practice in imagination and sketching, free from the clutches of robotic overlords. Stay tuned!</p>
+<p><strong>Tileable noise and DDS</strong></p>
+<p>Final part of the adventures so far, is related to performance. In a previous post, I talked about how perlin noise can be quite costly when evaluated at runtime, especially with several fBm octaves. Back in the day, there would be some noise textures lying around, occasionally dubiously processed to be made tileable, but destroying some noise properties with this process. But there was an academic paper a few years ago, demonstrating true tiling noise, with some nice code to boot. What this means? I bet it&#39;s useful in lots of ways that I didn&#39;t bother to think, but it can be used to precalculate a tileable noise texture, to sample the texture instead of calculating noise from scratch. Of course memory access is a problem, so the texture can&#39;t be huge. For example, a 128x128x128 RGBA texture is 8MB, doubling to 256 makes it 64MB and doubling it further to 512 makes it 512MB. To store the texture, I wrote a C++ program with a GLSL compute shader to dump the data to a 3D texture, then saved the 3D texture to a .dds file using the glm library, and loaded the dds file in Godot. And things didn&#39;t look right. So after quite a bit of debugging and self-doubt, I ended up with the following observations: </p>
+<ul>
+<li>DDS support generally is as bad and windows-focussed as ever. For volume textures, even worse so. I was just looking for a viewer that supports volumes, and after 30&#39; I gave up after 1) maybe-malicious programs pushed to front page by google 2) NVIDIA old software broken links 3) NVIDIA new software that for some reason requires CUDA 4) Visual studio is limited to only viewing a single slice 5) Linux applications are borderline non-existent 6) Gimp could not cope with the texture, citing errors (not true) 7) official windows repositories that have the source for ~10 tools and provide binaries for all but the DDS viewer! And I&#39;m not going to try to build that from source, enough time spent already...</li>
+<li>DDS suppport in Godot is probably buggy: the loaded file apparently contained zeroes for all slices after the 32nd, for my 128x128x128 texture. Didn&#39;t have the energy to fight it further, so I just used my dumb binary format for raw texture data in Godot, as I&#39;m already using that for texture arrays. </li>
+</ul>
+<p>So, I don&#39;t know what the curse with DDS is, maybe it might be going the way of the dodo with the KTX format, but KTX is not well supported in Godot either, hurray! I mean, sometimes I feel I&#39;m the only one doing that stuff and having such problems :/ </p>
+<p>In any case, that&#39;s the state of the Sigil of Kings Coding Adventures, might probably sneak one more update before the new year!</p>
