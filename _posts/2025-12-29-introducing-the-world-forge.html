@@ -1,0 +1,51 @@
+---
+layout: post
+title: Introducing the World Forge
+date: 2025-12-29 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2025/12/world_forge.png
+meta:
+author:
+permalink: "/2025/12/29/introducing-the-world-forge/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/9JIJNV5yeSo" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/9JIJNV5yeSo?autoplay=1><img src=https://img.youtube.com/vi/9JIJNV5yeSo/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="World Forge WIP"></iframe></div>
+<figcaption>World Forge WIP</figcaption>
+</figure>
+
+<p>This was a busy week! I was hoping for some more well-rounded holidays, maybe play some games, maybe do a bit more art, or even some sort-of-work, but no, besides holiday/social time, it&#39;s been programming and optimisation, because of ... excitement I guess! Enough rambling, all this work has been towards the ...</p>
+<p><strong>World Forge</strong></p>
+<p>This is the name of a custom worldbuilding mode that I&#39;m adding to the game.  So far, you can control 5-6 sliders to create a nice looking varied procedural world. Sliders are nice and procedural worlds are nice, but there are some people out there who like a bit more fine control for crafting their worlds. I&#39;m not in that group, and I guess that&#39;s the reason this functionality comes 8 years after the map generator was developed. </p>
+<p>So, the idea is that you can craft a world from scratch, or use the sliders to procgen a world, and then edit it by hand to your leisure. The type of editing that you will be able to do is to manipulate basic elevation levels, set rivers/lakes, set temperature/humidity, set density of vegetation and wildlife, and probably set city locations (if you want) and roads. So, the goal is to have a complete dynamic hybrid way to construct the world map that you can play the game in.</p>
+<p>What are the challenges for doing that sort of thing? It&#39;s mainly the time it takes to calculate some cached data. The world definition exists in a very lightweight form, but for faster rendering we need to precalculate a bunch of things, e.g. deal with autotiling and setting up instance buffers for vegetation, mountains, roads and rivers. This all was done on the CPU and took a little bit of time (~1sec). It would be really frustrating to wait 1 second every time you used some brush to edit the world. So, this led to an aha moment:</p>
+<p><strong>Separate edit/view modes</strong></p>
+<p>I realised I could work with a visually barebones version of the world map (like the one shown during overworld generation screens), where brush changes can be shown instantly -- the &quot;edit&quot; mode. And then, by pressing Tab you can switch between this &quot;ugly-but-fast&quot; mode and the prettier version -- the &quot;view&quot; mode. If there are any changes, then the work can happen during this switch from edit to view. That&#39;s it! The proof of concept works well, and is shown with the video on top. To implement this I had to write a couple of compute shaders, which made me a bit less rusty in that domain as well, which is also great. What&#39;s not great is the fact that I doubt your average user would like pressing tab to see the true fruit of their labour. It&#39;s a bit of a necessary hack I thought. I turns out, a better solution is possible:</p>
+<p><strong>Port all caches to compute shaders</strong></p>
+<p>The more I focussed the lens on the compute and overworld calculation parts of the code, the easier it became to identify all the bits that went to the overworld caches calculations and have complete understanding of the work that goes in there. It might seem weird that I&#39;m talking about understanding my own code, but keep in mind this is ~10 year worth of organic code growth. Anyway, the relevant parts were identified, and here&#39;s the good part: all the code is basically parallelisable! This means it can run on GPU. This means it can easily be at least 10x faster. this means that the cache calculations can now be realtime! Which means that there will be no need for dual mode, because the brush changes can be visualised instantly. Now we&#39;re talking! All that&#39;s needed is to set up a complicated compute shader powered pipeline that runs every time you modify the world map with a brush. Easier said than done, but progress is being made, and it&#39;s good progress. To give you an idea of the stages and what&#39;s the implementation status</p>
+<ul>
+<li>Calculation of autotile layer data for each tile in the world - done</li>
+<li>Calculation of mountain tiles - done</li>
+<li>Calculation of river tiles - done</li>
+<li>Calculation of road tiles - done</li>
+<li>Calculation of vegetation (by far the most complicated bit) - wip</li>
+</ul>
+<p>I hope to have that completed within a couple of days, and then the plan is to make the UI a bit more usable, think of more ways to do hybrid generation (e.g. use an algorithm to place cities on a user-provided map) and see where it goes because a new semester is starting.</p>
+<p><strong>Optimisations</strong></p>
+<p>Besides all the above, I&#39;ve been moving on with some other optimisations, for computers like my semi-potato laptop.  One of these has been to use a noise texture instead of calculating noise values in real-time, that&#39;s completely done. </p>
+<p>Another big one was to reduce the number of drawn instances for vegetation in the world map. An average world map has about 15k mountains, 150k trees and 400k plants/leaves/general decoration. This stresses my poor laptop out. Thing is, if you&#39;re too far, these things are at most as big as a pixel, so not worth rendering. If you&#39;re close enough, you probably see about 10k at most, instead of half a million. So, how to solve this? Two-fold approach!</p>
+<ul>
+<li><strong>Alpha fade based on camera</strong>. Basically, I have a range in the camera that maps to alpha values of vegetation between 0 and 1. If you&#39;re too close, they&#39;re fully opaque, after some distance they start fade (with alpha test, not blending) and after some further distance they completely disappear. When they completely disappear, we just don&#39;t render them. Simple! That solves low performance when being very zoomed out</li>
+<li><strong>Instance buckets</strong>. With this one, I effectively sort the data into buckets according to their location. I split the world map into a 16x16 grid, and each cell contains a bucket basically. So, every frame, depending on which grid cells the camera sees, we render a number of passes, one for each grid cell/bucket. </li>
+</ul>
+<p>The above, in combination, are quite effective. </p>
+<p>And in other news, I was very late to realise that Godot now supports Spans for uploading data to GPU, instead of just arrays, which is a huge thing, so did some appropriate refactoring to fix some of that code. </p>
+<p>That&#39;s it for now, happy holidays to everyone and happy incoming new year!</p>
+
