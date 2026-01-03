@@ -1,0 +1,45 @@
+---
+layout: post
+title: World Forge Progress
+date: 2026-01-03 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/01/world_forge.png
+meta:
+author:
+permalink: "/2026/01/03/world-forge-progress/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/HVbInc3QJSE" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/HVbInc3QJSE?autoplay=1><img src=https://img.youtube.com/vi/HVbInc3QJSE/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="World Forge WIP progress"></iframe></div>
+<figcaption>World Forge WIP progress</figcaption>
+</figure>
+
+<p>Happy new year to all of you! No rest for the wicked though, as the gamedev marathon keeps going on and on. So, more work towards the World Forge this week! </p>
+<p>Before that, just to mention that <a href="https://www.reddit.com/r/roguelikedev/comments/1q1kykd/2026_in_roguelikedev_sigil_of_kings/">Sigil of Kings retrospective is up</a>!</p>
+<p>The last biome-related bit of the World Forge is done, which is the vegetation. In terms of major painting features, what&#39;s missing is placing roads and cities. And then, it&#39;s basically about making a UI to support all this nicely.</p>
+<p><strong>GPU-powered modifications</strong></p>
+<p>When a change happens in the overworld data, e.g. via a brush in the World Forge, or later on in the game, because of some event or a spell etc, the &quot;pretty&quot; version of the overworld data gets rebuilt. For example, locating all the positions that we should have mountain tiles, and choosing which mountain tile to display and what color should it be, or where do we have which vegetation tiles. All this work happens in compute shaders running in a &quot;local&quot; rendering device. This is much faster than it used to be, but there&#39;s still some room for improvement, as I still have to copy some data around because data generated in the &quot;local&quot; rendering device cannot be directly used for the &quot;main&quot; rendering device, which means some unnecessary GPU -&gt; CPU -&gt; GPU memory copies, of several megabytes worth of data, every time we make a change. But <strong>still</strong> it runs fast enough on the desktop, so that you can make changes and rebuild the &quot;pretty&quot; version <strong>instantly</strong>, which was originally a &quot;nice to have&quot; sort of goal. There is allegedly a way to share resources between different devices, but it&#39;s not super official or documented, but might worth a try, to allow this to run smoothly on older machines. </p>
+<p><strong>Editing route map</strong></p>
+<p>Biome is done, and I have 2 main things left for the world forge: editing the route map (the default being all city-city connections) and editing the actual cities. There was a bit of refactoring work for the route map editing, since code was a bit stinky and didn&#39;t support edits. New code is a <em>bit</em> better! One little detail is that custom routes are just visual for now.
+Road highlighting is also possible, as roads behind mountains or in some terrains are quite hard to see.</p>
+<p><strong>Starting from scratch</strong></p>
+<p>It was actually easier to start this World Forge mode from a procedurally generated map compared to a clean slate, but that&#39;s now done too. </p>
+<p><strong>Pending</strong></p>
+<p>What&#39;s left for the World Forge mode?</p>
+<ul>
+<li>Placing cities</li>
+<li>Setting arbitrary key/value pairs in cities</li>
+<li>Save/Load maps </li>
+<li>Export maps to JSON for DIY processing/visualisation</li>
+<li>Sprites for vegetation for some biomes, as I&#39;m missing a few</li>
+<li>Polish, I guess</li>
+</ul>
+<p>That&#39;s all for now, over and out for now!</p>
+
