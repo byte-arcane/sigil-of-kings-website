@@ -1,0 +1,38 @@
+---
+layout: post
+title: Barrens biome revisited
+date: 2026-01-23 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/01/barrens.png
+meta:
+author:
+permalink: "/2026/01/23/barrens-biome-revisited/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/iasXmYCEQwA" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/iasXmYCEQwA?autoplay=1><img src=https://img.youtube.com/vi/iasXmYCEQwA/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Revamped Barrens biome"></iframe></div>
+<figcaption>Revamped Barrens biome</figcaption>
+</figure>
+
+<p>Alright, time for weekly updates! Lots of little bits, as usual mostly for World Forge.</p>
+<ul>
+<li><strong>Clustering of vegetation</strong>. Somebody noted that my forest densities are a bit all over the place. I revisited the biome generation code and I realised that, indeed, it was almost white-noise-random. So I replaced it with some good ol&#39; simplex, so that in practice forests should look a bit more gradual and clustered.</li>
+<li><strong>Settings screen</strong>. I&#39;ve started working on a settings screen, but it&#39;s nowhere near ready. This would be for audio, keybindings, things like that. </li>
+<li><strong>Roads not crossing mines anymore</strong>. Another comment I got at some point was that it looked bad when mines were generated on road tiles. Well, that doesn&#39;t happen anymore. When I&#39;m doing automatic route calculation, I add a hefty negative weight to tiles with rare resources.</li>
+<li><strong>Revisited biome distributions.</strong>  Made a grid for biome distributions, for my visual assistance basically. The biomes need to cover rectangular areas as in my current implementation I use min/max values of temperature and humidity to define each biome&#39;s range. I think it looks reasonable!</li>
+<li><strong>World Forge: holding button and painting adjust rather than sets values.</strong> I&#39;m basically trying to emulate a nice brush, so that for example you can paint an area slightly warmer than it currently is, rather than setting an explicit value. The implementation works, but with a large brush radius it becomes useless as lots of tiles are revisited multiple times very quickly. Need to think of a different approach to achieve that, with a larger brush radius; maybe use a falloff or something like that.</li>
+<li><strong>Penalty for water routes.</strong> When generating routes that connect cities, I&#39;ve added an overall penalty for water routes - I already had a penalty for changing to/from water. </li>
+<li><strong>Show route erasure line.</strong> This is tricky to explain. Basically you can paint and erase routes, and both work using start/end tile, which used to be adjacent only. That&#39;s because when we paint a route, we really want to paint a direction rather than this tile is connected to ALL adjacent route tiles. To paint a direction we need a source tile. This source tile so far was not visually communicated, and now I&#39;m highlighting this. And to top things up, for quicker mouse movements, source/target tiles don&#39;t even have to be adjacent - if they&#39;re not, we&#39;re applying the same process in all tiles in the bresenham line between the points</li>
+<li><strong>Music in worldforge mode</strong>. Previously I didn&#39;t have music for the overworld, just ambience. Ambience now does not make sense since we don&#39;t have a player moving around, so I&#39;ve added yet another royalty-free track.</li>
+<li><strong>TextureWatcher works again, on Linux.</strong> After I moved to Linux, I kept getting crashes in the TextureWatcher so I disabled it. For some sprite work I needed to reenable it and it somehow works fine now?? All good I suppose (suspicious...). </li>
+<li><strong>Sprite work on Barrens biome</strong>. I hated how the barrens biome looked, and that&#39;s why there are few screenshots/videos that focus on that. It looked like blended lentils. On top of that, the blocking elements of that biome are some bad-looking rocks. So this got an art refactor treatment with DIY aseprite art, to add some cracked terrain and some dead trees. Art is slightly janky as usual, but at least it&#39;s mine and it&#39;s better (imo) than what it was before. At least it communicates better the biome I had in mind. </li>
+</ul>
+<p>That&#39;s all for now, have a nice weekend!</p>
+
