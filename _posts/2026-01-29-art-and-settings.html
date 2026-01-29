@@ -1,0 +1,39 @@
+---
+layout: post
+title: Art and Settings
+date: 2026-01-29 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/01/swamp.png
+meta:
+author:
+permalink: "/2026/01/29/art-and-settings/"
+---
+
+https://youtu.be/O-7jQ6htkxI
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/O-7jQ6htkxI" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/O-7jQ6htkxI?autoplay=1><img src=https://img.youtube.com/vi/O-7jQ6htkxI/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Revamped Swamp biome"></iframe></div>
+<figcaption>Revamped Swamp biome</figcaption>
+</figure>
+
+<p><strong>Biomes and art</strong></p>
+<ul>
+<li><strong>Barrens.</strong> Some of my biomes looked dreadful. One example was the &quot;barrens&quot; which in my imagination would be cracked earth, but instead I was using some ultra dull bland brown colour. The associated vegetation was not exciting either. So I decided to redo that, in a DIY fashion. Result is in my opinion better, but still it looks a bit amateur hour stuff, but it&#39;s ok. I also wanted to replace those weird looking rocks with some vegetation, and I made some funky dead trees for the biome as well. Tick!</li>
+<li><strong>Swamp</strong>. Second victim of the art retouch was the swamp. Previously, it had lush vegetation but dark brown floor, effectively &quot;mud&quot;. I didn&#39;t like that either. So it was replaced with another green tile with some 3-pixel flowers distributed. I like it better - I mean, it&#39;s green, what IRL city dweller wouldn&#39;t like green!</li>
+<li><strong>Savannah</strong>. This one was very ... orange, and it annoyed me too. So, I retouched it as well, to something more yellow, with some hints of green. Didn&#39;t have too much time for this one, so it needs ... work. But no more super-saturated orange. Done.</li>
+<li><strong>Desert.</strong> The desert was fine, but now with Savannah looking similar, I edited the colours just a bit.</li>
+<li><strong>No mushrooms in barrens.</strong> Apparently previously I was spawning mushrooms everywhere, so after looking at a level with cracked earth and mushrooms, realising it looks very wrong, I now set some biome constraints on the mushrooms to not spawn in barrens or desert.</li>
+</ul>
+<p><strong>Settings screen</strong></p>
+<p>Every game has to have some user-facing settings page. So, before the playtest, I want to have something in place and test it. Oh my mixed feelings about it. The categories are graphics, gameplay, controls, interface, audio. Audio was first and easiest to do. I added a couple of interface bits (e.g. enable/disable edge panning, or custom cursor) and that was fun and simple too. </p>
+<p>But then I tried adding a couple of options in Graphics and I promptly regretted it. Because of my weird rendering setup, where I&#39;m creating some framebuffer using RenderDevice and rendering the game there, well some graphics settings like MSAA or resolution, means that I need to recreate that framebuffer. But when I do that, I get some weird errors with no source, so ... I&#39;m a bit blind. I think the solution is to tell the user to restart the game to see any changes - better than nothing I suppose! </p>
+<p>Finally, I wanted to add re-binding key support, and also support binding keys, mouse buttons and joypads. That was another fun ride that took about 10h. But at the end, I do have proper functionality, including clearing keys and restoring to defaults, and even nice icons for keys and buttons! </p>
+<p>And that&#39;s about it for now. I hope the worst is over with the settings, I do need to add a few more though, especially for the gameplay section. Most will be irrelevant for the World Forge, but it&#39;s nice to have something in place so that people play with (and test :)).</p>
+
