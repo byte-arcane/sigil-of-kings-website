@@ -1,0 +1,41 @@
+---
+layout: post
+title: Settings, Sounds and Gradient Brushes
+date: 2026-02-06 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/02/gradbrush.png
+meta:
+author:
+permalink: "/2026/02/06/settings-sounds-and-gradient-brushes/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/EKcbAa8a45g" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/EKcbAa8a45g?autoplay=1><img src=https://img.youtube.com/vi/EKcbAa8a45g/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Juice with Sounds!"></iframe></div>
+<figcaption>Juice with Sounds!</figcaption>
+</figure>
+
+<p>Mainly two areas of work this week, more settings and adding some juiciness to the editor.</p>
+<p><strong>Settings</strong></p>
+<p>Now we communicate to he player if we have any &quot;dirty&quot; settings that require application restart. I have a few of those unfortunately, but instead of spending way too much time to just ensure the changes are applied on the spot, we just make it clear that the application needs restarting in order for these settings to take effect. An example is MSAA setting, but a few more too.</p>
+<p>I spent quite a bit of time trying to play around with changing resolution as well. It&#39;s possible to change the resolution of the game without the UI (with application restart), even though that&#39;s a last resort &quot;I need the application to run faster&quot;. What was (and still is) hellish is to be able to scale UI elements for accessibility. Nothing works. There&#39;s an official example for multiple resolutions but it&#39;s honestly unusable, as they expose just the parameters with GUI and everything looks very wrong very quickly, instead of showing a &quot;real&quot; scenario with semi-complex node hierarchies and different UI scales. So that&#39;s work in progress that I really don&#39;t want to do anytime soon, but I&#39;ll have to, at least for fixing the aspect ratio (but that&#39;s the easiest part).</p>
+<p>I got a nasty bug where the game would start without focus on the UI element that should be in focus, because of ??? and I had to add some forced window focus grabbing code when a particular node starts - all very &quot;magical&quot; in the wrong way. </p>
+<p>And another fun little headscratcher is bindings for something as simple as cardinal directions. Remapping is supported, but I&#39;m supporting one set of bindings for keyboard, one for mouse and one for joypad. But cardinal directions would really be useful to utilise a few keybindings (e.g. keypad if you have and regular arrow keys). Still undecided, but if I could somehow detect if the connected keyboard has a keypad, maybe that could be used to set some defaults.</p>
+<p><strong>Juice</strong></p>
+<p>Now to the fun part. Since I&#39;m planning to share the editor, I wanted to make the experience slightly more playful and satisfying. And nothing beats extra visuals and audio. I decided to add the following:</p>
+<ul>
+<li>When mountains are drawn, they rise from the ground, playing a rumbling sound. I spent at least an hour looking for a sound, and at least 1 more hour for some weird mixing/fade logic, but at the end I think it works quite effectively.</li>
+<li>When vegetation changes (i.e. more or less dense per tile), it pops from the ground in a sort of bouncy way, also with a sound.</li>
+<li>When cities are placed, they also pop similarly</li>
+</ul>
+<p>Well, I love this! It does cost a tiny bit of performance (a few extra buffers + some shader logic) but at least it can be enabled/disabled in settings. Have a look at the video!</p>
+<p><strong>Gradient brushes</strong></p>
+<p>I added some extra brush functionality to be able to paint gradients, with a peak/dip at the center and with some configurable falloff. The way it works is that, at the first mousebutton press when you start painting in this mode, a copy of the biome is created, so we can identify what is the range of changes we can do. Without freezing it like this, every frame that we&#39;re painting we would be modifying the underlying values. It works fine. I&#39;m limiting it to temperature/humidity/vegetation density, as it&#39;s where it makes most sense. </p>
+<p>That&#39;s it for now, have a nice weekend!</p>
+
