@@ -1,0 +1,55 @@
+---
+layout: post
+title: World Forge: Gradients, Normalization, Image Maps and more
+date: 2026-02-12 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/02/image_map.jpg
+meta:
+author:
+permalink: "/2026/02/12/world-forge-gradients-normalization-image-maps-and-more/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/37vc48tTccA" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/37vc48tTccA?autoplay=1><img src=https://img.youtube.com/vi/37vc48tTccA/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Gradients and normalization"></iframe></div>
+<figcaption>Gradients and normalization</figcaption>
+</figure>
+
+<p>A few things done this week. The most exciting and at the same time unexciting thing is that I&#39;m not planning any more features for the playtest! Exciting because this means that there&#39;s a trajectory to release. Unexciting because I love adding features, and I do not love whatever the hell I have to do now, which is ... well, read on. </p>
+<p><strong>Gradient brush</strong></p>
+<p>My previous gradient brush was a bit buggy/dysfunctional, so it needed fixing. A few bits of work on this:</p>
+<ul>
+<li>Gradient options are only enabled in GUI if a compatible type is selected; basically temperature, humidity or vegetation density.</li>
+<li>Gradient brush falloff now works properly. This needs some extra storage, to store the max gradient delta per pixel. When you press-and-hold, you start painting deltas with a falloff, but as you move the cursor, the deltas get updated to the maximum value. These deltas are used with the &quot;frozen&quot; biome values (at the point of button press) to calculate the final values. Next time we start painting, these frozen values and the delta buffer get re-set.</li>
+</ul>
+<p><strong>Biome normalization</strong></p>
+<p>By allowing users to paint biomes, you can end up with tundras next to deserts. Ok, whatever floats your boat dear user! But in case the user desires some sensibility back into the map, now there&#39;s a button that does a normalization in terms of temperature/humidity, so that neighbour differences are smooth. It&#39;s basically a number of Gaussian blur passes.</p>
+<p><strong>Iconomorphic maps</strong></p>
+<p>This is something I wanted to do for a while. It was not necessary, nobody asked for it, except for my inner feature creeper voices. The original requirement was to just use a black and white image mask to specify continents shaped in a particular way. But why not take it a bit further and allow the colors to be mapped to biomes? It turns out that the whole thing 1) is not that hard to do 2) can be easily integrated with the current world generation pipeline. So here&#39;s what&#39;s going on:</p>
+<ul>
+<li>The input image is cropped to square and resized to 512x512</li>
+<li>Gather the representative biome colors in an array - it&#39;s 12 of them</li>
+<li>Run K-means to reduce the number of colours to 12</li>
+<li>Match the k-means colours to the palette colours, so that the total Euclidean distance is minimised</li>
+<li>Now we have a target biome per pixel</li>
+<li>Prepare a special image where each pixel stores the min/max values for each of temperature/humidity/elevation for its associated biome</li>
+<li>The compute shaders that generate the world, when calculating elevation/temperature/humidity, they clamp the calculated values to the one provided by the image, if an image is provided</li>
+<li>That&#39;s it - the biome is calculated naturally from the clamped values, rather than enforced, as this way we maintain some randomness within each biome&#39;s allowed range (because we clamp the values to a valid range, rather than enforce a biome with fixed values for temperature etc)</li>
+<li>Extra bonus: by selecting a &quot;silhouette&quot; option in the world generator, the temperature/humidity ranges are ignored</li>
+</ul>
+<p><strong>Enter the Matrix &amp; bug reports</strong></p>
+<p>Ok that&#39;s an interesting one. It so coincided that I read about EU pivoting away from Teams and to Matrix for sovereign communications, so I thought &quot;cool&quot;. Then you have Discord start talking about requiring face recording, and given their recent data leaks, that&#39;s a bit stupid to say the least. At the same time, I&#39;ve been thinking to form some mini community around the playtest and the game overall, because so far without anything playable, there&#39;s no point of course. So, where to form the community? So far the goal was Discord. But again, given the conjunction of the above, I thought I&#39;d give Matrix a try. It turns out it&#39;s not as complicated as I read it would be (at least for my simple use-case), and there&#39;s Cinny that makes it very Discord-like too. So, the plan is to have a public space in Matrix, and if there can be automation, maybe there could be something on Discord too for a while.</p>
+<p>And talking about automation. I need a way to provide people the opportunity to file some rudimentary bug reports from inside the game. Long story short, the easiest way that I thought of, and implemented, is to have a channel in Matrix which is purely for bug reports. There&#39;s a &quot;bug report&quot; screen now in the game, where if you submit the report, it uses a bot (with appropriate privileges) to post an entry into that channel. Of course, for data protection reasons, at the moment there&#39;s just bug title and details, and I think I can add some standard system/hw info safely, which will be invaluable. </p>
+<p><strong>Misc</strong></p>
+<ul>
+<li>Adding credits screen with some nice rolling text</li>
+<li>Finally, as a bit of QoL, I&#39;ve added tooltips for the different controls in World Forge.</li>
+</ul>
+<p>That&#39;s all for this week, have a nice weekend all!</p>
+
