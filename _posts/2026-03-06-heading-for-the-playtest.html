@@ -1,0 +1,50 @@
+---
+layout: post
+title: Heading for the Playtest
+date: 2026-03-06 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/03/worldforge.png
+meta:
+author:
+permalink: "/2026/03/06/heading-for-the-playtest/"
+---
+
+<p>A variety of mostly boring work this past few weeks! Things like:</p>
+<ul>
+<li>Matrix/Discord bridge: Discord users can participate in the Matrix space for the game (equivalent to Discord server)</li>
+<li>Added system info in bug report form</li>
+<li>Added credits screens</li>
+<li>Added a few different/new images for game modes (e.g. campaign, world forge etc)</li>
+<li>Refactored mega-map export from worldforge so that the game exports directly a 16kx16k png</li>
+<li>Gathered licenses for things that are used in the menu and World Forge</li>
+<li>Disabled a few things that should not be in the playtest, e.g. other game modes, the attract mode (that doesn&#39;t work really xD), etc</li>
+<li>ImGui (that may not be shown really) font was Candara - changed that to something with a usable license</li>
+<li>Made an attempt to improve the visuals in highlighted tiles in World Forge, but failed. Future work, not crucial now.</li>
+<li>Added a disclaimer in bug report form that it&#39;s public and people should not put private information</li>
+<li>Added feedback form - similar to bug report but it goes to a private channel.</li>
+<li>Added some introduction text popup that you see when you start the game</li>
+<li>Birds in main menu now become smaller and fade out (yeah, priorities...)</li>
+<li>Main menu image slightly changed</li>
+<li>I&#39;m not just using the Godot logger to log to file, apparently I was also writing my own</li>
+<li>Bug reports now have the option to send the godot log as well</li>
+<li>Matrix/discord links in introductory text when you start the playtest</li>
+<li>Added a disclaimer text in the export folder</li>
+<li>PCK is now encrypted using a custom godot build</li>
+<li>C++ plugin now calls C# functions to load from file, so that C# can read PCK data</li>
+<li>licenses are sorted and auto-copied to export folder</li>
+<li>I think now multiple resolutions are handled reasonably, need to test more systems</li>
+<li>Removed some fonts that needed commercial license</li>
+<li>Fixed interface scaling for accessibility - I think it works pretty fine now</li>
+<li>Fixed some build scripts and export configurations - builds are now exported in release using Native AOT</li>
+<li>Testing on a couple of machines (not enough!)</li>
+<li>Stealthily updated the itch.io page with Windows/Linux executables (if you read this, well, you can go and run the game already!)</li>
+</ul>
+<p>Basically, feature-wise I&#39;m ok with the current version, so current task is to read up on how to set up the Steam playtest... Have a nice weekend!</p>
+
