@@ -1,0 +1,29 @@
+---
+layout: post
+title: Itch, Steam art and audio
+date: 2026-03-12 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/03/store_capsule_main.png
+meta:
+author:
+permalink: "/2026/03/12/itch-steam-art-and-audio/"
+---
+
+<p>A few things this week:</p>
+<p><strong>Playtest on itch.io, for Windows &amp; Linux</strong></p>
+<p>As part of a staged release, I think I&#39;m ok to now share the playtest on itch.io, to test general stability, performance, weird graphics bugs, etc. So, <a href="https://byte-arcane.itch.io/sigil-of-kings">here it is</a>, have a look if you like and any feedback is greatly appreciated! </p>
+<p><strong>Steam Playtest</strong></p>
+<p>In the meantime, I&#39;m preparing the Steam page for the playtest, to see how that works. As part of this preparation, I thought I&#39;d fix the logo which was inconsistent and unreadable. So, after a bit of contemplation and experiments, <a href="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2195820/d9ed48a62cc16e7dcc4b95130db4f3764f9f8a72/header.jpg">here is the new logo</a>, and <a href="https://img.itch.zone/aW1nLzI1OTg2MTMyLnBuZw==/315x250%23c/OEp%2FBT.png">here is the old logo</a>. Yes, it&#39;s one iota of difference towards readability and that&#39;s about it :D Not loving the <del>chicken yellow</del> golden colour, so the future might bring more changes.</p>
+<p>The steam art now is a bit more organised, in a repository, using the Steam templates, to allow less painful future updates. I had to update the steam art to the new resolution sets, so it&#39;s work that needed to be done anyway. Anyway, the store page for the playtest has now been approved.</p>
+<p>The other bit of course is the build submission. Steam provides some useful scripts for, among other things, uploading to Steam, so I&#39;ve now uploaded the builds that I&#39;ve shared on itch.io, and they are pending review. </p>
+<p><strong>Audio refactor</strong></p>
+<p>I guess I had enough from playtest busywork, so I had to go back to the main game and do something useful. While I have a solution in place for music/sfx/ambience, it was a bit primitive. Long story short, this is currently being refactored to something more sensible (I think), mainly for ambience handling. In the overworld, that means e.g. playing city noises with biome ambience and maybe even coastal sounds if you&#39;re also at a coastal tile - basically fade in and out any number of ambiences (well, up to 6). This was trickier than I thought, especially after wasting time trying to do this with Tweens - I thought &quot;ok let&#39;s do it the Godot way&quot; and after a day I deleted all that and went back to manual fade in/out, as I couldn&#39;t work effectively with the provided abstraction for spatial audio. Anyway, the main reason for this refactor was to support a bit more environmentally aware audio in the levels, which I haven&#39;t done yet - when being closed to water, to hear water ambience from the corresponding direction. After this works and if I&#39;m still feeling aurally inclined, I want to try some effect presets for different zones, mainly some reverb for SFX played in caves/dungeons, or water ambience with cave reverb for swamped dungeons, etc. </p>
+<p>That&#39;s all for now, have a nice weekend!</p>
+
