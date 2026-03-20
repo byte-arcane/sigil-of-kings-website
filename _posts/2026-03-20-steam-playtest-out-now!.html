@@ -1,0 +1,53 @@
+---
+layout: post
+title: Steam Playtest out now!
+date: 2026-03-20 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/03/steam_playtest_event.png
+meta:
+author:
+permalink: "/2026/03/20/steam-playtest-out-now!/"
+---
+
+<p>I&#39;ve been extra busy this week, fixing things related to the playtest based on feedback. Many thanks to the people who provided feedback, I think it&#39;s now in a better shape than before, and ready for sharing with more people via Steam. If you&#39;re interested to try it out, and you were waiting for a more stable release, well, now&#39;s the time! Head over to Steam and try it. <a href="https://store.steampowered.com/news/app/2195820/view/540007781835474026">Here&#39;s the Steam announcement link</a></p>
+<p>Steam finally accepted my upload, but after that I just replaced it with a different newer build, but apparently the check happens only once; that&#39;s good news for iteration of course, as one does not have to wait days to hear back from them.</p>
+<p>Without further ado, here are the most major changes since the playtest version last week, in no particular order:</p>
+<ul>
+<li>All windows/screens include a back button, that, well, allows you to go back a screen</li>
+<li>Most screens include a &quot;status bar&quot; of sorts that shows some keybindings for that screen, e.g. Esc to go back. </li>
+<li>You can bring the splash screen on demand in world forge. It also includes an &quot;ok&quot; button.</li>
+<li>Zoom in/out simply with mouse wheel, plus optionally by holding some button and pressing +/-</li>
+<li>Tooltips now disappear faster</li>
+<li>Tooltips are now not using async, which <em>might</em> fix some crashes in the biome generation screen at least</li>
+<li>There&#39;s a single type of game loading now, which is the equivalent of a quicksave.</li>
+<li>World naming logic is slightly different. When you start a new world, you&#39;re requested to put a unique name, and that name is used for savegames.</li>
+<li>World Forge music was not looping - fixed that</li>
+<li>Audio level percentage is now a percentage over a dB range, rather than linear</li>
+<li>Build ID is now included in bug reports and feedback form</li>
+<li>In settings screen, World Forge section in controls now called &quot;World Forge Specific&quot;, to highlight that there are other shared controls, like camera</li>
+<li>In settings screen, you can clear a binding with right click or re-set a binding with left click </li>
+<li>In settings screen, every time you hover/focus over an element, there&#39;s a status bar -like line that tells you what can you do to change values, e.g. press right/left or space etc</li>
+<li>In settings screen, there are now &quot;back&quot; and &quot;apply&quot; buttons: the apply button saves the changes, whereas the back button discards your changes, but asks you first with a dialog.</li>
+<li>Clicking buttons should now play a sound, not just hovering over them</li>
+<li>When using edge panning in world forge, the right edge is now detected properly</li>
+<li>World forge radiobutton tooltips highlight that they are radiobuttons.</li>
+<li>In world forge UI, there are some additions:<ul>
+<li>a status bar with common controls at the bottom</li>
+<li>a log line just above that, which shows a message when you try to paint something and nothing happens, because of some rule (e.g. you can&#39;t paint high elevation in sea)</li>
+<li>a line on the top-left showing the active brush</li>
+</ul>
+</li>
+<li>There&#39;s an &quot;error&quot; sound when you try to paint something which breaks some rules; in addition to a log message, you also hear something. </li>
+<li>Fixed a bug where sea coast would appear inland! It&#39;s something that you can&#39;t see though, so I&#39;m happy that I somehow discovered it.</li>
+<li>Last but not least: I had to disable NativeAOT for the C# build because it was really messing with things, causing weird errors <em>sometimes</em>. The result is slightly larger set of files to download, but that&#39;s about it!</li>
+<li>I did try to cross-compile of macos, but because I had to build the export templates too, at some point somewhere the process went wrong, and didn&#39;t want to dig too deep in that rabbit hole... So, Mac users, the day shall come, at <em>some</em> point!</li>
+</ul>
+<p>That&#39;s it, thanks for reading, and have a nice weekend!</p>
+
