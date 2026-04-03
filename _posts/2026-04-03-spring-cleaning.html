@@ -1,0 +1,32 @@
+---
+layout: post
+title: Spring Cleaning
+date: 2026-04-03 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/04/arrow_break.png
+meta:
+author:
+permalink: "/2026/04/03/spring-cleaning/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/8Ib2Rikfllk" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/8Ib2Rikfllk?autoplay=1><img src=https://img.youtube.com/vi/8Ib2Rikfllk/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Arrows break sometimes"></iframe></div>
+<figcaption>Arrows break sometimes</figcaption>
+</figure>
+
+<p>Spring cleaning time! After the playtest, the eternal cycle of refactoring and features continues.</p>
+<p>On the feature side, I&#39;m working on spatial ambience, even though that&#39;s heavily WIP. Basically, if there&#39;s water in the level, I want it to be heard, at an appropriate position. But this is almost on hold because of other things that came into play.</p>
+<p>Something that bugged me was that with about 100 moving creatures in the level, performance started being slightly funky. And since I&#39;m way too proud to have performance issues, I thought it&#39;s time to fix any longstanding silliness in code. And, as per any big codebase, the more you look, the more you find ... opportunities for things to be better. Some duplicate functionality here, some wasteful behaviour there, and plenty of &quot;I don&#39;t know WTF I was thinking&quot; too.</p>
+<p>One such example is how I handle various actions that shouldn&#39;t happen immediately, e.g. spawn a particle system in 200 msec or make a sprite disappear in 50 msec.  Previously, I had different queues with bespoke crufty code, so I saw the opportunity to start ripping things out and replace them with a single queue that exhibits uniform behaviour. Of course, the cruft was there for a reason, and I still need to fix some edge cases, but the code has become simpler so far, which is a good thing, and probably faster, which is also nice. I say probably, because it&#39;s less pressure on the garbage collector, which does not have a directly measurable effect on performance, as far as I&#39;m aware.</p>
+<p>Another long-in-the-works should-have-fixed was <strong>visibility deltas</strong>. So far, when the field of view changed, I just sent an event that ... it changed. What and where, was anybody&#39;s guess. Reason is that I hadn&#39;t thought of a simple non-wasteful way to store deltas of what tiles changed visibility status: tiles that came into view and tiles not in view anymore. Well, that&#39;s done as well. Currently I overlay 8x8 tiles on the map, each tile represented by a 64-bit integer. That integer stores a bitmask of which tile changed visibility status. It&#39;s super fast to populate it, it has very low memory requirements (a 128x128 map just needs  256 64-bit integers), and we can do quick tests if anything in a tile changed. So effectively we have a little multi-resolution structure made up of 2 levels, ultra cheaply. That, combined with tracking of the union of the previous view AABB with the current view AABB (also tracked), and we don&#39;t even have to process all 8x8 tiles - just the ones that intersect that AABB union. TLDR: cheap way to iterate over the tiles that changed their visibility status, that works well for both large and small fov radius.</p>
+<p>Another one was queries for entities in a level: e.g. get all objects, get all creatures, get creature at a tile, get all objects at a tile, etc. Previous code held arrays per entity type, current code changed to be able to query with an entity type mask, and even provide priorities (get creature at a tile, if does not exist, get object). Plus the innards changed for performance reasons again. After the dust settles I&#39;ll redo the measurements, but there&#39;s plenty of dust still and a couple of bugs.</p>
+<p>Finally, a visual update. Previously, when you fired arrows and they ended up on the floor, there was a chance they&#39;d be destroyed, otherwise they&#39;d fall as items that you can pick up. When they were destroyed, they just disappeared. Well, not anymore. Now, the arrow breaks using the awesome Sprite Breaking Particle System (TM).</p>
+<p>Some other various bugs and fixes, especially introduced bugs by above changes. That&#39;s all for now, have a nice weekend!</p>
+
