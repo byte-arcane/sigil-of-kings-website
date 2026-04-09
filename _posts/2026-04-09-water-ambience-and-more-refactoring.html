@@ -1,0 +1,31 @@
+---
+layout: post
+title: Water ambience and more refactoring
+date: 2026-04-09 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/04/water_map.png
+meta:
+author:
+permalink: "/2026/04/09/water-ambience-and-more-refactoring/"
+---
+
+<p>The spring cleaning continues, with a healthy dose of bug fixing and refactoring.</p>
+<ul>
+<li><strong>Consolidation of time-sensitive events</strong>. Previously I had a few different lists for different event types that were time-sensitive, e.g. show a sprite in 0.2 seconds or start a particle system in 0.5 seconds. I&#39;ve consolidated those a bit to real-time message queue, and removed some cruft along the way. </li>
+<li><strong>Weight-based pushing and pulling</strong>. Push and pull are standard commands, but the implementation did not do many checks... You could push/pull exits to overworld, webs, and other non-sensical things. Now it&#39;s weight-based, using Strength, plus had to adjust some object weights.</li>
+<li><strong>Removing place-at sprite messages</strong>. Previously, when moving entities, I created two sprite events: one for the movement, and one slightly delayed for after the entity arrives at destination. This was because of slightly different data related to the sprite, e.g. which &quot;animation&quot; to play etc. This proved to be really problematic, because besides the fact that I had to do far more sprite updates, it also introduced several weird bugs that could only be fixed by inspecting the message queue often, which is problematic for performance. So, I&#39;ve added a tiny bit more logic in the sprite shader, and remove that final message, so that a &quot;move&quot; sprite event is perfectly capable of displaying a sprite properly after the move is finished.</li>
+<li><strong>Liquid ambience</strong>. That&#39;s the feature that got into my head a while ago - I wanted to hear water in levels! After a bit of effort that&#39;s finally done. It uses just two sounds at the moment, &quot;sea water&quot; and &quot;fresh water&quot;, but in the future I&#39;d like to have more presets for e.g. still water in the cave vs out in the ocean. The system supports sounds for other liquid types like lava, blood and poison, but there&#39;s no use case for those yet.</li>
+</ul>
+<p>That&#39;s it for now, have a nice weekend!</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/zfW1BGkk3pg" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/zfW1BGkk3pg?autoplay=1><img src=https://img.youtube.com/vi/zfW1BGkk3pg/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Water ambience in a level"></iframe></div>
+<figcaption>Water ambience in a level</figcaption>
+</figure>
