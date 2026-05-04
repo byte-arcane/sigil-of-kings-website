@@ -1,0 +1,34 @@
+---
+layout: post
+title: Refactor, performance and AI
+date: 2026-05-04 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/05/ai1.png
+meta:
+author:
+permalink: "/2026/05/04/refactor-performance-and-ai/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/2GxTzxgFqDo" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/2GxTzxgFqDo?autoplay=1><img src=https://img.youtube.com/vi/2GxTzxgFqDo/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Tricks of the light"></iframe></div>
+<figcaption>Tricks of the light</figcaption>
+</figure>
+
+<p>It&#39;s been a while since the last update! Not because of idling, but because of refactoring. One thing led to another, and anything I see and dislike in the code, I&#39;m thinking &quot;ok maybe it&#39;s your turn now, TURN, get that? har har har&quot;. So, anyway, here are some highlights:</p>
+<p><strong>Performance improvements on field of view</strong></p>
+<p>Enemies run regular fov, so with 50-60 enemies it can add up!  Especially in the unoptimised in-editor version. I did some numbers, it was 0.28ms per fov call. The code was easily portable to C++, so I ported it there, and result was ... 0.52ms! Oops, why? Because of marshalling. But let&#39;s not let that stop us. With a few &quot;unsafe&quot; bits and a slightly different way of calling C++ functions, this dropped to 0.06ms! Awesome! But wait, I made a release build, and in the build, the C# version was 0.04ms, that&#39;s fast! And finally the C++ version in the build was 0.03ms. So overall, C++ wins in both in-editor (~10x faster) and in the build (~25% faster). It&#39;s a keeper. Also, as a result, I rewrote some python scripts that autogenerate C#-&gt;C++ bindings so that everything can beneft from the improved performance.</p>
+<p><strong>AI performance and organic spaghetti</strong></p>
+<p>The other culprit that cost quite a bit of performance was the AI function. The AI function was an ad-hoc organically-grown beast, which basically did a mix of environment analysis to find friends/enemies, then went through all abilities and tried to evaluate them, and either used an ability or moved towards a better position. But it was all a bit ad-hoc, which means it was really hard to extend it and add custom behaviours. </p>
+<p>My next thought, in the other direction, was to use a behaviour tree. After thinking, contemplating, prototyping on paper, I realised that I did not like the idea of the behaviour tree, especially as we&#39;re going towards the leaf nodes, as customisation becomes a cumbersome big set of nodes. </p>
+<p>So, long story short, I opted for a behaviour-tree-like approach where there&#39;s still a tree and custom nodes, but the leaf nodes are quite fat and have arbitrary logic, so I can be flexible in there and write code, rather than having to represent everything in behaviour tree nodes. The top-level behaviours are things like survival, awareness, combat, routine (that&#39;s a completely new one!), and a couple others. </p>
+<p>One of my favourite new nodes, which mirrors some of the old functionality, but done better, is a tag-driven ability chooser, where I can specify tag sets of interest, e.g. self-target &amp; buff, or damage to enemies, movement, stealth, anti-stealth, and things like that. The code goes through the available abilities and checks against their tags and calculates suitability. If suitable, we choose the ability, otherwise (as before) we store a &quot;can&#39;t execute it, but if we move over there, we will&quot;. Then we have the option to do something else or move to a better position for a particular ability.</p>
+<p>Routines are a topic for a different time, when I have a few and they demonstrably work. But the other fun thing that works now is creature investigation when an enemy disappears. One thing that a puzzled creature might do is of course go towards the last seen point, but another thing now is that if there are turned-off lights in the vicinity, it will try to increase the light. Of course only sentient creatures should do that, rather than e.g. wild animals, which will just go to the last seen point. <a href="https://youtu.be/2GxTzxgFqDo">Here is an example video of a puzzled goblin, who after the player&#39;s disappearance turns on various lights nearby</a>.</p>
+<p>That&#39;s all for now and have a nice weekend!</p>
+
