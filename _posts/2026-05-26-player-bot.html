@@ -1,0 +1,28 @@
+---
+layout: post
+title: Player bot
+date: 2026-05-26 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/05/playerbot.png
+meta:
+author:
+permalink: "/2026/05/26/player-bot/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/OEMxpNJFzlc" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/OEMxpNJFzlc?autoplay=1><img src=https://img.youtube.com/vi/OEMxpNJFzlc/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Simple player bot"></iframe></div>
+<figcaption>Simple player bot</figcaption>
+</figure>
+
+<p>More AI this week, towards and reaching a workable state of the QA bot! The QA bot uses a basic behaviour system that runs a number of prioritised behaviours, like moving between dungeons, gathering visible loot, exploring the level, delving up and down, and exhibiting other behaviours that regular enemy AI uses, like combat and awareness.</p>
+<p>It worked ok, but after a bit of playtime eventually I got oscillating movement. This means that at one turn, based on decisions, we choose e.g. west, and next turn, based on new state, we choose east. Of course the simplest and ultimately pointless way to try to solve it is to say &quot;don&#39;t go where you were before&quot;, but of course this results in cycles of 3 tiles or above, e.g. A-&gt;B-&gt;C-&gt;A etc. For such a systemic problem a better solution was needed.</p>
+<p>A few of the behaviours run Dijkstra based on player position and some goals for that turn (nothing is cached). E.g. &quot;gather loot&quot; runs Dijkstra with loot and chests as goals, and autoexplore runs with unknown tiles as goals. I knew that in the original article that I read about the method, the author suggested using Dijkstra with all goals together, and the only thing that prevented me was frankly the fuss of allowing each goal to lead to a different action and checks if we&#39;re e.g. close enough or not. Long story short, I did implement a general &quot;GoalSeeker&quot; behaviour with an arbitrary number of &quot;GoalProviders&quot; where a goal provider can be loot gathering, another can be explore, etc. These are the ones that I use for now, but it&#39;s expandable to more behaviours, as at the end of the day, we can either execute an action from where we are, or we need to go to a position to execute that action, and getting to that position means setting it as one of the goals. But rewriting the other behaviours to this single &quot;GoalSeeker&quot; behaviour is not something I&#39;ll do now, as so far the bot is stable enough and I got new things to do!</p>
+<p>There&#39;s a local event next week, mainly for student game developers, but there are some showcases for local developers. And since I&#39;m mesmerised by the bot even at its current infant stage, I thought it might be an interesting opportunity to set up a laptop and show it. And apparently that&#39;s going to happen, so of course the next prudent thing to do is to ensure that it actually runs reasonably on my laptop. Lo and behold, all sorts of &quot;fun&quot; stuff occured. Release mode occasionally crashes without any information, so debug mode it will be. Also, there&#39;s performance degradation over time, so that was an excuse to fire the profiler and see what to optimise next. And I found a few things: from reflection, to getting mouse position from godot a bit too frequently, and disconnecting/reconnecting signals entirely the wrong way. So, currently fixing these and try to think what to show at the event.</p>
+
