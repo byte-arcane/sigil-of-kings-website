@@ -1,0 +1,36 @@
+---
+layout: post
+title: Showcase Prep and Newtonsoft JSON ousting
+date: 2026-05-29 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/05/hoverobj.png
+meta:
+author:
+permalink: "/2026/05/29/showcase-prep-and-newtonsoft-json-ousting/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/w4wX0VvWjnw" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/w4wX0VvWjnw?autoplay=1><img src=https://img.youtube.com/vi/w4wX0VvWjnw/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Better bot"></iframe></div>
+<figcaption>Better bot</figcaption>
+</figure>
+
+<p>A variety of work for this week, here it is, in itemised mode:</p>
+<ul>
+<li>Added AI logic for a few simple projectile abilities - this means that creatures who can use such abilities, will use them after applying the AI to evaluate suitability. </li>
+<li>Player bot was too trigger-happy with spells, and even after I added some weight factor based on remaining mp over total mp, it still casts too frequently. Tofix later, not important, because most AIs, the moment you start fighting with them, they&#39;ll want to unleash fury on you rather than conserve MP for a future they won&#39;t have. </li>
+<li>The bot managed to get into a situation that I was fearing and I still fear for the main game: falling into a teleport trap and ending up in a locked room. I allow doors to be unlocked from the inside to prevent that, but somehow the player bot ended up in a room with 3 locked door exits and they were not unlockable. Hmm, that sounds like a bug, and a trigger-happy locked-door placing algorithm firing occasionally. Anyway, my solution was to add some AI behaviour so that if all else fails and we&#39;re trapped in a room, use the &quot;Juggernaut charge&quot; ability where effectively we can destroy walls. </li>
+<li>Some successful optimisations that led to good enough performance on the laptop when player using the editor, mainly by caching a few things that should be cached, handling signal disconnection better (I was doing nonsense previously apparently) and actually using the tiled perlin noise textures that I have for the fog of war instead of calculating fBm which tanked my laptop&#39;s performance.</li>
+<li>Entity overlay effect with a flashing yellow highlight</li>
+<li>Unsuccessful attempt to improve clarity of visuals when it&#39;s dark. This is a tricky one, because darkness is ... analog in the game, and absolute darkness is pitch black, so how can we have clarity when not pitch black, but kinda dark, e.g. at night? Post-process attempt fail, and silhouettes are a bit tricky to do without a lot of extra work (for the GPU mainly) so ... on the backburner for now.</li>
+<li>The event was fun, and even though my aim was to just have the player bot running, people wanted to try it out still (even after my warning of &quot;this demo is just meant for watching!&quot;). Thankfully I had added the &quot;bot mode&quot; being a button, that allows turning the player bot on and off, and when it&#39;s off, player has full control. Btw I did print a page with some information, limitations and instructions and I&#39;m pretty sure nobody read that, at least more than 10%. And the font was not that small... Oh well. One of the fun bits was a mostly silent kid who was playing and was walking around the owls and bunnies after defeating some foes, so eventually I asked him &quot;do you want to kill them?&quot; and he nodded affirmatively. Then I showed him the context menu that allows you to kill friendly creatures and let&#39;s say he didn&#39;t leave anything alive after that: friendly critters, villagers or enemies.</li>
+<li>I had decided a while ago to refactor Newtonsoft JSON to System.Text.JSON, which is better, faster and more modern, and the former was also causing some <a href="https://github.com/godotengine/godot/issues/78513">Godot errors</a>. The port took only two days, which I was super happy about, because I was using Newtonsoft JSON quite a bit, and with loads of customised behaviour. The new code is about a quarter of the old one, with a lot of confusing things removed, so that was a win. What was not a win was that the errors persist. Ugh.</li>
+</ul>
+<p>That&#39;s it for now, have a nice weekend!</p>
+
