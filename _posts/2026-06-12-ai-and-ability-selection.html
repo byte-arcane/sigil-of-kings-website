@@ -1,0 +1,25 @@
+---
+layout: post
+title: AI and Ability Selection
+date: 2026-06-12 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/06/ai_ability_eval.png
+meta:
+author:
+permalink: "/2026/06/12/ai-and-ability-selection/"
+---
+
+<p>More on the AI front, and concluding that for now! The main aim was to make the AI more capable of using AAs. I had some mechanisms in place, but I had implemented logic for just a few abilities.</p>
+<p>The catch with my ability system is that I&#39;ve made it quite flexible (aka overengineering, my superpower), so that you can have for example multi-stage abilities where each stage can have specific target restrictions and so on. This allows some weird abilities (e.g. a test ability is a mobility one, where you can leap and bounce off a wall - you select a wall tile and a target floor tile) but really most abilities are in one of the following categories: self, projectile, cone, entity_target and position_target. Each of these categories supports different AI evaluation, based on their unique data.</p>
+<p>The above system was slightly refactored and tested with a few more abilities with the bot. The bot uncovered a few problems, with regards to overbuffing (or overdebuffing) - either the same spell would be cast multiple times on a single target (e.g. some protection ability), or we keep spamming buffs if they&#39;re available. The latter problem can be addressed by tweaking the probability of casting a buff during combat, and that&#39;s supported already. The former was a addressed with a &quot;cooldown for AI&quot;. Abilities already support cooldowns, but I thought that have a separate hidden AI cooldown would be quite effective overall for this purpose. </p>
+<p>A final bit of work was on adding support for behaviours to optionally tell if they&#39;ve completed or not (thus being pointless to continue executing the behaviour), not as a status result, but as a predicate. This works in tandem with dynamic (runtime-specified, temporary) behaviours, so that if a dynamic behaviour completes, it&#39;s removed from the list of dynamic behaviours (an entity can have &gt;1 dynamic behaviours at any given time). This is useful for example in an escort quest, where an NPC gets a dynamic behaviour that makes the NPC go to a level exit. This behaviour can be assigned as plain dynamic or critical dynamic, basically before or after combat considerations. A merchant NPC that wants to escape to the overworld will probably have that as critical dynamic - basically leave at all costs. When they arrive at a target exit, the &quot;goto&quot; behaviour is complete, and we remove that behaviour, and based on other logic the NPC can exit the level.</p>
+<p>Now that this is all said and done, I&#39;m taking a stab at another &quot;module&quot;: scripted cutscenes. There are multiple challenges for this. One challenge is that a cutscene editor will require a game instance, so that&#39;s some fun hacking ahead. The other challenge is to be able to have some (limited) cutscenes for procedural levels, where for example an entity that we want to move or say something doesn&#39;t even exist. A final challenge is to make some sort of tool for authoring cutscenes (Dear ImGui powered for sure). All of this (except the procedural stuff) will be useful mainly for tutorial scripting, which I want it to be a playable introduction/story of sorts.</p>
+<p>That&#39;s all for now, have a nice weekend!</p>
+
