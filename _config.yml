@@ -44,10 +44,10 @@ theme: minima
 #  skin: dark
 
 # Specify the name of a file to show as a masthead graphic at the top of each page, instead of a title, here:
-masthead: /assets/variants/capsule_lib_logo2.webp
-masthead_960: /assets/variants/capsule_lib_logo2-960w.webp
-masthead_640: /assets/variants/capsule_lib_logo2-640w.webp
-masthead_320: /assets/variants/capsule_lib_logo2-320w.webp
+masthead: /assets/variants/capsule_lib_logo2_moved.webp
+#masthead_960: /assets/variants/capsule_lib_logo2-960w.webp
+#masthead_640: /assets/variants/capsule_lib_logo2-640w.webp
+#masthead_320: /assets/variants/capsule_lib_logo2-320w.webp
 
 plugins:
   - jekyll-feed
