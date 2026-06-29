@@ -1,0 +1,28 @@
+---
+layout: post
+title: Cutscenes and Console
+date: 2026-06-29 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/06/cutscene.png
+meta:
+author:
+permalink: "/2026/06/29/cutscenes-and-console/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/cuOVmAiqCwE" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/cuOVmAiqCwE?autoplay=1><img src=https://img.youtube.com/vi/cuOVmAiqCwE/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Very simple cutscene"></iframe></div>
+<figcaption>Very simple cutscene</figcaption>
+</figure>
+
+<p>A bunch of things these last couple of weeks. The main bit of work was on things related to ... cutscenes. Basically now there is a way to have scripted events happening, like taking some actions, saying something, manipulating the camera, playing a few effects etc. As a test drive for this, see the short silly video above, and if you&#39;re curious, <a href="https://pastebin.com/4n8e940B">here&#39;s the data-driven specification</a>. It should come as no surprise that a GUI tool is in the (brain) works.</p>
+<p>A cutscene is basically defined as a set of action sequences, linked via IDs (for dependencies). Each action sequence contains a number of actions. Each action is a console command, that, in terms of game time, has either an instantaneous result (e.g. camera movement, entity animation or efect) or is a proper action (do something, say something, etc). The types of actions can be anything: it&#39;s any ability that an entity can do, but also it can be an a behavioural action, as a bot would take given a behaviour. So, it can be a mix of something completely predefined (&quot;cast fireball there&quot;) to something loosely defined &quot;run a tick() for the FollowLeader/GoToLocation behaviour&quot;. One action sequence is marked as ending, so that when it ends, the cutscene stops. It works alright after quite a bit of work and debugging, and I need to test some more complex scenarios</p>
+<p>Since a lot of this is powered by console commands, and since my system for executing console commands was a bit DIY, which was simple but not super robust, well a better solution was needed. I migrated to System.CommandLine, which has apparently identical verbosity (after porting, my 2K LoC became ... 2K), but is far more robust, with better error messages and handling, so I&#39;m quite happy about it.</p>
+<p>On a different note, I managed to also migrate the website from Github Pages to my own domain, which was a first for me, and it went ... kinda smoothly. It&#39;s exactly the same website, but I now have more control over it, plus it&#39;s a &quot;proper domain&quot;</p>
+
