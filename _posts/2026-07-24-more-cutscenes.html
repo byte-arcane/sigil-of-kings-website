@@ -1,0 +1,42 @@
+---
+layout: post
+title: More Cutscenes
+date: 2026-07-24 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/07/cutscene_new.png
+meta:
+author:
+permalink: "/2026/07/24/more-cutscenes/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/OvRgve1Sn9k" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/OvRgve1Sn9k?autoplay=1><img src=https://img.youtube.com/vi/OvRgve1Sn9k/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="More complex cutscene"></iframe></div>
+<figcaption>More complex cutscene</figcaption>
+</figure>
+
+<p>A few updates lately, also slowed by some holidays. I guess it&#39;s also time to grumble about modern software bloat, in my case JetBrains Rider, which has been consistently slowing down month by month, so that work on the laptop is really hard, and I started detecting slowdowns on the desktop too. Latest version promises performance improvements, so let&#39;s see.</p>
+<p>Back to the game. The current roadmap part starts with being able to have cutscenes, and then will follow into being able to make a tutorial level that interleaves story (via cutscenes) and gameplay, which will include some tutorial quest objectives probably too. The cutscene functionality would ideally be usable for procedural levels too, but that&#39;s a later (and nice-to-have) TODO. </p>
+<p>One of the main sources of complexity for the cutscenes is that the world does not freeze when cutscenes take place. This means that cutscenes can play while the rest of the world goes on. The reason for this, is that: </p>
+<ul>
+<li>A &quot;frozen&quot; world will look weird, imagine a cutscene in a village with villagers - two people talking and everyone else waiting in place. Yes ok it&#39;s a game and we can take liberties, but it is nicer if others keep moving about. </li>
+<li>Some cutscene actions will require people to follow some standard AI process. Example: we have a battle cutscene with several soldiers following their leader towards some enemies. Instead of scripting everyone, I can just set a temporary AI for the leader to go to the enemies and the soldiers to follow the leader. Maybe they yell some war cries in the meantime. When leader arrives near some designated spot, cutscene ends and everyone continues with their regular scripts.
+It should also be easy to basically skip turn of everyone not involved in a cutscene, if such need arises, especially in situations where some hostile entity could start messing about with the actors.</li>
+</ul>
+<p>Changes to last time and previous rudimentary examples:</p>
+<ul>
+<li>Cutscenes are all defined in JSON, and runtime needs to match entities to cutscene tags. E.g. &quot;general&quot;, &quot;villain&quot;, &quot;soldier&quot; tags are used in the cutscene, and the runtime selects who plays whom.</li>
+<li>UI centered text is now supported as a cutscene part, including some fade-out</li>
+<li>Minor updates for my user-facing prefab generator, to support things like naming entities, setting tags, etc.</li>
+<li>A few more console commands usable from script,</li>
+</ul>
+<p>I made a new silly script aimed as a proof-of-concept and to demonstrate latest capabilities, so <a href="">here it is</a>.
+I had forgotten that I had connected screen shake to controller vibration and the first time I ran it and the screen shake kicked in, I got a jump scare as the controller rumbled on the metallic hollow-ish desktop tower xD</p>
+<p>Next step is to update the prefab generator further to be able to create the tutorial level. This mostly requires being able to place entities with a solid level of configuration, e.g. a human that looks like this, has these abilities and these items. After that is done, then the cutscene(s) for that level need to be created and set the triggers that activate them. That&#39;s it for now, have a nice weekend!</p>
+
