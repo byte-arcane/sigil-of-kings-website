@@ -1,0 +1,54 @@
+---
+layout: post
+title: Stairway to hell
+date: 2026-08-14 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/08/stairways.png
+meta:
+author:
+permalink: "/2026/08/14/stairway-to-hell/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/V-UlxEpBmTY" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/V-UlxEpBmTY?autoplay=1><img src=https://img.youtube.com/vi/V-UlxEpBmTY/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="The creepy cellar under the lodge in the forest"></iframe></div>
+<figcaption>The creepy cellar under the lodge in the forest</figcaption>
+</figure>
+
+<p>A few updates since last time - it&#39;s been a few weeks after all! The main theme of the work is mixing prefabs and procedural generation, and improving support for user-defined prefabs. </p>
+<p><strong>Dungeon Architect: More complex entity creation</strong></p>
+<p>Previously Dungeon Architect was supporting very simple entity creation, e.g. a creature or an object without any customisation. This is now changing. Currently, we can create objects, creatures and items (which become item piles upon creation of the level) but this time we can fully parameterise them, using some other factory classes that are used elsewhere in the code. For example, we can create a creature and parameterise its level, xp, starting items, etc. For items, we can set up enchantments etc. Because of the volatile nature of some of these factory classes, I&#39;m not building/updating a user-facing UI for configuring these factories, but instead I&#39;m using existing ImGui code that uses reflection and is robust against class changes. </p>
+<p><strong>Support for paired object systems</strong></p>
+<p>A challenge was to support user-defined paired object systems, but these are done. Examples:</p>
+<ul>
+<li>Door and key: set a special tag for the door (&quot;lock-ID&quot;), and create a key and set the same tag. At level instantiation, the common tags are detected and the door/key are linked</li>
+<li>Door and pressure plate (for opening the door): store both positions as a &quot;linked activator/actuator pair&quot;. At level instantiation, if we see that activator is plate and actuator is door, we set up a lock and condition</li>
+<li>Remote trap (e.g. arrow trap) and pressure plate (for triggering the trap): again, store both positions as a &quot;linked activator/actuator pair&quot;. At level instantiation, if we see that activator is plate and actuator is a trap, we set up the firing condition
+In addition to those, also self-traps are supported, e.g. a pressure plate trap that triggers an effect on the tile, or e.g. opening a chest or door and it blowing up on your face.</li>
+</ul>
+<p><strong>Support for stairs between prefab and procedural (or prefab) areas</strong></p>
+<p>Or as I&#39;d like to call it &quot;Stairways to hell&quot;. Basically, you design a room that includes a staircase, and that room should be usable in a procedural generation context, with a connection that makes sense. How and why? Here are some scenarios:</p>
+<ul>
+<li>You&#39;re out in the wilderness. You find a lodge. In there you discover some trapdoor. You descend, and find yourself in a cavern system.<ul>
+<li>The lodge is a prefab, it includes stairs (an exit). The stairs connect to a procedurally generated cavern (that can include other prefabs of course), which is arbitrarily deep</li>
+</ul>
+</li>
+<li>You&#39;re out in the wilderness. You find a lodge. In there you discover some trapdoor. You descend, and find yourself in a cellar. There&#39;s a door that leads to some old dungeon complex<ul>
+<li>As above, but we also have a cellar prefab with an entry staircase. We link them together. The procedural generation level is requested to include the cellar prefab, and since that provides the stairs, no other entries are required</li>
+</ul>
+</li>
+<li>You&#39;re climbing a wizard tower. The top level is a custom lair.<ul>
+<li>The lair is a prefab with an entry. We set the lair as the final/boss level, and just let the procedural generator do the rest</li>
+</ul>
+</li>
+</ul>
+<p>All of the above were tested, but there are a lot more combinations, which ... will eventually be tested. We can also have named entries and exits via tags, so that we can be more explicit to what prefab entry goes to what prefab exit. If we don&#39;t opt for that, then the prefab entries/exits become additional, higher-priority entries/exits for use with the procedural generator.</p>
+<p><strong>PC upgrade ... or not!</strong></p>
+<p>I was ranting last time about the performance of my IDE, and after thinking a bit about it, I realised that my system is, ahem, not the newest! Clearly time flies, because I&#39;m still in the mode of &quot;I have a decent PC&quot; but that decent PC was mostly put together almost 10 years ago... So, clearly, it&#39;s not that decent anymore. I&#39;ve been looking to see if I can get away with a partial upgrade (no RAM no thanks, I&#39;ll stick to my 32GB DDR4) with an improved CPU for the AM4 socket, but because my motherboard does not support the top-end of AM4 even with BIOS updates, I&#39;d have to change that too... So, waiting for now.</p>
+
