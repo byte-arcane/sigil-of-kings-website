@@ -1,0 +1,40 @@
+---
+layout: post
+title: Weapon Swapping and Inspectors
+date: 2026-09-14 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/09/inspector.png
+meta:
+author:
+permalink: "/2026/09/14/weapon-swapping-and-inspectors/"
+---
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/E0ku2tlUO1U" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/E0ku2tlUO1U?autoplay=1><img src=https://img.youtube.com/vi/E0ku2tlUO1U/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Weapon swapping"></iframe></div>
+<figcaption>Weapon swapping</figcaption>
+</figure>
+
+<p>A few things done in the last couple of weeks. I yearn for algorithms and procgen yet I have to do refactoring, tools, and *gasp* content. Not my forte! </p>
+<ul>
+<li><strong>Weapon set swapping support:</strong> I&#39;ve been playing TES Oblivion lately (not the remaster), and I keep thinking how imperative is to be able to activate/deactivate torches really quickly. And since a torch is something like a 1h weapon in Sigil of Kings, this means that there should be weapon set swapping support. This was done, works fine, there&#39;s no nice GUI to show registration and selection of current set, but that&#39;s alright for now, as there is visual communication in the GUI of the currently selected set. Changing weapon sets costs time, so beware!</li>
+<li><strong>Limbo entities support in prefab levels</strong>: In a prefab level, it&#39;s possible to set some entities in Limbo (in game, but nowhere in particular), so that they can teleport in based on events or other hooks</li>
+
+<p>
+<figure><img src="{{ site.baseurl }}/assets/2026/09/inspector.png" alt="Inspector: before and after"/><br />
+<figcaption>Inspector: before and after</figcaption>
+</figure>
+</p>
+
+<li><strong>Inspector refactor</strong>: I&#39;m using Dear ImGui to inspect the game state, and for some convenience functionality. This is all great, but it looked terrible, because ImGui by default for performance reasons puts keys on the right and values on the left. Using it like that for editing was painful to say the least, as I caught myself many times editing the JSON data instead, rather than using the GUI, which is an indicator of a terribad GUI. So, since Dear ImGui also supports tables, and they are wonderful for aligned key/value pairs, I went through the codebase and refactor all the ImGui code, custom or reflection-based, to use tables. The result? Far more readable GUI and far nicer to edit too! </li>
+<li><strong>Inspector and tool window shortcuts</strong>: Minor but useful thing - I have two Dear ImGui windows: one for tools and one for game state inspection. Each now has a show/hide shortcut, and another shortcut for cycling through layouts/positioning: fullscreen, left half and right half. </li>
+<li><strong>EntityFinder refactor</strong>: I had some functionality to find entities, but had to modify that to anticipate for the eventual and very real scenario of having to search for tens of thousands of entities or more. There&#39;s now some centralised functionality where we can provide hints wrt location of entity (e.g. anywhere, current level, limbo) and what does the text of the search string mean: could be some generic tag (useful for cutscene entities where we don&#39;t know entity IDs in advance) or the actual name/id of the entity. </li>
+<li><strong>Cutscene editor:</strong> Started work on this, it&#39;s basically some Dear ImGui tool which is a minimal wrapper over a reflective inspector of a cutscene specification with a few extras: basically a bunch of buttons like Play, Stop, Import, Export, etc. The plan is to make a few demo cutscenes of increasing complexity, and ensure there are helpful hints and reminders that assist the authoring process</li>
+</ul>
+

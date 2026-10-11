@@ -1,0 +1,41 @@
+---
+layout: post
+title: Eating the cutscene dogfood
+date: 2026-09-19 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/09/cutscene_guardians.png
+meta:
+author:
+permalink: "/2026/09/19/eating-the-cutscene-dogfood/"
+---
+
+<p>Still moving glacially through the Cutscene Editor work, and a few other things. First, a few simple short cutscene videos of increasing complexity, using the editor GUI:</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/H5_DT8n9Nkc" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/H5_DT8n9Nkc?autoplay=1><img src=https://img.youtube.com/vi/H5_DT8n9Nkc/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Look around and comment"></iframe></div>
+<figcaption>Look around and comment</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/s2TMH9To4sg" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/s2TMH9To4sg?autoplay=1><img src=https://img.youtube.com/vi/s2TMH9To4sg/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Talk, walk and talk"></iframe></div>
+<figcaption>Talk, walk and talk</figcaption>
+</figure>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/6cMICBylnSk" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/6cMICBylnSk?autoplay=1><img src=https://img.youtube.com/vi/6cMICBylnSk/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Guardians of the forest"></iframe></div>
+<figcaption>Guardians of the forest</figcaption>
+</figure>
+
+<p>The cutscene editor supports playing the cutscene obviously, but just before it does, it creates a savefile. It also has another option to load to that savefile, if we want to debug the scene quickly without worrying about modified state, allowing a workflow of play -&gt; see what&#39;s wrong -&gt; edit the cutscene -&gt; load to pre-play state -&gt; play again.</p>
+<p>The cutscene editor session info, which is stored to a file, can associate a cutscene with a dungeon architect level. This way, we can quickly play a cutscene, if something is wrong, go back to level editing in dungeon architect, then play the level again and run the cutscene. This is optional because cutscenes can run in any level/situation, not just premade levels.</p>
+<p>Console command is now a first class type, because I wanted a unified way to handle the relevant GUI: a textbox where you can type the command, a textbox with real-time output as you type, a button to show and pre-populate the command textbox with available commands, and a couple other things. This exists in the general game inspector (so you can run arbitrary commands anytime) but can even be part of an effect.</p>
+<p>Lots of bug fixing in the cutscene functionality. Turns out, having a GUI tool and using it to create several variations of scenes, leads to quickly uncovering bugs of varying seriousness. It&#39;s getting better, but it is frustrating at times. On the plus side I think this is the first time I manage to make content with in-game tools because it&#39;s functional and not an eyesore either. Still not super great, but can&#39;t be polishing tooling forever.</p>
+<p>Next: a few more cutscenes with greater complexity, authoring purely in the in-game GUIs.</p>
+

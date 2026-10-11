@@ -1,0 +1,29 @@
+---
+layout: post
+title: Hot Pagan Activities
+date: 2026-09-26 00:00:00.000000000 +00:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- random
+tags: []
+image: assets/2026/09/cutscene_pagan.png
+meta:
+author:
+permalink: "/2026/09/26/hot-pagan-activities/"
+---
+
+<p>A few things done this week. First, a dubiously titled representative video on...</p>
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/7fsjh1CAeA8" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/7fsjh1CAeA8?autoplay=1><img src=https://img.youtube.com/vi/7fsjh1CAeA8/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="Hot Pagan Activities"></iframe></div>
+<figcaption>Hot Pagan Activities</figcaption>
+</figure>
+
+<p>The most visually interesting is the ability to use multi-tile decals. So far, everything required a single tile, even though the data structures do support larger elements. I found an excuse to create a big multi-tile decal: a big fat pentagram occupying a 7x7 tile area. Because my custom renderer is weird, what really happens is that I chop that into 49 image tiles and pack them in an array, and during rendering I render a single instance that gets scaled to cover the area, and the pixel shader picks the right array slice for the right sub-region. It mostly works, except some occasional artifact (because of UV jumps at subregion borders). </p>
+<p>First, the ability to execute abilities without a creature initiating that. But abilities require an entity to use them, so the workaround was when passing the level entity, it&#39;s the equivalent of &quot;Mother nature&quot; being the caller of such abilities. The differences are that some requirements don&#39;t make sense anymore, like proximity to caller, or being able to see or speak, etc.</p>
+<p>The other thing that took a couple of days was a major refactor of the cutscene functionality. Which I developed a couple weeks ago. If I know something about myself, is that the first take of any software subsystem is basically doomed, and that&#39;s what happened here too. It was complex in a bad way - it was easy to create bad configurations. Previously I was using actions and action sequences, and you might have different action sequences if you wanted async execution of actions. This was a mistake. Currently I&#39;m just using a list of actions only, and each action is instant (screenshake, text, etc) or async (walk 5 tiles, try to achieve some goal), and actions have one or more dependencies. It works better so far, but I&#39;m building up towards more complex scenarios. I&#39;ll shortly add some export to graphviz dot, because it&#39;s easy and I like procgen graphs, and develop a couple more complex scenarios with more async actions and more characters.</p>
+

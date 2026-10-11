@@ -3,12 +3,14 @@ import os
 import sys
 import subprocess
 
+
 def open_file(filename):
     if sys.platform == "win32":
         os.startfile(filename)
     else:
         opener = "open" if sys.platform == "darwin" else "kate"
         subprocess.call([opener, filename])
+
 
 fmt = """---
 layout: post
@@ -29,19 +31,26 @@ author:
 permalink: "/$YEAR/$MONTH/$DAY/$TITLE_DASH/"
 ---
 
-Hello
+
+<figure>
+<div class="video-container"><iframe src="https://www.youtube.com/embed/INSERTLINKHERE" allowfullscreen="" frameborder="0" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/INSERTLINKHERE?autoplay=1><img src=https://img.youtube.com/vi/INSERTLINKHERE/hqdefault.jpg alt='video play button'><span>&#x25BA;</span></a>" loading="lazy" title="CAPTIONHERE"></iframe></div>
+<figcaption>CAPTIONHERE</figcaption>
+</figure>
+
 """
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--title', help="title", type=str, required=True)
-parser.add_argument('-d', '--date', help="date (e.g. 5/12/22)", type=str, required=True)
+parser.add_argument(
+    '-d', '--date', help="date (e.g. 5/12/22)", type=str, required=True)
 parser.add_argument('-i', '--image', help="image", type=str, required=False)
 parser.add_argument('-v', '--video', help="video", type=str, required=False)
 args = parser.parse_args()
 
-title_dash = args.title.lower().replace(' ','-').replace('\'','').replace(',','').replace(':','')
+title_dash = args.title.lower().replace(' ', '-').replace('\'',
+                                                          '').replace(',', '').replace(':', '')
 
-(day,month,year) = args.date.split('/')
+(day, month, year) = args.date.split('/')
 if len(year) == 2:
     year = "20"+year
 if len(day) == 1:
@@ -50,26 +59,26 @@ if len(month) == 1:
     month = "0"+month
 
 if args.video:
-    fmt = fmt.replace('$VIDEO',args.video)
-    fmt = fmt.replace('image: assets/$YEAR/$MONTH/$IMAGE\n','')
+    fmt = fmt.replace('$VIDEO', args.video)
+    fmt = fmt.replace('image: assets/$YEAR/$MONTH/$IMAGE\n', '')
 elif args.image:
-    fmt = fmt.replace('$IMAGE',args.image)
-    fmt = fmt.replace('video: assets/video/$VIDEO\n','')
+    fmt = fmt.replace('$IMAGE', args.image)
+    fmt = fmt.replace('video: assets/video/$VIDEO\n', '')
 else:
-    fmt = fmt.replace('image: assets/$YEAR/$MONTH/$IMAGE\n','')
-    fmt = fmt.replace('video: assets/video/$VIDEO\n','')
-    
-fmt = fmt.replace('$YEAR',year)
-fmt = fmt.replace('$MONTH',month)
-fmt = fmt.replace('$DAY',day)
-fmt = fmt.replace('$TITLE_DASH',title_dash)
-fmt = fmt.replace('$TITLE',args.title)
+    fmt = fmt.replace('image: assets/$YEAR/$MONTH/$IMAGE\n', '')
+    fmt = fmt.replace('video: assets/video/$VIDEO\n', '')
 
-fname =  os.path.dirname(__file__) + f'/../_posts/{year}-{month}-{day}-{title_dash}.html'
-with open( fname, 'wt') as fp:
+fmt = fmt.replace('$YEAR', year)
+fmt = fmt.replace('$MONTH', month)
+fmt = fmt.replace('$DAY', day)
+fmt = fmt.replace('$TITLE_DASH', title_dash)
+fmt = fmt.replace('$TITLE', args.title)
+
+fname = os.path.dirname(__file__) + \
+    f'/../_posts/{year}-{month}-{day}-{title_dash}.html'
+with open(fname, 'wt') as fp:
     fp.write(fmt)
 open_file(fname)
-
 
 
 # Example call: web_generate_post.py --title "My awesome post" --date 2/4/22 --video some_amazing_stuff_tw.mp4
